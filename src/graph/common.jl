@@ -49,7 +49,7 @@ function build_graph_network(case::Dict{String,Any};
 
     connected_buses = Set(edge[k] for k in ["f_bus", "t_bus"] for edge_type in edge_types for edge in values(get(case, edge_type, Dict())))
 
-    sources = [(source_type, source) for source_type in keys(source_types) for source in values(get(case, source_type, Dict()))]
+    sources = [(source_type, source) for source_type in source_types for source in values(get(case, source_type, Dict()))]
     n_buses = length(connected_buses)
     n_sources = length(sources)
 
@@ -74,13 +74,13 @@ function build_graph_network(case::Dict{String,Any};
     end
 
     # Add Generator Nodes
-    for (source_type, keymap) in source_types
+    for source_type in source_types
         for source in values(get(case, source_type, Dict()))
             add_edge!(graph, source_graph_map["$(source_type)_$(source["index"])"], bus_graph_map[source["$(source_type)_bus"]])
 
             node_props = Dict(:id => source["index"],
                               :node_type => source_type,
-                              :parent_node =>bus_graph_map[source[string(source_type,"_bus")]]
+                              :parent_node =>bus_graph_map[source[string(source_type,"_bus")]],
                               :label => string(source_type,"_",source["index"]),
                               )
             set_properties!(graph, source_graph_map["$(source_type)_$(source["index"])"], node_props)
