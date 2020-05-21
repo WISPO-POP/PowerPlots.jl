@@ -41,7 +41,7 @@ function layout_graph!(graph::PowerModelsGraph{T}, layout_engine=kamada_kawai_la
 
         avg_x, avg_y = mean(hcat(skipmissing([v for v in values(pos)])...), dims=2)
         std_x, std_y = std(hcat(skipmissing([v for v in values(pos)])...), dims=2)
-        for (v, p) in pos # place sources centered on buses
+        for (v, p) in pos
             if ismissing(p)
                 pos[v] = get(pos,get_property(graph,v,:parent_node,missing),[avg_x,avg_y]) + [std_x*rand(), std_y*rand()]
             end

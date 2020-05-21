@@ -88,10 +88,6 @@ function plot_network(graph::PowerModelsGraph{T};
                       filename::Union{Nothing,String}=nothing,
                       label_nodes::Bool=false,
                       label_edges::Bool=false,
-                      # colors::Dict{String,<:Colors.AbstractRGB}=Dict{String,Colors.AbstractRGB}(),
-                      # load_color_range::Union{Nothing,Vector{<:Colors.AbstractRGB}}=nothing,
-                      # node_size_lims::Array=[10, 25],
-                      # edge_width_lims::Array=[1, 2.5],
                       positions::Union{Dict,PowerModelsGraph}=Dict(),
                       use_buscoords::Bool=false,
                       spring_const::Float64=1e-3,
@@ -103,10 +99,9 @@ function plot_network(graph::PowerModelsGraph{T};
                       plot_size::Tuple{Int,Int}=(300,300),
                       dpi::Int=100) where T <: LightGraphs.AbstractGraph
 
-    apply_plot_network_metadata!(graph; ) #colors=colors, load_color_range=load_color_range  #node_size_lims=node_size_lims, edge_width_lims=edge_width_lims
 
     # Graph Layout
-    if isa(positions, PowerModelsGraph) #if positions is a graph, use those coordinates?
+    if isa(positions, PowerModelsGraph)
         positions = Dict(node => [get_property(positions, node, :x, 0.0), get_property(positions, node, :y, 0.0)] for node in vertices(positions))
     end
 
@@ -182,24 +177,14 @@ This function will build the graph from the `case`. Additional `kwargs` are pass
 """
 function plot_network(case::Dict{String,Any};
                       edge_types::Array{String}=["branch", "dcline", "transformer"],
-                      source_types::Dict{String,Dict{String,String}}=Dict("gen"=>Dict("active"=>"pg", "reactive"=>"qg", "status"=>"gen_status", "active_max"=>"pmax", "active_min"=>"pmin"),
-                                                                       "storage"=>Dict("active"=>"ps", "reactive"=>"qs", "status"=>"status")),
+                      source_types::Array{String}=["gen", "storage"],
                       exclude_sources::Union{Nothing,Array{String}}=nothing,
                       aggregate_sources::Bool=false,
-                      switch::String="breaker",
-                      positions::Union{Dict,PowerModelsGraph}=Dict(),
                       kwargs...)
 
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
     apply_membership!(graph, case)
-
-    # if isa(positions, PowerModelsGraph)
-    #     positions = Dict(node => [get_property(positions, node, :x, 0.0), get_property(positions, node, :y, 0.0)] for node in vertices(positions))
-    # end
-    #
-    # for (node, (x, y)) in positions
-    #     set_properties!(graph, node, Dict(:x=>x, :y=>y))
-    # end
+    apply_plot_network_metadata!(graph)
 
     graph = plot_network(graph; kwargs...)
     return graph
