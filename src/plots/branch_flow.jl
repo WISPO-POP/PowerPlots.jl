@@ -37,7 +37,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
             set_property!(graph, edge, property, value)
         end
 
-        if edge_type != "connector" #  set branch color based on power flow
+        if edge_type != "connector" #  set branch color based on power flow, not edge_membership
             component = case[edge_type]["$(id)"]
             value = max(1,round(Int,abs(component["pt"]/component["rate_a"]))*100)
             # value = round(Int,(abs(component["pt"])-min_power_flow)*(100-1)/(max_power_flow-min_power_flow) + 1)
@@ -50,7 +50,6 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
         id = graph.metadata[node][:id]
 
         component = case[node_type]["$(id)"]
-        status = component[PowerModels.pm_component_status[node_type]]
 
         if node_type == "bus"
             set_property!(graph, node, :edge_membership, "bus")

@@ -181,7 +181,7 @@ function plot_network(case::Dict{String,Any};
                       exclude_sources::Union{Nothing,Array{String}}=nothing,
                       aggregate_sources::Bool=false,
                       set_network_properties=set_properties_network_status!,
-                      membership_properties=Dict(),
+                      membership_properties=Dict{String,Any}(),
                       kwargs...)
 
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
@@ -191,4 +191,12 @@ function plot_network(case::Dict{String,Any};
 
     graph = plot_network(graph; kwargs...)
     return graph
+end
+
+function plot_network_status(case::Dict{String,Any}; kwargs...)
+    plot_network(case; set_network_properties=set_properties_network_status!, kwargs...)
+end
+
+function plot_branch_flow(case::Dict{String,Any}; kwargs...)
+    plot_network(case; set_network_properties=set_properties_branch_flow!, kwargs...)
 end

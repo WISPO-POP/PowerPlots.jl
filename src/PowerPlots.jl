@@ -4,7 +4,6 @@ import InfrastructureModels
 import PowerModels
 import Statistics: mean, std
 import LinearAlgebra: norm
-import SparseArrays: spzeros
 import LightGraphs
 
 import Colors
