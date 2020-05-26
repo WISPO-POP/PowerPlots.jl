@@ -19,8 +19,8 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
     membership_properties = merge(default_branch_flow_properties, membership_properties)
 
     # if haskey
-    min_power_flow = minimum(abs(branch["pt"]) for (id,branch) in case["branch"])
-    max_power_flow = maximum(abs(branch["pt"]) for (id,branch) in case["branch"])
+    # min_power_flow = minimum(abs(branch["pt"]) for (id,branch) in case["branch"])
+    # max_power_flow = maximum(abs(branch["pt"]) for (id,branch) in case["branch"])
     power_colors = Colors.range(membership_properties["min_power"][:color], membership_properties["max_power"][:color], length=100)
 
     for edge in edges(graph) # setedge properties
@@ -39,7 +39,8 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
 
         if edge_type != "connector" #  set branch color based on power flow
             component = case[edge_type]["$(id)"]
-            value = round(Int,(abs(component["pt"])-min_power_flow)*(100-1)/(max_power_flow-min_power_flow) + 1)
+            value = max(1,round(Int,abs(component["pt"]/component["rate_a"]))*100)
+            # value = round(Int,(abs(component["pt"])-min_power_flow)*(100-1)/(max_power_flow-min_power_flow) + 1)
             set_property!(graph, edge, :color, power_colors[value])
         end
     end
