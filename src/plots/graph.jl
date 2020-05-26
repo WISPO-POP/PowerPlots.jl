@@ -59,7 +59,12 @@ function plot_graph(graph::PowerModelsGraph{T};
                     kwargs...) where T <: LightGraphs.AbstractGraph
 
     fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi)
-
+    nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
+    node_keys = sort(collect(keys(nodes)))
+    node_x = [nodes[node][1] for node in node_keys]
+    node_y = [nodes[node][2] for node in node_keys]
+    node_colors = [get_property(graph, node, :color, :black) for node in node_keys]
+    node_sizes = [get_property(graph, node, :size, 1) for node in node_keys]
 
     for edge in edges(graph)
         edge_x, edge_y = [], []
@@ -76,13 +81,6 @@ function plot_graph(graph::PowerModelsGraph{T};
             Plots.annotate!(mean(edge_x), mean(edge_y), Plots.text(label_edges ? get_property(graph, edge, :label, "") : "", fontsize, fontcolor, textalign, fontfamily))
         end
     end
-
-    nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
-    node_keys = sort(collect(keys(nodes)))
-    node_x = [nodes[node][1] for node in node_keys]
-    node_y = [nodes[node][2] for node in node_keys]
-    node_colors = [get_property(graph, node, :color, :black) for node in node_keys]
-    node_sizes = [get_property(graph, node, :size, 1) for node in node_keys]
 
     if label_nodes
         node_labels = [Plots.text(get_property(graph, node, :label, ""), fontsize, fontcolor, textalign, fontfamily) for node in node_keys]

@@ -180,11 +180,14 @@ function plot_network(case::Dict{String,Any};
                       source_types::Array{String}=["gen", "storage"],
                       exclude_sources::Union{Nothing,Array{String}}=nothing,
                       aggregate_sources::Bool=false,
+                      set_network_properties=set_properties_network_status!,
+                      membership_properties=Dict(),
                       kwargs...)
 
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
-    apply_membership!(graph, case)
-    apply_plot_network_metadata!(graph)
+    # apply_membership!(graph, case)
+    # apply_plot_network_metadata!(graph)
+    set_network_properties(graph,case,membership_properties=membership_properties)
 
     graph = plot_network(graph; kwargs...)
     return graph
