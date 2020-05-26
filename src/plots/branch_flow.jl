@@ -42,6 +42,9 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
             value = max(1,round(Int,abs(component["pt"]/component["rate_a"]))*100)
             # value = round(Int,(abs(component["pt"])-min_power_flow)*(100-1)/(max_power_flow-min_power_flow) + 1)
             set_property!(graph, edge, :color, power_colors[value])
+
+            label = "$(round(component["pt"]*case["baseMVA"], sigdigits=3)) MW"
+            set_property!(graph, edge, :label, label)
         end
     end
 

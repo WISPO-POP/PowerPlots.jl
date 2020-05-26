@@ -193,10 +193,12 @@ function plot_network(case::Dict{String,Any};
     return graph
 end
 
+"Plot the network with the color defining active status components."
 function plot_network_status(case::Dict{String,Any}; kwargs...)
     plot_network(case; set_network_properties=set_properties_network_status!, kwargs...)
 end
 
+"Plot the network with branch color showing the percentage of rated power flowing"
 function plot_branch_flow(case::Dict{String,Any}; kwargs...)
     plot_network(case; set_network_properties=set_properties_branch_flow!, kwargs...)
 end

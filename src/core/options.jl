@@ -29,3 +29,6 @@
 #                              "no_membership" => Dict(:color => :gray, :size => 10),
 #                              "connector" => Dict(:color => colorant"lightgrey", :size => 1, :style => :dash)
 #                              )
+
+
+## properties = [:color, :size, :style]
