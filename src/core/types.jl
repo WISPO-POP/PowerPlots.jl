@@ -10,6 +10,8 @@ mutable struct PowerModelsGraph{T<:LightGraphs.AbstractGraph}
     graph::LightGraphs.AbstractGraph
 
     metadata::Dict{Union{Int,LightGraphs.AbstractEdge},Dict{Symbol,<:Any}}
+
+    annotationdata::Dict{String,Any}
 end
 
 
@@ -22,6 +24,7 @@ function PowerModelsGraph(nvertices::Int)
     graph = LightGraphs.SimpleDiGraph(nvertices)
 
     metadata = Dict{Union{Int,LightGraphs.AbstractEdge},Dict{Symbol,<:Any}}()
+    annotationdata = Dict{String,Dict{String<:Any}}()
 
-    return PowerModelsGraph{LightGraphs.SimpleDiGraph}(graph, metadata)
+    return PowerModelsGraph{LightGraphs.SimpleDiGraph}(graph, metadata, annotationdata)
 end

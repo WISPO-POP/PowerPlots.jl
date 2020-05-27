@@ -65,3 +65,8 @@ end
 function get_data(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}) where T <: LightGraphs.AbstractGraph
     return get_property(graph, obj, :data, Dict{String,Any}())
 end
+
+"Return label information for `obj` in graph.annotationdata[\"label\"]"
+function get_label(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, default::Any) where T <: LightGraphs.AbstractGraph
+    return get(get(graph.annotationdata, "label", Dict{Union{Int,LightGraphs.AbstractEdge},Any}()), obj, default)
+end
