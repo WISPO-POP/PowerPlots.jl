@@ -19,7 +19,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
 
     membership_properties = merge(default_branch_flow_properties, membership_properties)
 
-    @show nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
+    nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
     node_keys = sort(collect(keys(nodes)))
     node_x = [nodes[node][1] for node in node_keys]
     node_y = [nodes[node][2] for node in node_keys]
@@ -67,8 +67,6 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
             fontcolor=membership_properties["label"][:color]
             textalign=membership_properties["label"][:textalign]
 
-            @show edge_x
-            @show mean(edge_x)
             graph.annotationdata["label"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x),:y=>mean(edge_y),
                         :text => Plots.text(label, fontsize, fontcolor, textalign, fontfamily))
         end

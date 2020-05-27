@@ -106,7 +106,6 @@ function plot_network(graph::PowerModelsGraph{T};
     if isa(positions, PowerModelsGraph)
         positions = Dict(node => [get_property(positions, node, :x, 0.0), get_property(positions, node, :y, 0.0)] for node in vertices(positions))
     end
-
     for (node, (x, y)) in positions
         set_properties!(graph, node, Dict(:x=>x, :y=>y))
     end
