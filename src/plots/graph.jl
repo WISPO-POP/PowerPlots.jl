@@ -76,6 +76,8 @@ function plot_graph(graph::PowerModelsGraph{T};
             push!(edge_y, nodes[n][2])
         end
 
+        # println("$(graph.metadata[edge][:edge_type])_$(graph.metadata[edge][:id]) , src[$(edge_x[1]),$(edge_y[1])], dst[$(edge_x[2]),$(edge_y[2])]")
+
         Plots.plot!(edge_x, edge_y; line=(edge_width, edge_style, edge_color))
         if label_edges
             label = get_label(graph, edge, Dict(:x=>0.0,:y=>0.0, :text=>Plots.text("")))
