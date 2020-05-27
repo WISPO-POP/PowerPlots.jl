@@ -11,8 +11,7 @@ const default_branch_flow_properties = Dict(
             )
 
 
-function set_properties_branch_flow!(graph::PowerModelsGraph{T},
-                   case::Dict{String,Any};
+function set_properties_branch_flow!(graph::PowerModelsGraph{T};
                    membership_properties::Dict{String,Any}=Dict{String,Any}(),
                     ) where T <: LightGraphs.AbstractGraph
 
@@ -38,7 +37,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
         end
 
         if edge_type != "connector" #  set branch color based on power flow, not edge_membership
-            component = case[edge_type]["$(id)"]
+            component = get_data(graph, edge)
             value = max(1,round(Int,abs(component["pt"]/component["rate_a"]))*100)
             # value = round(Int,(abs(component["pt"])-min_power_flow)*(100-1)/(max_power_flow-min_power_flow) + 1)
             set_property!(graph, edge, :color, power_colors[value])
@@ -52,7 +51,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T},
         node_type = graph.metadata[node][:node_type]
         id = graph.metadata[node][:id]
 
-        component = case[node_type]["$(id)"]
+        component = get_data(graph, node)
 
         if node_type == "bus"
             set_property!(graph, node, :edge_membership, "bus")

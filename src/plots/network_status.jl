@@ -109,8 +109,7 @@ const default_status_properties = Dict("active_line" => Dict(:color => :black, :
 
 
 # set_properties_network_status!
-function set_properties_network_status!(graph::PowerModelsGraph{T},
-                   case::Dict{String,Any};
+function set_properties_network_status!(graph::PowerModelsGraph{T};
                    membership_properties::Dict{String,Any}=Dict{String,Any}(),
                     ) where T <: LightGraphs.AbstractGraph
 
@@ -123,7 +122,7 @@ function set_properties_network_status!(graph::PowerModelsGraph{T},
         if edge_type == "connector"
             set_property!(graph, edge, :edge_membership, "connector")
         else
-            component = case[edge_type]["$(id)"]
+            component = get_data(graph, edge)
             status = component[PowerModels.pm_component_status[edge_type]]
             if status == PowerModels.pm_component_status_inactive[edge_type]
                 set_property!(graph, edge, :edge_membership, "inactive_line")
@@ -144,7 +143,7 @@ function set_properties_network_status!(graph::PowerModelsGraph{T},
         node_type = graph.metadata[node][:node_type]
         id = graph.metadata[node][:id]
 
-        component = case[node_type]["$(id)"]
+        component = get_data(graph, node)
         status = component[PowerModels.pm_component_status[node_type]]
 
         if status == PowerModels.pm_component_status_inactive[node_type]

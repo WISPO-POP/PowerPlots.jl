@@ -61,3 +61,7 @@ end
 function properties(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}) where T <: LightGraphs.AbstractGraph
     return get(graph.metadata, obj)
 end
+
+function get_data(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}) where T <: LightGraphs.AbstractGraph
+    return get_property(graph, obj, :data, Dict{String,Any}())
+end
