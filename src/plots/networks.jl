@@ -92,6 +92,8 @@ function plot_network(graph::PowerModelsGraph{T};
                       use_buscoords::Bool=false,
                       spring_const::Float64=1e-3,
                       apply_spring_layout::Bool=false,
+                      set_network_properties=set_properties_network_status!,
+                      membership_properties=Dict{String,Any}(),
                       fontsize::Real=12,
                       fontfamily::String="Arial",
                       fontcolor::Union{Symbol,<:Colors.AbstractRGB}=:black,
@@ -104,7 +106,6 @@ function plot_network(graph::PowerModelsGraph{T};
     if isa(positions, PowerModelsGraph)
         positions = Dict(node => [get_property(positions, node, :x, 0.0), get_property(positions, node, :y, 0.0)] for node in vertices(positions))
     end
-
     for (node, (x, y)) in positions
         set_properties!(graph, node, Dict(:x=>x, :y=>y))
     end
@@ -112,6 +113,10 @@ function plot_network(graph::PowerModelsGraph{T};
     if !all(hasprop(graph, node, :x) && hasprop(graph, node, :y) for node in vertices(graph))
         layout_graph!(graph, kamada_kawai_layout; use_buscoords=use_buscoords, apply_spring_layout=apply_spring_layout, spring_const=spring_const)
     end
+
+    # Apply membership and formatting
+    set_network_properties(graph; membership_properties=membership_properties)
+
 
     # Plot
     fig = plot_graph(graph; label_nodes=label_nodes, label_edges=label_edges, fontsize=fontsize, fontfamily=fontfamily, fontcolor=fontcolor, textalign=textalign, plot_size=plot_size, dpi=dpi)
@@ -180,15 +185,9 @@ function plot_network(case::Dict{String,Any};
                       source_types::Array{String}=["gen", "storage"],
                       exclude_sources::Union{Nothing,Array{String}}=nothing,
                       aggregate_sources::Bool=false,
-                      set_network_properties=set_properties_network_status!,
-                      membership_properties=Dict{String,Any}(),
                       kwargs...)
 
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
-    # apply_membership!(graph, case)
-    # apply_plot_network_metadata!(graph)
-    set_network_properties(graph,case,membership_properties=membership_properties)
-
     graph = plot_network(graph; kwargs...)
     return graph
 end

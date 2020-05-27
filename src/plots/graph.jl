@@ -78,7 +78,8 @@ function plot_graph(graph::PowerModelsGraph{T};
 
         Plots.plot!(edge_x, edge_y; line=(edge_width, edge_style, edge_color))
         if label_edges
-            Plots.annotate!(mean(edge_x), mean(edge_y), Plots.text(label_edges ? get_property(graph, edge, :label, "") : "", fontsize, fontcolor, textalign, fontfamily))
+            label = get_label(graph, edge, Dict(:x=>0.0,:y=>0.0, :text=>Plots.text("")))
+            Plots.annotate!(label[:x],label[:y], label[:text])
         end
     end
 

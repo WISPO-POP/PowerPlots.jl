@@ -68,6 +68,7 @@ function build_graph_network(case::Dict{String,Any};
             props = Dict{Symbol,Any}(:id => edge["index"],
                                      :label => string(edge_type,"_",edge["index"]),
                                      :edge_type => edge_type,
+                                     :data => edge
                                      )
             set_properties!(graph, LightGraphs.Edge(bus_graph_map[edge["f_bus"]], bus_graph_map[edge["t_bus"]]), props)
         end
@@ -82,6 +83,7 @@ function build_graph_network(case::Dict{String,Any};
                               :node_type => source_type,
                               :parent_node =>bus_graph_map[source[string(source_type,"_bus")]],
                               :label => string(source_type,"_",source["index"]),
+                              :data => source
                               )
             set_properties!(graph, source_graph_map["$(source_type)_$(source["index"])"], node_props)
 
@@ -101,6 +103,7 @@ function build_graph_network(case::Dict{String,Any};
         node_props = Dict(:id => bus["index"],
                           :node_type => "bus",
                           :label => string("bus_", bus["index"]),
+                          :data => bus
                           )
         set_properties!(graph, bus_graph_map[bus["bus_i"]], node_props)
     end
