@@ -50,6 +50,7 @@ Plots a graph. Returns `Plots.AbstractPlot`.
 function plot_graph(graph::PowerModelsGraph{T};
                     label_nodes=false,
                     label_edges=false,
+                    create_annotations=true,
                     fontsize=12,
                     fontfamily="Arial",
                     fontcolor=:black,
@@ -81,7 +82,7 @@ function plot_graph(graph::PowerModelsGraph{T};
         Plots.plot!(edge_x, edge_y; line=(edge_width, edge_style, edge_color))
         if label_edges
             label = get_label(graph, edge, Dict(:x=>0.0,:y=>0.0, :text=>Plots.text("")))
-            Plots.annotate!(label[:x],label[:y], label[:text])
+            Plots.annotate!(mean(edge_x),mean(edge_y), Plots.text(get_property(graph, edge, :label, ""), fontsize, fontcolor, textalign, fontfamily))
         end
     end
 
@@ -90,6 +91,15 @@ function plot_graph(graph::PowerModelsGraph{T};
         Plots.scatter!(node_x, node_y; color=node_colors, markerstrokewidth=0, markersize=node_sizes, series_annotations=node_labels)
     else
         Plots.scatter!(node_x, node_y; color=node_colors, markerstrokewidth=0, markersize=node_sizes)
+    end
+
+    if create_annotations
+        annotations = keys(graph.annotationdata)
+        for annotation_type in annotations
+            for (edge, data) in graph.annotationdata[annotation_type]
+                Plots.annotate!(data[:x], data[:y], data[:text])
+            end
+        end
     end
 
     return fig

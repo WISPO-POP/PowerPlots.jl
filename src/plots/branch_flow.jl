@@ -27,6 +27,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
     power_colors = Colors.range(membership_properties["min_power"][:color], membership_properties["max_power"][:color], length=100)
 
     graph.annotationdata["label"] = Dict()
+    graph.annotationdata["powerflow"] = Dict()
 
     for edge in edges(graph) # setedge properties
         edge_type = graph.metadata[edge][:edge_type]
@@ -54,7 +55,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
             set_property!(graph, edge, :color, edge_color)
 
             label = "$(round(component["pt"], sigdigits=3)) MW"  # TODO need to mult by "baseMVA"
-            set_property!(graph, edge, :label, label)
+            # set_property!(graph, edge, :label, label)
 
 
             edge_x, edge_y = [], []
@@ -69,6 +70,11 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
 
             graph.annotationdata["label"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x),:y=>mean(edge_y),
                         :text => Plots.text(label, fontsize, fontcolor, textalign, fontfamily))
+
+
+            rotation = 10.0
+            graph.annotationdata["powerflow"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x), :y=>mean(edge_y),
+                        :text=>Plots.text(">>>", fontsize, edge_color, :center, fontfamily, rotation))
         end
     end
 
