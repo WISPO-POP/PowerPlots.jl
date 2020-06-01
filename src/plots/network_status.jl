@@ -17,7 +17,7 @@ function set_properties_network_status!(graph::PowerModelsGraph{T};
                    membership_properties::Dict{String,Any}=Dict{String,Any}(),
                     ) where T <: LightGraphs.AbstractGraph
 
-    properties = deepcopy(default_branch_flow_properties)
+    properties = deepcopy(default_status_properties)
     update_properties!(properties, membership_properties) ## write a properites update
 
     for edge in edges(graph)  # set enabled/disabled lines
