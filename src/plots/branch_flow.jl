@@ -2,14 +2,14 @@
 const default_branch_flow_properties = Dict(
             "max_power" => Dict(:color => colorant"red", :size => 2),
             "min_power" => Dict(:color => colorant"black", :size => 2),
-            "branch" => Dict(:color => colorant"green", :size => 2),
-            "bus" => Dict(:color => colorant"green", :size => 5),
-            "gen" => Dict(:color => colorant"green", :size => 2),
-            "storage" => Dict(:color => colorant"blue", :size => 2),
-            "dcline" => Dict(:color => colorant"black", :size => 2),
-            "no_membership" => Dict(:color => colorant"gray", :size => 10),
-            "connector" => Dict(:color => colorant"lightgrey", :size => 1, :style => :dash),
-            "label" => Dict(:color => colorant"black", :size => 10, :fontfamily=>"Arial", :textalign=>:center, :offset => 0.05)
+            "branch" => Dict(:color => colorant"green", :size => 3),
+            "bus" => Dict(:color => colorant"green", :size => 10),
+            "gen" => Dict(:color => colorant"green", :size => 10),
+            "storage" => Dict(:color => colorant"blue", :size => 10),
+            "dcline" => Dict(:color => colorant"black", :size => 3),
+            "no_membership" => Dict(:color => colorant"gray", :size => 20),
+            "connector" => Dict(:color => colorant"lightgrey", :size => 3, :style => :dash),
+            "label" => Dict(:color => colorant"black", :size => 10, :fontfamily=>"Arial", :textalign=>:center, :offset => 0.1)
             )
 
 
@@ -45,6 +45,13 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
         end
 
         if edge_type != "connector"  ## Create power flow labels
+
+            fontsize=properties["label"][:size]
+            fontfamily=properties["label"][:fontfamily]
+            fontcolor=properties["label"][:color]
+            textalign=properties["label"][:textalign]
+            offset=properties["label"][:offset]
+
             component = get_data(graph, edge)
 
             if edge_type == "branch" #  set branch color based on power flow, not edge_membership
@@ -76,19 +83,13 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
                 label_rotation = rotation
             end
 
-            offset = get(properties["powerflow"],:offset, 1.0)
             x = mean(edge_x) + offset*cosd(label_rotation+90)
             y = mean(edge_y) + offset*sind(label_rotation+90)
-
-            fontsize=properties["label"][:size]
-            fontfamily=properties["label"][:fontfamily]
-            fontcolor=properties["label"][:color]
-            textalign=properties["label"][:textalign]
 
             graph.annotationdata["label"][edge] = Dict{Symbol,Any}(:x=>x,:y=>y,
                         :text => Plots.text(label, fontsize, fontcolor, textalign, fontfamily, label_rotation))
             graph.annotationdata["powerflow"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x), :y=>mean(edge_y),
-                        :text=>Plots.text(">>>", fontsize*2, edge_color, :center, fontfamily, rotation))
+                        :text=>Plots.text(">>>", fontsize*1.5, edge_color, :center, fontfamily, rotation))
         end
     end
 
