@@ -59,7 +59,7 @@ function plot_graph(graph::PowerModelsGraph{T};
                     dpi=300,
                     kwargs...) where T <: LightGraphs.AbstractGraph
 
-    fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi)
+    fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=:equal)
     nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
     node_keys = sort(collect(keys(nodes)))
     node_x = [nodes[node][1] for node in node_keys]

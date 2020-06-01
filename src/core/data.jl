@@ -62,11 +62,30 @@ function properties(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.Abstr
     return get(graph.metadata, obj)
 end
 
+
+"get node/edge data from graph struct"
 function get_data(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}) where T <: LightGraphs.AbstractGraph
     return get_property(graph, obj, :data, Dict{String,Any}())
 end
 
+
 "Return label information for `obj` in graph.annotationdata[\"label\"]"
 function get_label(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, default::Any) where T <: LightGraphs.AbstractGraph
     return get(get(graph.annotationdata, "label", Dict{Union{Int,LightGraphs.AbstractEdge},Any}()), obj, default)
+end
+
+"Update properties dictionary recursively."
+function update_properties!(default::Dict, new_data::Dict)
+    for (key,v_new) in new_data
+        if haskey(default, key)
+            v_default = default[key]
+            if isa(v_default, Dict) && isa(v_new, Dict)
+                update_properties!(v_default, v_new)
+            else
+                default[key] = v_new
+            end
+        else
+            default[key] = v_new
+        end
+    end
 end

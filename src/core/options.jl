@@ -32,3 +32,4 @@
 
 
 ## properties = [:color, :size, :style]
+## Default other values? like for bus color, line width
