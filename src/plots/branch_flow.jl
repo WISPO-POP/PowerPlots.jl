@@ -9,7 +9,7 @@ const default_branch_flow_properties = Dict(
             "dcline" => Dict(:color => colorant"black", :size => 2),
             "no_membership" => Dict(:color => colorant"gray", :size => 10),
             "connector" => Dict(:color => colorant"lightgrey", :size => 1, :style => :dash),
-            "label" => Dict(:color => colorant"black", :size => 12, :fontfamily=>"Arial", :textalign=>:center)
+            "label" => Dict(:color => colorant"black", :size => 10, :fontfamily=>"Arial", :textalign=>:center, :offset => 0.05)
             )
 
 
@@ -17,16 +17,18 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
                    membership_properties::Dict{String,Any}=Dict{String,Any}(),
                     ) where T <: LightGraphs.AbstractGraph
 
-    membership_properties = merge(default_branch_flow_properties, membership_properties)
+    properties = deepcopy(default_branch_flow_properties)
+    update_properties!(properties, membership_properties) ## write a properites update
 
     nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
     node_keys = sort(collect(keys(nodes)))
     node_x = [nodes[node][1] for node in node_keys]
     node_y = [nodes[node][2] for node in node_keys]
 
-    power_colors = Colors.range(membership_properties["min_power"][:color], membership_properties["max_power"][:color], length=100)
+    power_colors = Colors.range(properties["min_power"][:color], properties["max_power"][:color], length=100)
 
     graph.annotationdata["label"] = Dict()
+    graph.annotationdata["powerflow"] = Dict()
 
     for edge in edges(graph) # setedge properties
         edge_type = graph.metadata[edge][:edge_type]
@@ -38,11 +40,11 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
             set_property!(graph, edge, :edge_membership,  "$(edge_type)")
         end
 
-        for (property, value) in membership_properties[get_property(graph, edge, :edge_membership, "no_membership")]
+        for (property, value) in properties[get_property(graph, edge, :edge_membership, "no_membership")]
             set_property!(graph, edge, property, value)
         end
 
-        if edge_type != "connector"
+        if edge_type != "connector"  ## Create power flow labels
             component = get_data(graph, edge)
 
             if edge_type == "branch" #  set branch color based on power flow, not edge_membership
@@ -53,22 +55,40 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
             edge_color = power_colors[percent_rated_power]
             set_property!(graph, edge, :color, edge_color)
 
-            label = "$(round(component["pt"], sigdigits=3)) MW"  # TODO need to mult by "baseMVA"
-            set_property!(graph, edge, :label, label)
-
+            label = "$(round(abs(component["pt"]), sigdigits=3)) MW"  # TODO need to mult by "baseMVA"
 
             edge_x, edge_y = [], []
             for n in [LightGraphs.src(edge), LightGraphs.dst(edge)]
                 push!(edge_x, nodes[n][1])
                 push!(edge_y, nodes[n][2])
             end
-            fontsize=membership_properties["label"][:size]
-            fontfamily=membership_properties["label"][:fontfamily]
-            fontcolor=membership_properties["label"][:color]
-            textalign=membership_properties["label"][:textalign]
 
-            graph.annotationdata["label"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x),:y=>mean(edge_y),
-                        :text => Plots.text(label, fontsize, fontcolor, textalign, fontfamily))
+            rotation = rad2deg(atan(edge_y[1]-edge_y[2],edge_x[1]-edge_x[2]))
+            if get(get_data(graph,edge), "pt", 0.0) < 0.0
+                rotation += 180
+            end
+
+            if rotation > 90
+                label_rotation = rotation - 180
+            elseif rotation < -90
+                label_rotation = rotation + 180
+            else
+                label_rotation = rotation
+            end
+
+            offset = get(properties["powerflow"],:offset, 1.0)
+            x = mean(edge_x) + offset*cosd(label_rotation+90)
+            y = mean(edge_y) + offset*sind(label_rotation+90)
+
+            fontsize=properties["label"][:size]
+            fontfamily=properties["label"][:fontfamily]
+            fontcolor=properties["label"][:color]
+            textalign=properties["label"][:textalign]
+
+            graph.annotationdata["label"][edge] = Dict{Symbol,Any}(:x=>x,:y=>y,
+                        :text => Plots.text(label, fontsize, fontcolor, textalign, fontfamily, label_rotation))
+            graph.annotationdata["powerflow"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x), :y=>mean(edge_y),
+                        :text=>Plots.text(">>>", fontsize*2, edge_color, :center, fontfamily, rotation))
         end
     end
 
@@ -88,7 +108,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
             set_property!(graph, node, :edge_membership, "inactive_node")
         end
 
-        for (property, value) in membership_properties[get_property(graph, node, :edge_membership, "no_membership")]
+        for (property, value) in properties[get_property(graph, node, :edge_membership, "no_membership")]
             set_property!(graph, node, property, value)
         end
     end

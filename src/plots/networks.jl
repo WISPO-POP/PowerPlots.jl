@@ -88,6 +88,7 @@ function plot_network(graph::PowerModelsGraph{T};
                       filename::Union{Nothing,String}=nothing,
                       label_nodes::Bool=false,
                       label_edges::Bool=false,
+                      create_annotations::Bool=true,
                       positions::Union{Dict,PowerModelsGraph}=Dict(),
                       use_buscoords::Bool=false,
                       spring_const::Float64=1e-3,
@@ -119,7 +120,7 @@ function plot_network(graph::PowerModelsGraph{T};
 
 
     # Plot
-    fig = plot_graph(graph; label_nodes=label_nodes, label_edges=label_edges, fontsize=fontsize, fontfamily=fontfamily, fontcolor=fontcolor, textalign=textalign, plot_size=plot_size, dpi=dpi)
+    fig = plot_graph(graph; label_nodes=label_nodes, label_edges=label_edges, create_annotations=create_annotations, fontsize=fontsize, fontfamily=fontfamily, fontcolor=fontcolor, textalign=textalign, plot_size=plot_size, dpi=dpi)
 
     if !isnothing(filename)
         Plots.savefig(fig, filename)

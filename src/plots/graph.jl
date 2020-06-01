@@ -50,6 +50,7 @@ Plots a graph. Returns `Plots.AbstractPlot`.
 function plot_graph(graph::PowerModelsGraph{T};
                     label_nodes=false,
                     label_edges=false,
+                    create_annotations=true,
                     fontsize=12,
                     fontfamily="Arial",
                     fontcolor=:black,
@@ -58,7 +59,7 @@ function plot_graph(graph::PowerModelsGraph{T};
                     dpi=300,
                     kwargs...) where T <: LightGraphs.AbstractGraph
 
-    fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi)
+    fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=:equal)
     nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
     node_keys = sort(collect(keys(nodes)))
     node_x = [nodes[node][1] for node in node_keys]
@@ -76,10 +77,12 @@ function plot_graph(graph::PowerModelsGraph{T};
             push!(edge_y, nodes[n][2])
         end
 
+        # println("$(graph.metadata[edge][:edge_type])_$(graph.metadata[edge][:id]) , src[$(edge_x[1]),$(edge_y[1])], dst[$(edge_x[2]),$(edge_y[2])]")
+
         Plots.plot!(edge_x, edge_y; line=(edge_width, edge_style, edge_color))
         if label_edges
             label = get_label(graph, edge, Dict(:x=>0.0,:y=>0.0, :text=>Plots.text("")))
-            Plots.annotate!(label[:x],label[:y], label[:text])
+            Plots.annotate!(mean(edge_x),mean(edge_y), Plots.text(get_property(graph, edge, :label, ""), fontsize, fontcolor, textalign, fontfamily))
         end
     end
 
@@ -88,6 +91,15 @@ function plot_graph(graph::PowerModelsGraph{T};
         Plots.scatter!(node_x, node_y; color=node_colors, markerstrokewidth=0, markersize=node_sizes, series_annotations=node_labels)
     else
         Plots.scatter!(node_x, node_y; color=node_colors, markerstrokewidth=0, markersize=node_sizes)
+    end
+
+    if create_annotations
+        annotations = keys(graph.annotationdata)
+        for annotation_type in annotations
+            for (edge, data) in graph.annotationdata[annotation_type]
+                Plots.annotate!(data[:x], data[:y], data[:text])
+            end
+        end
     end
 
     return fig
