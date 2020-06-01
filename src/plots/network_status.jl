@@ -3,10 +3,10 @@ const default_status_properties = Dict("active_line" => Dict(:color => :black, :
                                 "inactive_line" => Dict(:color => :red, :size => 2),
                                 "active_bus" => Dict(:color => :green, :size => 5),
                                 "inactive_bus" => Dict(:color => :red, :size => 5),
-                                "active_gen" => Dict(:color => :green, :size => 2),
-                                "inactive_gen" => Dict(:color => :red, :size => 2),
-                                "active_storage" => Dict(:color => :blue, :size => 2),
-                                "inactive_storage" => Dict(:color => :yellow, :size => 2),
+                                "active_gen" => Dict(:color => :green, :size => 4),
+                                "inactive_gen" => Dict(:color => :red, :size => 4),
+                                "active_storage" => Dict(:color => :blue, :size => 4),
+                                "inactive_storage" => Dict(:color => :yellow, :size => 4),
                                 "no_membership" => Dict(:color => :gray, :size => 10),
                                 "connector" => Dict(:color => colorant"lightgrey", :size => 1, :style => :dash)
                                 )
