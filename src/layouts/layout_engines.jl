@@ -2,7 +2,11 @@
 function kamada_kawai_layout(graph::PowerModelsGraph{T}; dist=nothing, pos=nothing, weight="weight", scale=1.0, center=nothing, dim=2) where T <: LightGraphs.AbstractGraph
     G = nx.Graph()
     for edge in edges(graph)
-        G.add_edge(edge.src, edge.dst)
+        if get_property(graph,edge,:edge_type, "none") == "connector"
+            G.add_edge(edge.src, edge.dst, weight=0.5)
+        else
+            G.add_edge(edge.src, edge.dst, weight=1.0)
+        end
     end
     for node in vertices(graph)
         G.add_node(node)
