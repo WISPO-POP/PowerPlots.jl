@@ -184,10 +184,14 @@ This function will build the graph from the `case`. Additional `kwargs` are pass
 function plot_network(case::Dict{String,Any};
                       edge_types::Array{String}=["branch", "dcline", "transformer"],
                       source_types::Array{String}=["gen", "storage"],
-                      exclude_sources::Union{Nothing,Array{String}}=nothing,
+                      exclude_sources::Bool=false,
                       aggregate_sources::Bool=false,
                       kwargs...)
 
+    if exclude_sources == true
+        source_types=String[]
+    end
+    
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
     graph = plot_network(graph; kwargs...)
     return graph

@@ -44,7 +44,7 @@ Builds a PowerModelsGraph of a PowerModels/PowerModelsDistribution network `case
 function build_graph_network(case::Dict{String,Any};
                              edge_types=["branch", "dcline", "transformer"],
                              source_types=["gen", "storage"],
-                             exclude_sources::Union{Nothing,Array}=nothing,
+                             exclude_sources::Bool=false,
                              aggregate_sources::Bool=false)::PowerModelsGraph
 
     connected_buses = Set(edge[k] for k in ["f_bus", "t_bus"] for edge_type in edge_types for edge in values(get(case, edge_type, Dict())))
