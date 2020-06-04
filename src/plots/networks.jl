@@ -191,7 +191,7 @@ function plot_network(case::Dict{String,Any};
     if exclude_sources == true
         source_types=String[]
     end
-    
+
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
     graph = plot_network(graph; kwargs...)
     return graph
@@ -205,4 +205,9 @@ end
 "Plot the network with branch color showing the percentage of rated power flowing"
 function plot_branch_flow(case::Dict{String,Any}; kwargs...)
     plot_network(case; set_network_properties=set_properties_branch_flow!, kwargs...)
+end
+
+"Plot the network with branch color showing the voltage level"
+function plot_system_voltage(case::Dict{String,Any}; kwargs...)
+    plot_network(case; set_network_properties=set_properties_system_voltage!, kwargs...)
 end
