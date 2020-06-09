@@ -89,7 +89,7 @@ function set_properties_branch_flow!(graph::PowerModelsGraph{T};
             graph.annotationdata["label"][edge] = Dict{Symbol,Any}(:x=>x,:y=>y,
                         :text => Plots.text(label, fontsize, fontcolor, textalign, fontfamily, label_rotation))
             graph.annotationdata["powerflow"][edge] = Dict{Symbol,Any}(:x=>mean(edge_x), :y=>mean(edge_y),
-                        :text=>Plots.text(">>>", fontsize*1.5, edge_color, :center, fontfamily, rotation))
+                        :text=>Plots.text(">>>", round(Int, 1.5*fontsize), edge_color, :center, fontfamily, rotation))
         end
     end
 
