@@ -2,6 +2,7 @@
 *.jl.cov
 *.jl.mem
 *.png
+*.pdf
 .DS_Store
 /Manifest.toml
 /dev/
