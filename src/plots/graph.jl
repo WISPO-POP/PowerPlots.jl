@@ -67,24 +67,36 @@ function plot_graph(graph::PowerModelsGraph{T};
     node_colors = [get_property(graph, node, :color, :black) for node in node_keys]
     node_sizes = [get_property(graph, node, :size, 1) for node in node_keys]
 
+
+    edge_x = zeros(2,length(edges(graph)))
+    edge_y = zeros(2,length(edges(graph)))
+    edge_color = []
+    edge_width = []
+    edge_style = []
+    edge_inc = 0
     for edge in edges(graph)
-        edge_x, edge_y = [], []
-        edge_color = get_property(graph, edge, :color, :black)
-        edge_width = get_property(graph, edge, :size, 1)
-        edge_style = get_property(graph, edge, :style, :solid)
-        for n in [LightGraphs.src(edge), LightGraphs.dst(edge)]
-            push!(edge_x, nodes[n][1])
-            push!(edge_y, nodes[n][2])
-        end
+        edge_inc += 1
+        edge_x[1,edge_inc] = nodes[LightGraphs.src(edge)][1]
+        edge_x[2,edge_inc] = nodes[LightGraphs.dst(edge)][1]
+        edge_y[1,edge_inc] = nodes[LightGraphs.src(edge)][2]
+        edge_y[2,edge_inc] = nodes[LightGraphs.dst(edge)][2]
 
-        # println("$(graph.metadata[edge][:edge_type])_$(graph.metadata[edge][:id]) , src[$(edge_x[1]),$(edge_y[1])], dst[$(edge_x[2]),$(edge_y[2])]")
 
-        Plots.plot!(edge_x, edge_y; line=(edge_width, edge_style, edge_color))
+        push!(edge_color, get_property(graph, edge, :color, :black))
+        push!(edge_width, get_property(graph, edge, :size, 1))
+        push!(edge_style, get_property(graph, edge, :style, :solid))
+
         if label_edges
             label = get_label(graph, edge, Dict(:x=>0.0,:y=>0.0, :text=>Plots.text("")))
             Plots.annotate!(mean(edge_x),mean(edge_y), Plots.text(get_property(graph, edge, :label, ""), fontsize, fontcolor, textalign, fontfamily))
         end
     end
+
+    edge_color = reshape(edge_color, 1, length(edge_color))
+    edge_width = reshape(edge_width, 1, length(edge_width))
+    edge_style = reshape(edge_style, 1, length(edge_style))
+    Plots.plot!(edge_x, edge_y; line=(edge_width, edge_style, edge_color))
+
 
     if label_nodes
         node_labels = [Plots.text(get_property(graph, node, :label, ""), fontsize, fontcolor, textalign, fontfamily) for node in node_keys]
