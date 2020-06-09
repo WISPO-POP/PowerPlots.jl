@@ -21,7 +21,11 @@ function set_properties_system_voltage!(graph::PowerModelsGraph{T};
 
     node_kv = Dict(node => get(get_data(graph, node),"base_kv",0.0) for node in vertices(graph))
     voltage_levels = sort!(unique([kv for (id,kv) in node_kv]))
-    color_set = Plots.palette(properties["base_kv"][:palette], length(voltage_levels))
+    if length(voltage_levels) != 1
+        color_set = Plots.palette(properties["base_kv"][:palette], length(voltage_levels))
+    else
+        color_set = Plots.palette(properties["base_kv"][:palette])
+    end
 
     voltage_colors = Dict{Int,Colors.RGB{Float64}}()
     for i in 1:length(voltage_levels)
