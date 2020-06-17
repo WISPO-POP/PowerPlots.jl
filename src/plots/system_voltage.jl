@@ -21,15 +21,20 @@ function set_properties_system_voltage!(graph::PowerModelsGraph{T};
 
     node_kv = Dict(node => get(get_data(graph, node),"base_kv",0.0) for node in vertices(graph))
     voltage_levels = sort!(unique([kv for (id,kv) in node_kv]))
+
     if length(voltage_levels) != 1
         color_set = Plots.palette(properties["base_kv"][:palette], length(voltage_levels))
+        size_set = collect(range(properties["base_kv"][:size][1],properties["base_kv"][:size][2], length=length(voltage_levels)))
     else
         color_set = Plots.palette(properties["base_kv"][:palette])
+        size_set = maximum(properties["base_kv"][:size])
     end
 
     voltage_colors = Dict{Int,Colors.RGB{Float64}}()
+    voltage_sizes = Dict{Int, Float64}()
     for i in 1:length(voltage_levels)
         voltage_colors[round(Int,voltage_levels[i])] = color_set[i]
+        voltage_sizes[round(Int,voltage_levels[i])] = size_set[i]
     end
 
 
@@ -54,7 +59,10 @@ function set_properties_system_voltage!(graph::PowerModelsGraph{T};
             base_kv = max(src_kv, dst_kv)
 
             color_kv = voltage_colors[round(Int,base_kv)]
+            size_kv = voltage_sizes[round(Int,base_kv)]
             set_property!(graph, edge, :color, color_kv)
+            set_property!(graph, edge, :size, size_kv)
+            # set_property!(graph, edge, :priority, size_kv)
         end
     end
 
@@ -63,8 +71,6 @@ function set_properties_system_voltage!(graph::PowerModelsGraph{T};
     for node in vertices(graph) # set enabled/disables buses and gens
         node_type = graph.metadata[node][:node_type]
         id = graph.metadata[node][:id]
-
-        # component = get_data(graph, node)
 
         if node_type == "bus"
             set_property!(graph, node, :edge_membership, "bus")
@@ -80,7 +86,9 @@ function set_properties_system_voltage!(graph::PowerModelsGraph{T};
             set_property!(graph, node, property, value)
         end
 
-        color_kv = color_kv = voltage_colors[round(Int,node_kv[node])]
+        color_kv = voltage_colors[round(Int,node_kv[node])]
+        size_kv = voltage_sizes[round(Int,node_kv[node])]
         set_property!(graph, node, :color, color_kv)
+        set_property!(graph, node, :size, size_kv)
     end
 end
