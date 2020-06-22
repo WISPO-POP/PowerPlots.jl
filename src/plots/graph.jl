@@ -55,7 +55,7 @@ function plot_graph(graph::PowerModelsGraph{T};
                     fontfamily="Arial",
                     fontcolor=:black,
                     textalign=:center,
-                    plot_size=(600,600),
+                    plot_size=(300,300),
                     dpi=300,
                     background_color=:transparent,
                     kwargs...) where T <: LightGraphs.AbstractGraph
