@@ -1,4 +1,14 @@
 
+# move kwargs into plot_graph
+                      # label_nodes::Bool=false,
+                      # label_edges::Bool=false,
+                      # fontsize::Real=12,
+                      # fontfamily::String="Arial",
+                      # fontcolor::Union{Symbol,<:Colors.AbstractRGB}=:black,
+                      # textalign::Symbol=:center,
+                      # plot_size::Tuple{Int,Int}=(300,300),
+                      # dpi::Int=100
+
 """
     plot_network(graph; kwargs...)
 
@@ -86,22 +96,15 @@ Plots a network `graph`. Returns `PowerModelsGraph` and `Plots.AbstractPlot`.
 """
 function plot_network(graph::PowerModelsGraph{T};
                       filename::Union{Nothing,String}=nothing,
-                      label_nodes::Bool=false,
-                      label_edges::Bool=false,
                       create_annotations::Bool=true,
                       positions::Union{Dict,PowerModelsGraph}=Dict(),
                       use_buscoords::Bool=false,
                       spring_const::Float64=1e-3,
                       apply_spring_layout::Bool=false,
                       set_network_properties=set_properties_network_status!,
-                      membership_properties=Dict{String,Any}(),
-                      fontsize::Real=12,
-                      fontfamily::String="Arial",
-                      fontcolor::Union{Symbol,<:Colors.AbstractRGB}=:black,
-                      textalign::Symbol=:center,
-                      plot_size::Tuple{Int,Int}=(300,300),
-                      dpi::Int=100) where T <: LightGraphs.AbstractGraph
-
+                      membership_properties::Dict{String,<:Any}=Dict{String,Any}(),
+                      kwargs...
+                      ) where T <: LightGraphs.AbstractGraph
 
     # Graph Layout
     if isa(positions, PowerModelsGraph)
@@ -120,7 +123,8 @@ function plot_network(graph::PowerModelsGraph{T};
 
 
     # Plot
-    fig = plot_graph(graph; label_nodes=label_nodes, label_edges=label_edges, create_annotations=create_annotations, fontsize=fontsize, fontfamily=fontfamily, fontcolor=fontcolor, textalign=textalign, plot_size=plot_size, dpi=dpi)
+    fig = plot_graph(graph; kwargs...)
+    # label_nodes=label_nodes, label_edges=label_edges, create_annotations=create_annotations, fontsize=fontsize, fontfamily=fontfamily, fontcolor=fontcolor, textalign=textalign, plot_size=plot_size, dpi=dpi)
 
     if !isnothing(filename)
         Plots.savefig(fig, filename)
@@ -187,10 +191,6 @@ function plot_network(case::Dict{String,Any};
                       exclude_sources::Bool=false,
                       aggregate_sources::Bool=false,
                       kwargs...)
-
-    if exclude_sources == true
-        source_types=String[]
-    end
 
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
     graph = plot_network(graph; kwargs...)

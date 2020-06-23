@@ -47,6 +47,10 @@ function build_graph_network(case::Dict{String,Any};
                              exclude_sources::Bool=false,
                              aggregate_sources::Bool=false)::PowerModelsGraph
 
+     if exclude_sources == true
+         source_types=String[]
+     end
+
     connected_buses = Set(edge[k] for k in ["f_bus", "t_bus"] for edge_type in edge_types for edge in values(get(case, edge_type, Dict())))
 
     sources = [(source_type, source) for source_type in source_types for source in values(get(case, source_type, Dict()))]
