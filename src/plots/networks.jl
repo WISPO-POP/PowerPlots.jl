@@ -94,7 +94,8 @@ Plots a network `graph`. Returns `PowerModelsGraph` and `Plots.AbstractPlot`.
 
     PowerModelsGraph of the network
 """
-function plot_network(graph::PowerModelsGraph{T};
+function plot_network!(plt::Plots.Plot,
+                      graph::PowerModelsGraph{T};
                       filename::Union{Nothing,String}=nothing,
                       create_annotations::Bool=true,
                       positions::Union{Dict,PowerModelsGraph}=Dict(),
@@ -123,16 +124,16 @@ function plot_network(graph::PowerModelsGraph{T};
 
 
     # Plot
-    fig = plot_graph(graph; kwargs...)
+    plot_graph!(plt, graph; kwargs...)
     # label_nodes=label_nodes, label_edges=label_edges, create_annotations=create_annotations, fontsize=fontsize, fontfamily=fontfamily, fontcolor=fontcolor, textalign=textalign, plot_size=plot_size, dpi=dpi)
 
     if !isnothing(filename)
-        Plots.savefig(fig, filename)
+        Plots.savefig(plt, filename)
     else
-        Plots.display(fig)
+        Plots.display(plt)
     end
 
-    return fig
+    return plt
 end
 
 
@@ -185,7 +186,8 @@ This function will build the graph from the `case`. Additional `kwargs` are pass
 
     PowerModelsGraph of the network
 """
-function plot_network(case::Dict{String,Any};
+function plot_network!(plt::Plots.Plot,
+                      case::Dict{String,Any};
                       edge_types::Array{String}=["branch", "dcline", "transformer"],
                       source_types::Array{String}=["gen", "storage"],
                       exclude_sources::Bool=false,
@@ -193,33 +195,69 @@ function plot_network(case::Dict{String,Any};
                       kwargs...)
 
     graph = build_graph_network(case; edge_types=edge_types, source_types=source_types, exclude_sources=exclude_sources, aggregate_sources=aggregate_sources)
-    graph = plot_network(graph; kwargs...)
+    graph = plot_network!(plt, graph; kwargs...)
     return graph
 end
 
-"Plot the network with the color defining active status components."
-function plot_network_status(case::Dict{String,Any}; kwargs...)
-    plot_network(case; set_network_properties=set_properties_network_status!, kwargs...)
+function plot_network!(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...)  where T <: LightGraphs.AbstractGraph
+      local plt
+      try
+          plt = Plots.current()
+      catch
+          return plot_network(network; kwargs...)
+      end
+      plot_network!(Plots.current(), network; kwargs...)
 end
 
-function plot_network_status(graph::PowerModelsGraph{T}; kwargs...) where T <: LightGraphs.AbstractGraph
-    plot_network(graph; set_network_properties=set_properties_network_status!, kwargs...)
+function plot_network(network::Union{PowerModelsGraph{T},Dict{String,Any}};
+                    plot_size=(300,300),
+                    dpi=300,
+                    background_color=:transparent,
+                    kwargs...) where T <: LightGraphs.AbstractGraph
+    @show plt = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=:equal, background_color=background_color)
+    plot_network!(plt,network; kwargs...)
+    return plt
 end
+
+
+
+"Plot the network with the color defining active status components."
+function plot_network_status(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network(network; set_network_properties=set_properties_network_status!, kwargs...)
+end
+
+function plot_network_status!(plt::Plots.Plot, network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network!(plt, network; set_network_properties=set_properties_network_status!, kwargs...)
+end
+
+function plot_network_status!(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network!(network; set_network_properties=set_properties_network_status!, kwargs...)
+end
+
 
 "Plot the network with branch color showing the percentage of rated power flowing"
-function plot_branch_flow(case::Dict{String,Any}; kwargs...)
-    plot_network(case; set_network_properties=set_properties_branch_flow!, kwargs...)
+function plot_branch_flow(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network(network; set_network_properties=set_properties_branch_flow!, kwargs...)
 end
 
-function plot_branch_flow(graph::PowerModelsGraph{T}; kwargs...) where T <: LightGraphs.AbstractGraph
-    plot_network(graph; set_network_properties=set_properties_branch_flow!, kwargs...)
+function plot_branch_flow!(plt::Plots.Plot, network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network!(plt, network; set_network_properties=set_properties_branch_flow!, kwargs...)
 end
+
+function plot_branch_flow!(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network(network; set_network_properties=set_properties_branch_flow!, kwargs...)
+end
+
 
 "Plot the network with branch color showing the voltage level"
-function plot_system_voltage(case::Dict{String,Any}; kwargs...)
-    plot_network(case; set_network_properties=set_properties_system_voltage!, kwargs...)
+function plot_system_voltage(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network(network; set_network_properties=set_properties_system_voltage!, kwargs...)
 end
 
-function plot_system_voltage(graph::PowerModelsGraph{T}; kwargs...) where T <: LightGraphs.AbstractGraph
-    plot_network(graph; set_network_properties=set_properties_system_voltage!, kwargs...)
+function plot_system_voltage!(plt::Plots.Plot, network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network!(plt, network; set_network_properties=set_properties_system_voltage!, kwargs...)
+end
+
+function plot_system_voltage!(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network!(network; set_network_properties=set_properties_system_voltage!, kwargs...)
 end

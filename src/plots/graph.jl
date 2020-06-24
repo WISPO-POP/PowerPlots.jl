@@ -47,7 +47,8 @@ Plots a graph. Returns `Plots.AbstractPlot`.
 
     Plots.jl figure
 """
-function plot_graph(graph::PowerModelsGraph{T};
+function plot_graph!(plt::Plots.Plot,
+                    graph::PowerModelsGraph{T};
                     label_nodes=false,
                     label_edges=false,
                     create_annotations=true,
@@ -55,12 +56,12 @@ function plot_graph(graph::PowerModelsGraph{T};
                     fontfamily="Arial",
                     fontcolor=:black,
                     textalign=:center,
-                    plot_size=(300,300),
-                    dpi=300,
-                    background_color=:transparent,
+                    # plot_size=(300,300),
+                    # dpi=300,
+                    # background_color=:transparent,
                     kwargs...) where T <: LightGraphs.AbstractGraph
 
-    fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=:equal, background_color=background_color)
+    # fig = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=:equal, background_color=background_color)
     nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
     node_keys = sort(collect(keys(nodes)))
     node_x = [nodes[node][1] for node in node_keys]
@@ -115,5 +116,5 @@ function plot_graph(graph::PowerModelsGraph{T};
         end
     end
 
-    return fig
+    # return fig
 end
