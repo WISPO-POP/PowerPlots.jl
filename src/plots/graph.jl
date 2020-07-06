@@ -116,5 +116,5 @@ function plot_graph!(plt::Plots.Plot,
         end
     end
 
-    # return fig
+    return fig
 end
