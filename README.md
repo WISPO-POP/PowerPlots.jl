@@ -25,7 +25,7 @@ There are additional plotting functions to format the network plots.
 
 `plot_system_status`
 Sets the color of network devices based on the status code of device
-![plot_system_status](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/system_status.png)
+![plot_system_status](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/network_status.png)
 
 
 'plot_power_flow'
