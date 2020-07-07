@@ -104,4 +104,42 @@ function set_properties_bus_odd_even!(graph::PowerModelsGraph{T};
 end
 ```
 
-Would set make odd numbered buses blue and twice as large as as even numbered buses. Complex examples can be found in /src/plots.
+Would set make odd numbered buses blue and twice as large as as even numbered buses.
+
+```julia
+  plot_network(network; set_network_properties=set_properties_bus_odd_even!)
+```
+
+ Complex examples of plot types can be found in /src/plots.
+
+ The properties that are applied to a plot can be altered by passing the kwarg `membership_properties`. Each plot type has a dictionary of membership types and available properties that can be changed.  For example the network status plot has 10 membership types:
+
+ ```julia
+ const default_status_properties = Dict(
+   "active_line" => Dict(:color => :black, :size => 3),
+   "inactive_line" => Dict(:color => :red, :size => 3),
+   "active_bus" => Dict(:color => :green, :size => 10),
+   "inactive_bus" => Dict(:color => :red, :size => 10),
+   "active_gen" => Dict(:color => :blue, :size => 10),
+   "inactive_gen" => Dict(:color => :red, :size => 10),
+   "active_storage" => Dict(:color => :blue, :size => 10),
+   "inactive_storage" => Dict(:color => :yellow, :size => 10),
+   "no_membership" => Dict(:color => :gray, :size => 20),
+   "connector" => Dict(:color => colorant"lightgrey", :size => 2, :style => :dash)
+)
+```
+
+ A user can overide these defults by creating a dictionary of values to override the default.
+
+ ```julia
+ mp = Dict{String, Any}(
+    "active_line" => Dict(:color => :green, :size => 3)
+    "inactive_line" => Dict(:color => :purple, :size => 6)
+ )
+
+plot_network(case;
+            set_network_properties=set_properties_network_status!,
+            membership_properties = mp
+            )
+
+```
