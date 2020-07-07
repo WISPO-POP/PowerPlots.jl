@@ -26,13 +26,15 @@ There are additional plotting functions to format the network plots. These funct
 plot_network(network; set_network_properties=set_properties_power_flow!)
 ```
 
-### `plot_system_status`
-Sets the color of network devices based on the status code of device
+### System Status
+`plot_system_status()`
+Sets the color of network devices based on the status code of device.
 ![plot_system_status](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/network_status.png)
 
 
-### `plot_power_flow`
-Plot the power flow along branches in a network. Requires a solved power flow
+### Power Flow
+`plot_power_flow()`
+Plot the power flow along branches in a network, coloring branches acorrding to the % load. Requires a solved power flow.
 ```
 Using PowerModels, PowerPlots, Ipopt
 
