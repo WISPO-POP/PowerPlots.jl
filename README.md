@@ -39,7 +39,7 @@ PowerModels.update_data!(case, result["solution"])
 
 plot_power_flow(case)
 ```
-![plot_power_flow](https://github.com/noahrhodes/PowerPlots.jl/blob/master/power_flow.png)
+![plot_power_flow](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/power_flow.png)
 
 `plot_system_voltage`
 Plot the network with each voltage level in a unique color.
