@@ -236,16 +236,16 @@ end
 
 
 "Plot the network with branch color showing the percentage of rated power flowing"
-function plot_branch_flow(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
-    plot_network(network; set_network_properties=set_properties_branch_flow!, kwargs...)
+function plot_power_flow(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network(network; set_network_properties=set_properties_power_flow!, kwargs...)
 end
 
-function plot_branch_flow!(plt::Plots.Plot, network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
-    plot_network!(plt, network; set_network_properties=set_properties_branch_flow!, kwargs...)
+function plot_power_flow!(plt::Plots.Plot, network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network!(plt, network; set_network_properties=set_properties_power_flow!, kwargs...)
 end
 
-function plot_branch_flow!(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
-    plot_network(network; set_network_properties=set_properties_branch_flow!, kwargs...)
+function plot_power_flow!(network::Union{PowerModelsGraph{T},Dict{String,Any}}; kwargs...) where T <: LightGraphs.AbstractGraph
+    plot_network(network; set_network_properties=set_properties_power_flow!, kwargs...)
 end
 
 
