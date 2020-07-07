@@ -1,5 +1,5 @@
 
-const default_branch_flow_properties = Dict(
+const default_power_flow_properties = Dict(
             "max_power" => Dict(:color => colorant"red", :size => 2),
             "min_power" => Dict(:color => colorant"black", :size => 2),
             "branch" => Dict(:color => colorant"green", :size => 3),
@@ -13,11 +13,11 @@ const default_branch_flow_properties = Dict(
             )
 
 
-function set_properties_branch_flow!(graph::PowerModelsGraph{T};
+function set_properties_power_flow!(graph::PowerModelsGraph{T};
                    membership_properties::Dict{String,Any}=Dict{String,Any}(),
                     ) where T <: LightGraphs.AbstractGraph
 
-    properties = deepcopy(default_branch_flow_properties)
+    properties = deepcopy(default_power_flow_properties)
     update_properties!(properties, membership_properties) ## write a properites update
 
     nodes = Dict(node => [get_property(graph, node, :x, 0.0), get_property(graph, node, :y, 0.0)] for node in vertices(graph))
