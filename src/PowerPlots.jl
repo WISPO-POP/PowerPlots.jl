@@ -26,7 +26,7 @@ include("core/options.jl")
 
 include("plots/graph.jl")
 include("plots/network_status.jl")
-include("plots/branch_flow.jl")
+include("plots/power_flow.jl")
 include("plots/system_voltage.jl")
 include("plots/networks.jl")
 
