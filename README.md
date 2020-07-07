@@ -29,6 +29,8 @@ plot_network(network; set_network_properties=set_properties_power_flow!)
 ### System Status
 `plot_system_status()`
 Sets the color of network devices based on the status code of device.
+
+#### IEEE 14 bus network:
 ![plot_system_status](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/network_status.png)
 
 
@@ -44,8 +46,13 @@ PowerModels.update_data!(case, result["solution"])
 
 plot_power_flow(case)
 ```
+
+#### IEEE 5 bus network:
 ![plot_power_flow](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/power_flow.png)
 
-### `plot_system_voltage`
+### System Voltage Levels
+`plot_system_voltage`
 Plot the network with each voltage level in a unique color.
+
+#### IEEE 118 bus network:
 ![plot_system_voltage](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/system_voltage.png)
