@@ -1,7 +1,7 @@
 # PowerPlots
 
-[![Build Status](https://travis-ci.com/noahrhodes/PowerPlots.jl.svg?branch=master)](https://travis-ci.com/noahrhodes/PowerPlots.jl)
-[![Codecov](https://codecov.io/gh/noahrhodes/PowerPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/noahrhodes/PowerPlots.jl)
+[![Build Status](https://travis-ci.com/WISPO-POP/PowerPlots.jl.svg?branch=master)](https://travis-ci.com/WISPO-POP/PowerPlots.jl)
+[![Codecov](https://codecov.io/gh/WISPO-POP/PowerPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/WISPO-POP/PowerPlots.jl)
 
 Tools for the analysis and visualization of PowerModels data and results.
 
