@@ -21,14 +21,17 @@ The function `plot_network!()` will plot the network on the active plot.
 
 ## Specialized Plotting Functions
 
-There are additional plotting functions to format the network plots.
+There are additional plotting functions to format the network plots. These function are equivalent to calling `plot_network` with the approriate arguments, e.g.
+```
+plot_network(network; set_network_properties=set_properties_power_flow!)
+```
 
-`plot_system_status`
+### `plot_system_status`
 Sets the color of network devices based on the status code of device
 ![plot_system_status](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/network_status.png)
 
 
-'plot_power_flow'
+### `plot_power_flow`
 Plot the power flow along branches in a network. Requires a solved power flow
 ```
 Using PowerModels, PowerPlots, Ipopt
@@ -41,6 +44,6 @@ plot_power_flow(case)
 ```
 ![plot_power_flow](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/power_flow.png)
 
-`plot_system_voltage`
+### `plot_system_voltage`
 Plot the network with each voltage level in a unique color.
 ![plot_system_voltage](https://github.com/noahrhodes/PowerPlots.jl/blob/Documentation/example_plots/system_voltage.png)
