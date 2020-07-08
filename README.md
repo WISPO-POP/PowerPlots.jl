@@ -7,6 +7,12 @@ Tools for the analysis and visualization of PowerModels data and results.
 
 BETA / IN ACTIVE DEVELOPMENT: Features will change quickly and without warning
 
+## Adding PowerPlots
+`PowerPlots` is not a registered julia package, but it can still be added by calling
+
+```julia
+Pkg> add https://github.com/WISPO-POP/PowerPlots.jl.git
+```
 
 ## Using PowerPlots
 
