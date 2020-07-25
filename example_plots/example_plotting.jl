@@ -8,6 +8,7 @@ mp = Dict{String,Any}(
     "active_line" => Dict(:color => :darkgreen, :size => 6),
     "inactive_line" => Dict(:color => :red, :size => 6),
     "active_bus" => Dict(:color => :green, :size => 15),
+    "active_bus_load_shed" => Dict(:color => :orange, :size => 10),
     "inactive_bus" => Dict(:color => :red, :size => 15),
     "active_gen" => Dict(:color => :green, :size => 15),
     "inactive_gen" => Dict(:color => :red, :size => 15),
