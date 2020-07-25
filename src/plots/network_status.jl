@@ -2,6 +2,7 @@
 const default_status_properties = Dict("active_line" => Dict(:color => :black, :size => 3),
                                 "inactive_line" => Dict(:color => :red, :size => 3),
                                 "active_bus" => Dict(:color => :green, :size => 10),
+                                "active_bus_load_shed" => Dict(:color => :orange, :size => 10),
                                 "inactive_bus" => Dict(:color => :red, :size => 10),
                                 "active_gen" => Dict(:color => :blue, :size => 10),
                                 "inactive_gen" => Dict(:color => :red, :size => 10),
@@ -64,6 +65,21 @@ function set_properties_network_status!(graph::PowerModelsGraph{T};
         elseif status != PowerModels.pm_component_status_inactive[node_type]
             if node_type == "bus"
                 set_property!(graph, node, :edge_membership, "active_bus")
+
+                # check if load shed. if yes, change membership
+                if hasprop(graph, node, :load)
+                    loads = get_property(graph, node, :load, Dict())
+                    load_shed=false
+                    for (id,load) in loads
+                        if load["status"] != 1.0
+                            @show load["status"]
+                            load_shed = true
+                        end
+                    end
+                    if load_shed == true
+                        set_property!(graph, node, :edge_membership, "active_bus_load_shed")
+                    end
+                end
             elseif node_type == "gen"
                 set_property!(graph, node, :edge_membership, "active_gen")
             elseif node_type == "storage"

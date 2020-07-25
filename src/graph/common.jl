@@ -98,7 +98,7 @@ function build_graph_network(case::Dict{String,Any};
         end
     end
 
-    # Set color of buses based on mean served load
+    # Add bus data
     for bus in values(get(case, "bus", Dict()))
         if haskey(bus, "buscoord")
             set_property!(graph, bus_graph_map[bus["bus_i"]], :buscoord, bus["buscoord"])
@@ -110,6 +110,25 @@ function build_graph_network(case::Dict{String,Any};
                           :data => bus
                           )
         set_properties!(graph, bus_graph_map[bus["bus_i"]], node_props)
+    end
+
+    # add load data to buses
+    bus_load_map = Dict()
+    for (id, load) in get(case, "load", Dict())
+        load_bus = load["load_bus"]
+        if haskey(bus_load_map, load_bus)
+            push!(bus_load_map[load_bus], id)
+        else
+            bus_load_map[load_bus] = [id]
+        end
+    end
+
+    for (bus,loads) in bus_load_map
+        load_data = Dict()
+        for id in loads
+            load_data[id]=case["load"][id]
+        end
+        set_properties!(graph, bus, Dict(:load=>load_data))
     end
 
     return graph
