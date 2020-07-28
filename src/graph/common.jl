@@ -128,7 +128,7 @@ function build_graph_network(case::Dict{String,Any};
         for id in loads
             load_data[id]=case["load"][id]
         end
-        set_properties!(graph, bus, Dict(:load=>load_data))
+        set_properties!(graph, bus_graph_map[bus], Dict(:load=>load_data))
     end
 
     return graph
