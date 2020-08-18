@@ -213,8 +213,9 @@ function plot_network(network::Union{PowerModelsGraph{T},Dict{String,Any}};
                     plot_size=(300,300),
                     dpi=300,
                     background_color=:transparent,
+                    aspect_ratio=:equal,
                     kwargs...) where T <: LightGraphs.AbstractGraph
-    plt = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=:equal, background_color=background_color)
+    plt = Plots.plot(legend=false, xaxis=false, yaxis=false, grid=false, size=plot_size, dpi=dpi, aspect_ratio=aspect_ratio, background_color=background_color)
     plot_network!(plt,network; kwargs...)
     return plt
 end
