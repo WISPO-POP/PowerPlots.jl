@@ -22,4 +22,11 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
      # these functions work if we got this far
      @test true
+
+
+     ## Test vegalite plotting
+     case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+     plot_vega(case)
+     @test true
+
 end

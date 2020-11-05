@@ -35,6 +35,8 @@ include("plots/power_flow.jl")
 include("plots/system_voltage.jl")
 include("plots/networks.jl")
 
+include("plots/power_vega.jl")
+
 include("layouts/common.jl")
 include("layouts/layout_engines.jl")
 
