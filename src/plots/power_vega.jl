@@ -115,7 +115,7 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
     end
 
     # Create connector dictionary
-    data["connector"] = Dict()
+    data["connector"] = Dict{String,Any}()
     for (edge, con) in connector_map
         _,id = split(edge, "_")
         data["connector"][id]=  Dict(
@@ -142,62 +142,11 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
 end
 
 
-"create a dataframe based on powermodels dictionary"
-function form_df(case::Dict{String,<:Any};)
-
-    if InfrastructureModels.ismultinetwork(case)
-        Memento.error(_LOGGER, "form_df does not yet support multinetwork data")
-    end
-
-    data = deepcopy(case)
-
-    df_return = Dict{String,DataFrame}()
-    component_types = []
-    metadata_key = Symbol[]
-    metadata_val = Any[]
-
-    #Network meta_data
-    for (k,v) in sort(collect(data); by=x->x[1])
-        if typeof(v) <: Dict && InfrastructureModels._iscomponentdict(v)
-            push!(component_types, k)
-        else
-            push!(metadata_key,Symbol(k))
-            push!(metadata_val,[v])
-        end
-    end
-    df_return["metadata"] = DataFrame(metadata_val,metadata_key)
-
-    for comp_type in component_types
-
-        if length(data[comp_type]) <= 0 ## Should there be an empty dataframe, or a nonexistent dataframe?
-            continue
-        end
-
-        components = data[comp_type]
-
-        columns = [Symbol(k) => (typeof(v) <: Array || typeof(v) <: Dict) ? String[] : typeof(v)[] for (k,v) in first(components)[2]]
-
-        df_return[comp_type] = DataFrame(columns...)
-        for (i, component) in components
-            for (k,v) in component
-                if typeof(v) <: Array || typeof(v) <: Dict
-                    component[k] = string(v)
-                end
-            end
-            push!(df_return[comp_type], component)
-        end
-
-        df_return[comp_type][!,:ComponentType] .=comp_type
-    end
-
-    return df_return
-end
-
-
 
 function plot_vega(case, spring_constant=1e-3)
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
+    PMD = PowerModelsDataFrame(data)
     p = VegaLite.@vlplot(
         width=500,
         height=500,
@@ -225,7 +174,20 @@ function plot_vega(case, spring_constant=1e-3)
             tooltip=("content" => "data"),
             opacity =  1.0
         },
-        data=df["branch"],
+        data=PMD.branch,
+        x = :xcoord_1,
+        x2 = :xcoord_2,
+        y = :ycoord_1,
+        y2 = :ycoord_2,
+        size={value=5},
+    ) +
+    VegaLite.@vlplot(
+        mark ={
+            :rule,
+            tooltip=("content" => "data"),
+            opacity =  1.0
+        },
+        data=PMD.dcline,
         x = :xcoord_1,
         x2 = :xcoord_2,
         y = :ycoord_1,
@@ -238,7 +200,7 @@ function plot_vega(case, spring_constant=1e-3)
             "tooltip" =("content" => "data"),
             opacity =  1.0
         },
-        data=df["connector"],
+        data=PMD.connector,
         x = :xcoord_1,
         x2 = :xcoord_2,
         y = :ycoord_1,
@@ -247,6 +209,7 @@ function plot_vega(case, spring_constant=1e-3)
         strokeDash={value=[4,4]}
     ) +
     VegaLite.@vlplot(
+        data = PMD.bus,
         mark ={
             :circle,
             "tooltip" =("content" => "data"),
@@ -257,6 +220,7 @@ function plot_vega(case, spring_constant=1e-3)
         size={value=1e2},
     )+
     VegaLite.@vlplot(
+        data = PMD.gen,
         mark ={
             :circle,
             "tooltip" =("content" => "data"),
