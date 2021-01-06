@@ -1,8 +1,6 @@
 
 ## Experimental Feature!
 
-using VegaLite, VegaDatasets, DataFrames
-
 # import PyCall
 # const nx = PyCall.PyNULL()
 # const scipy = PyCall.PyNULL()
@@ -200,8 +198,7 @@ end
 function plot_vega(case, spring_constant=1e-3)
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
-    df = form_df(data)
-    p = @vlplot(
+    p = VegaLite.@vlplot(
         width=500,
         height=500,
         config={view={stroke=nothing}},
@@ -222,7 +219,7 @@ function plot_vega(case, spring_constant=1e-3)
             }
         },
     ) +
-    @vlplot(
+    VegaLite.@vlplot(
         mark ={
             :rule,
             tooltip=("content" => "data"),
@@ -235,7 +232,7 @@ function plot_vega(case, spring_constant=1e-3)
         y2 = :ycoord_2,
         size={value=5},
     ) +
-    @vlplot(
+    VegaLite.@vlplot(
         mark ={
             :rule,
             "tooltip" =("content" => "data"),
@@ -249,8 +246,7 @@ function plot_vega(case, spring_constant=1e-3)
         size={value=3},
         strokeDash={value=[4,4]}
     ) +
-    @vlplot(
-        data = df["bus"],
+    VegaLite.@vlplot(
         mark ={
             :circle,
             "tooltip" =("content" => "data"),
@@ -260,8 +256,7 @@ function plot_vega(case, spring_constant=1e-3)
         y={:ycoord_1,},
         size={value=1e2},
     )+
-    @vlplot(
-        data = df["gen"],
+    VegaLite.@vlplot(
         mark ={
             :circle,
             "tooltip" =("content" => "data"),

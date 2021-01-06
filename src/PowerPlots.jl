@@ -11,9 +11,17 @@ import Colors: @colorant_str
 
 import Plots
 
+import VegaLite
+import DataFrames
+import Memento
+
+
 # using NetworkLayout
 
 import PyCall
+
+_PM = PowerModels
+_IM = InfrastructureModels
 
 const nx = PyCall.PyNULL()
 const scipy = PyCall.PyNULL()
