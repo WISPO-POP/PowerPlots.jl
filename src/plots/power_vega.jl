@@ -95,7 +95,7 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
         end
         # spring_const = 1e-2
         k=spring_const*minimum(std([p for p in values(pos)]))
-        positions = nx.spring_layout(G; pos,  fixed, k,  iterations=100)
+        positions = nx.spring_layout(G; pos=pos,  fixed=fixed, k=k,  iterations=100)
         # positions = pos
     end
 
