@@ -29,10 +29,10 @@ function set_properties_network_status!(graph::PowerModelsGraph{T};
             set_property!(graph, edge, :edge_membership, "connector")
         else
             component = get_data(graph, edge)
-            status = component[PowerModels.pm_component_status[edge_type]]
-            if status == PowerModels.pm_component_status_inactive[edge_type]
+            status = component[_PM.pm_component_status[edge_type]]
+            if status == _PM.pm_component_status_inactive[edge_type]
                 set_property!(graph, edge, :edge_membership, "inactive_line")
-            elseif status != PowerModels.pm_component_status_inactive[edge_type]
+            elseif status != _PM.pm_component_status_inactive[edge_type]
                 set_property!(graph, edge, :edge_membership, "active_line")
             else
                 set_property!(graph, edge, :edge_membership, "no_membership")
@@ -50,9 +50,9 @@ function set_properties_network_status!(graph::PowerModelsGraph{T};
         id = graph.metadata[node][:id]
 
         component = get_data(graph, node)
-        status = component[PowerModels.pm_component_status[node_type]]
+        status = component[_PM.pm_component_status[node_type]]
 
-        if status == PowerModels.pm_component_status_inactive[node_type]
+        if status == _PM.pm_component_status_inactive[node_type]
             if node_type == "bus"
                 set_property!(graph, node, :edge_membership, "inactive_bus")
             elseif node_type == "gen"
@@ -62,7 +62,7 @@ function set_properties_network_status!(graph::PowerModelsGraph{T};
             else
                 set_property!(graph, node, :edge_membership, "inactive_node")
             end
-        elseif status != PowerModels.pm_component_status_inactive[node_type]
+        elseif status != _PM.pm_component_status_inactive[node_type]
             if node_type == "bus"
                 set_property!(graph, node, :edge_membership, "active_bus")
 
