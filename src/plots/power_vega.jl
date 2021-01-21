@@ -197,7 +197,8 @@ end
 
 
 
-function plot_vega(case, spring_constant=1e-3)
+function plot_vega(case, spring_constant=1e-3; kwargs...)
+    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
     df = form_df(data)

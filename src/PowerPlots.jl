@@ -28,6 +28,7 @@ end
 include("core/types.jl")  # must be first to properly define new types
 include("core/data.jl")
 include("core/options.jl")
+include("core/utils.jl")
 
 include("plots/graph.jl")
 include("plots/network_status.jl")
