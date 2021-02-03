@@ -143,8 +143,18 @@ end
 
 
 
-function plot_vega(case, spring_constant=1e-3; kwargs...)
+function plot_vega( case;
+                    spring_constant::Float64=1e-3,
+                    bus_color=:green,
+                    gen_color=:blue,
+                    branch_color=:black,
+                    dcline_color=:steelblue,
+                    connector_color=:gray,
+                    color_symbol=:ComponentType,
+                    kwargs...
+    )
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
     PMD = PowerModelsDataFrame(data)
@@ -154,18 +164,9 @@ function plot_vega(case, spring_constant=1e-3; kwargs...)
         config={view={stroke=nothing}},
         x={axis=nothing},
         y={axis=nothing},
-        color={
-            :ComponentType,
+        resolve={
             scale={
-                domain=[
-                    "branch","bus","gen","connector",
-                ],
-                range=[
-                    :green,
-                    :blue,
-                    :red,
-                    :gray
-                ]
+                color=:independent
             }
         },
     ) +
@@ -173,7 +174,7 @@ function plot_vega(case, spring_constant=1e-3; kwargs...)
         mark ={
             :rule,
             tooltip=("content" => "data"),
-            opacity =  1.0
+            opacity =  1.0,
         },
         data=PMD.branch,
         x = :xcoord_1,
@@ -181,12 +182,20 @@ function plot_vega(case, spring_constant=1e-3; kwargs...)
         y = :ycoord_1,
         y2 = :ycoord_2,
         size={value=5},
-    ) +
+        color={
+            field="ComponentType",
+            type="nominal",
+            title="Branch",
+            scale={
+                range=[branch_color]
+            },
+            # legend={orient="bottom-right"}
+        },    ) +
     VegaLite.@vlplot(
         mark ={
             :rule,
             tooltip=("content" => "data"),
-            opacity =  1.0
+            opacity =  1.0,
         },
         data=PMD.dcline,
         x = :xcoord_1,
@@ -194,12 +203,21 @@ function plot_vega(case, spring_constant=1e-3; kwargs...)
         y = :ycoord_1,
         y2 = :ycoord_2,
         size={value=5},
+        color={
+            field="ComponentType",
+            type="nominal",
+            title="DCLine",
+            scale={
+                range=[dcline_color]
+            },
+            # legend={orient="bottom-right"}
+        },
     ) +
     VegaLite.@vlplot(
         mark ={
             :rule,
             "tooltip" =("content" => "data"),
-            opacity =  1.0
+            opacity =  1.0,
         },
         data=PMD.connector,
         x = :xcoord_1,
@@ -207,29 +225,56 @@ function plot_vega(case, spring_constant=1e-3; kwargs...)
         y = :ycoord_1,
         y2 = :ycoord_2,
         size={value=3},
-        strokeDash={value=[4,4]}
+        strokeDash={value=[4,4]},
+        color={
+            field="ComponentType",
+            type="nominal",
+            title="Connector",
+            scale={
+                range=[connector_color]
+            },
+            # legend={orient="bottom-right"}
+        },
     ) +
     VegaLite.@vlplot(
         data = PMD.bus,
         mark ={
             :circle,
             "tooltip" =("content" => "data"),
-            opacity =  1.0
+            opacity =  1.0,
         },
         x={:xcoord_1,},
         y={:ycoord_1,},
         size={value=1e2},
+        color={
+            field="ComponentType",
+            type="nominal",
+            title="Bus",
+            scale={
+                range=[bus_color]
+            },
+            # legend={orient="bottom-right"}
+        },
     )+
     VegaLite.@vlplot(
         data = PMD.gen,
         mark ={
             :circle,
             "tooltip" =("content" => "data"),
-            opacity =  1.0
+            opacity =  1.0,
         },
         x={:xcoord_1,},
         y={:ycoord_1,},
         size={value=5e1},
+        color={
+            field="ComponentType",
+            type="nominal",
+            title="Gen",
+            scale={
+                range=[gen_color]
+            }
+            # legend={orient="bottom-right"}
+        },
     )
     return p
 end
