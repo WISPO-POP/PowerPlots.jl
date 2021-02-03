@@ -145,13 +145,11 @@ end
 
 function plot_vega( case;
                     spring_constant::Float64=1e-3,
-                    bus_color=:green,
-                    gen_color=:blue,
-                    branch_color=:black,
-                    dcline_color=:steelblue,
-                    connector_color=:gray,
-                    color_symbol=:ComponentType
+                    color_symbol=:ComponentType,
+                    kwargs...
     )
+    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
     PMD = PowerModelsDataFrame(data)
@@ -184,7 +182,7 @@ function plot_vega( case;
             type="nominal",
             title="Branch",
             scale={
-                range=[branch_color]
+                range=[plot_attributes[:branch_color]]
             },
             # legend={orient="bottom-right"}
         },    ) +
@@ -205,7 +203,7 @@ function plot_vega( case;
             type="nominal",
             title="DCLine",
             scale={
-                range=[dcline_color]
+                range=[plot_attributes[:dcline_color]]
             },
             # legend={orient="bottom-right"}
         },
@@ -228,7 +226,7 @@ function plot_vega( case;
             type="nominal",
             title="Connector",
             scale={
-                range=[connector_color]
+                range=[plot_attributes[:connector_color]]
             },
             # legend={orient="bottom-right"}
         },
@@ -248,7 +246,7 @@ function plot_vega( case;
             type="nominal",
             title="Bus",
             scale={
-                range=[bus_color]
+                range=[plot_attributes[:bus_color]]
             },
             # legend={orient="bottom-right"}
         },
@@ -268,7 +266,7 @@ function plot_vega( case;
             type="nominal",
             title="Gen",
             scale={
-                range=[gen_color]
+                range=[plot_attributes[:gen_color]]
             }
             # legend={orient="bottom-right"}
         },
