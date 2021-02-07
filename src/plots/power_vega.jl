@@ -15,7 +15,7 @@ const node_types = ["bus","gen","storage"]
 const edge_types = ["switch","branch","dcline","transformer"]
 
 
-function layout_graph_vega(case::Dict{String,Any}, spring_const;
+function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
     node_types::Array{String,1} = ["bus","gen","storage"],
     edge_types::Array{String,1} = ["switch","branch","dcline","transformer"],
     )
@@ -143,7 +143,7 @@ end
 
 
 
-function plot_vega( case;
+function plot_vega( case::Dict{String,<:Any};
                     spring_constant::Float64=1e-3,
                     color_symbol=:ComponentType,
                     kwargs...
@@ -154,8 +154,8 @@ function plot_vega( case;
     remove_information!(data)
     PMD = PowerModelsDataFrame(data)
     p = VegaLite.@vlplot(
-        width=500,
-        height=500,
+        width=plot_attributes[:width],
+        height=plot_attributes[:height],
         config={view={stroke=nothing}},
         x={axis=nothing},
         y={axis=nothing},
@@ -172,14 +172,14 @@ function plot_vega( case;
             opacity =  1.0,
         },
         data=PMD.branch,
-        x = :xcoord_1,
-        x2 = :xcoord_2,
-        y = :ycoord_1,
-        y2 = :ycoord_2,
-        size={value=5},
+        x={:xcoord_1,type="quantitative"},
+        x2={:xcoord_2,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        y2={:ycoord_2,type="quantitative"},
+        size={value=plot_attributes[:branch_size]},
         color={
-            field="ComponentType",
-            type="nominal",
+            field=plot_attributes[:branch_data],
+            type=plot_attributes[:branch_data_type],
             title="Branch",
             scale={
                 range=[plot_attributes[:branch_color]]
@@ -193,14 +193,14 @@ function plot_vega( case;
             opacity =  1.0,
         },
         data=PMD.dcline,
-        x = :xcoord_1,
-        x2 = :xcoord_2,
-        y = :ycoord_1,
-        y2 = :ycoord_2,
-        size={value=5},
+        x={:xcoord_1,type="quantitative"},
+        x2={:xcoord_2,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        y2={:ycoord_2,type="quantitative"},
+        size={value=plot_attributes[:dcline_size]},
         color={
-            field="ComponentType",
-            type="nominal",
+            field=plot_attributes[:dcline_data],
+            type=plot_attributes[:dcline_data_type],
             title="DCLine",
             scale={
                 range=[plot_attributes[:dcline_color]]
@@ -215,11 +215,11 @@ function plot_vega( case;
             opacity =  1.0,
         },
         data=PMD.connector,
-        x = :xcoord_1,
-        x2 = :xcoord_2,
-        y = :ycoord_1,
-        y2 = :ycoord_2,
-        size={value=3},
+        x={:xcoord_1,type="quantitative"},
+        x2={:xcoord_2,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        y2={:ycoord_2,type="quantitative"},
+        size={value=plot_attributes[:connector_size]},
         strokeDash={value=[4,4]},
         color={
             field="ComponentType",
@@ -238,12 +238,12 @@ function plot_vega( case;
             "tooltip" =("content" => "data"),
             opacity =  1.0,
         },
-        x={:xcoord_1,},
-        y={:ycoord_1,},
-        size={value=1e2},
+        x={:xcoord_1,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        size={value=plot_attributes[:bus_size]},
         color={
-            field="ComponentType",
-            type="nominal",
+            field=plot_attributes[:bus_data],
+            type=plot_attributes[:bus_data_type],
             title="Bus",
             scale={
                 range=[plot_attributes[:bus_color]]
@@ -258,12 +258,12 @@ function plot_vega( case;
             "tooltip" =("content" => "data"),
             opacity =  1.0,
         },
-        x={:xcoord_1,},
-        y={:ycoord_1,},
-        size={value=5e1},
+        x={:xcoord_1,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        size={value=plot_attributes[:gen_size]},
         color={
-            field="ComponentType",
-            type="nominal",
+            field=plot_attributes[:gen_data],
+            type=plot_attributes[:gen_data_type],
             title="Gen",
             scale={
                 range=[plot_attributes[:gen_color]]
@@ -275,7 +275,7 @@ function plot_vega( case;
 end
 
 
-function remove_information!(data)
+function remove_information!(data::Dict{String,<:Any})
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "br_status", "t_bus",  "qf", "angmin", "angmax", "qt", "transformer", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index"],
                         "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id", "area","lam_p","zone", "bus_i"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
                         "gen"     => ["gen_status","vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin","model", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",],#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", ]
