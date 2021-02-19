@@ -1,21 +1,18 @@
-
 ## Experimental Feature!
-
-# import PyCall
-# const nx = PyCall.PyNULL()
-# const scipy = PyCall.PyNULL()
-
-# function __init__()
-#     copy!(nx, PyCall.pyimport_conda("networkx", "networkx"))
-#     copy!(scipy, PyCall.pyimport_conda("scipy", "scipy"))
-# end
 
 ## convert to DataFrames
 const node_types = ["bus","gen","storage"]
 const edge_types = ["switch","branch","dcline","transformer"]
 
 
-function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
+function _layout_graph!(G,ids) #generate positions using NetworkLayout:Spring
+    a = adjacency_matrix(G)
+    positions = Spring.layout(a,2;C = 0.5,iterations = 100)
+    positions = Dict(zip(ids,positions)) #zip node ids to generated positions
+    return positions
+end
+
+function layout_graph_vega(case::Dict{String,Any}, spring_const;
     node_types::Array{String,1} = ["bus","gen","storage"],
     edge_types::Array{String,1} = ["switch","branch","dcline","transformer"],
     )
@@ -55,8 +52,8 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
     end
 
 
-    # find fixed positions of nodes
-    pos = Dict()
+    # find fixed positions of nodes--not currently supported with NetworkLayout.jl
+ #=    pos = Dict()
     for (id,node) in node_comp_map
         if haskey(node, "xcoord_1") && haskey(node, "ycoord_1")
             pos[id] = [node["xcoord_1"], node["ycoord_1"]]
@@ -64,22 +61,37 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
             pos[id] = missing
         end
     end
-    fixed = [node for (node, p) in pos if !ismissing(p)]
+    fixed = [node for (node, p) in pos if !ismissing(p)] =#
 
-    G = nx.Graph()
+    G = PowerModelsGraph(0) #construct empty powermodels graph
+    ids = []
+    idmap = Dict()
+    i = 1 #set up iterator, need to associate LG generated indices with the 'id' field, can use metagraph to add 'id' field to 
     for (id,node) in node_comp_map
-        G.add_node(id)
-    end
-    for (id,edge) in edge_comp_map
-        G.add_edge(edge["src"], edge["dst"], weight=1.0)
-    end
-    for (id,edge) in connector_map
-        G.add_edge(edge["src"], edge["dst"], weight=1.0)
+        add_vertex!(G) #add vertex to graph
+        set_property!(G, i, :id, id) #set :id property to be equal to id.
+        push!(ids,id) #add node id (a string "compType_idNo") to list
+        push!(idmap,id => i) # push map from id to lg index to dictionary
+        i = i + 1 #increment i
     end
 
+    #need to modify so that edges are indexed from src id to dst id, rather than lightgraph index to index
+    #current workaround is to create dictionary mapping component ids to lightgraph indices
+    #this means that idmap[componentID] == lg index for a given component (bus in this case)
+
+    
+    for (id,edge) in edge_comp_map
+        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+    end
+
+    for (id,edge) in connector_map
+        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+    end
+
+    fixed = [] #empty to force position generation for all nodes
     if isempty(fixed)
-        positions = nx.kamada_kawai_layout(G, dist=nothing, pos=nothing, weight="weight", scale=1.0, center=nothing, dim=2)
-    else
+        positions = _layout_graph!(G,ids)
+    else #not accessible
         avg_x, avg_y = mean(hcat(skipmissing([v for v in values(pos)])...), dims=2)
         std_x, std_y = std(hcat(skipmissing([v for v in values(pos)])...), dims=2)
         for (v, p) in pos
@@ -143,19 +155,21 @@ end
 
 
 
-function plot_vega( case::Dict{String,<:Any};
+function plot_vega( case;
                     spring_constant::Float64=1e-3,
-                    color_symbol=:ComponentType,
-                    kwargs...
+                    bus_color=:green,
+                    gen_color=:blue,
+                    branch_color=:black,
+                    dcline_color=:steelblue,
+                    connector_color=:gray,
+                    color_symbol=:ComponentType
     )
-    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-
-    data = layout_graph_vega(case, spring_constant)
+    data = layout_graph_vega(case, spring_constant) #grabs dictionary with positions
     remove_information!(data)
     PMD = PowerModelsDataFrame(data)
     p = VegaLite.@vlplot(
-        width=plot_attributes[:width],
-        height=plot_attributes[:height],
+        width=500,
+        height=500,
         config={view={stroke=nothing}},
         x={axis=nothing},
         y={axis=nothing},
@@ -172,17 +186,17 @@ function plot_vega( case::Dict{String,<:Any};
             opacity =  1.0,
         },
         data=PMD.branch,
-        x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:branch_size]},
+        x = :xcoord_1,
+        x2 = :xcoord_2,
+        y = :ycoord_1,
+        y2 = :ycoord_2,
+        size={value=5},
         color={
-            field=plot_attributes[:branch_data],
-            type=plot_attributes[:branch_data_type],
+            field="ComponentType",
+            type="nominal",
             title="Branch",
             scale={
-                range=[plot_attributes[:branch_color]]
+                range=[branch_color]
             },
             # legend={orient="bottom-right"}
         },    ) +
@@ -193,17 +207,17 @@ function plot_vega( case::Dict{String,<:Any};
             opacity =  1.0,
         },
         data=PMD.dcline,
-        x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:dcline_size]},
+        x = :xcoord_1,
+        x2 = :xcoord_2,
+        y = :ycoord_1,
+        y2 = :ycoord_2,
+        size={value=5},
         color={
-            field=plot_attributes[:dcline_data],
-            type=plot_attributes[:dcline_data_type],
+            field="ComponentType",
+            type="nominal",
             title="DCLine",
             scale={
-                range=[plot_attributes[:dcline_color]]
+                range=[dcline_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -215,18 +229,18 @@ function plot_vega( case::Dict{String,<:Any};
             opacity =  1.0,
         },
         data=PMD.connector,
-        x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:connector_size]},
+        x = :xcoord_1,
+        x2 = :xcoord_2,
+        y = :ycoord_1,
+        y2 = :ycoord_2,
+        size={value=3},
         strokeDash={value=[4,4]},
         color={
             field="ComponentType",
             type="nominal",
             title="Connector",
             scale={
-                range=[plot_attributes[:connector_color]]
+                range=[connector_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -238,15 +252,15 @@ function plot_vega( case::Dict{String,<:Any};
             "tooltip" =("content" => "data"),
             opacity =  1.0,
         },
-        x={:xcoord_1,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        size={value=plot_attributes[:bus_size]},
+        x={:xcoord_1,},
+        y={:ycoord_1,},
+        size={value=1e2},
         color={
-            field=plot_attributes[:bus_data],
-            type=plot_attributes[:bus_data_type],
+            field="ComponentType",
+            type="nominal",
             title="Bus",
             scale={
-                range=[plot_attributes[:bus_color]]
+                range=[bus_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -258,15 +272,15 @@ function plot_vega( case::Dict{String,<:Any};
             "tooltip" =("content" => "data"),
             opacity =  1.0,
         },
-        x={:xcoord_1,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        size={value=plot_attributes[:gen_size]},
+        x={:xcoord_1,},
+        y={:ycoord_1,},
+        size={value=5e1},
         color={
-            field=plot_attributes[:gen_data],
-            type=plot_attributes[:gen_data_type],
+            field="ComponentType",
+            type="nominal",
             title="Gen",
             scale={
-                range=[plot_attributes[:gen_color]]
+                range=[gen_color]
             }
             # legend={orient="bottom-right"}
         },
@@ -275,7 +289,7 @@ function plot_vega( case::Dict{String,<:Any};
 end
 
 
-function remove_information!(data::Dict{String,<:Any})
+function remove_information!(data)
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "br_status", "t_bus",  "qf", "angmin", "angmax", "qt", "transformer", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index"],
                         "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id", "area","lam_p","zone", "bus_i"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
                         "gen"     => ["gen_status","vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin","model", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",],#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", ]
