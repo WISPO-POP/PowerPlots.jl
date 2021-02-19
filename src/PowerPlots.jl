@@ -6,6 +6,8 @@ import Statistics: mean, std
 import LinearAlgebra: norm
 import LightGraphs
 
+import NetworkLayout:Spring
+
 import Colors
 import Colors: @colorant_str
 
