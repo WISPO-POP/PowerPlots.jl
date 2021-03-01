@@ -90,7 +90,7 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
 
     fixed = [] #empty to force position generation for all nodes
     if isempty(fixed)
-        positions = _layout_graph!(G,ids)
+        positions =layout_graph_KK!(G,ids)
     else #not accessible
         avg_x, avg_y = mean(hcat(skipmissing([v for v in values(pos)])...), dims=2)
         std_x, std_y = std(hcat(skipmissing([v for v in values(pos)])...), dims=2)

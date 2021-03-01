@@ -3,9 +3,10 @@ module PowerPlots
 import InfrastructureModels
 import PowerModels
 import Statistics: mean, std
-import LinearAlgebra: norm
+import LinearAlgebra
 import LightGraphs
 
+import NetworkLayout
 import NetworkLayout:Spring
 
 import Colors
@@ -16,6 +17,13 @@ import Plots
 import VegaLite
 import DataFrames
 import Memento
+import JSON
+
+#imports for kamada kawai layout
+import GeometryBasics
+import NLopt
+import OMEinsum
+import RecursiveArrayTools
 
 
 # using NetworkLayout
@@ -46,10 +54,11 @@ include("plots/power_flow.jl")
 include("plots/system_voltage.jl")
 include("plots/networks.jl")
 
+include("plots/kamada_kawai.jl")
 include("plots/power_vega.jl")
 
 include("layouts/common.jl")
-include("layouts/layout_engines.jl")
+#include("layouts/layout_engines.jl") commented out to avoid conflict with old networkX KK layout
 
 include("graph/common.jl")
 
