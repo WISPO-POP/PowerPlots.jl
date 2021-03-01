@@ -53,9 +53,17 @@ function adjacency_matrix(graph::PowerModelsGraph{T}) where T <: LightGraphs.Abs
     return LightGraphs.adjacency_matrix(graph.graph)
 end
 
+function  dijkstra_shortest_paths(graph::PowerModelsGraph{T}, i) where T <: LightGraphs.AbstractGraph
+    return LightGraphs.dijkstra_shortest_paths(graph.graph,i)
+end
+
 "Returns an iterator of all of the nodes/vertices in `graph`"
 function vertices(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
     return LightGraphs.vertices(graph.graph)
+end
+
+function nv(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
+    return LightGraphs.nv(graph.graph)
 end
 
 
