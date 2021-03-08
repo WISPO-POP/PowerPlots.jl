@@ -49,3 +49,73 @@ const attribute_aliases = Dict(
   :dcline_size => [:dclinesize, :line_size, :edge_size],
   :connector_size => [:connectorsize, :edge_size],
 )
+
+const _color_attributes = [ # color (String or Symbol) type parameters
+  :gen_color, 
+  :bus_color, 
+  :branch_color, 
+  :connector_color, 
+  :storage_color, 
+  :dcline_color
+]
+const _numeric_attributes = [ # numeric parameters
+  :gen_size, 
+  :bus_size, 
+  :branch_size, 
+  :connector_size, 
+  :dcline_size, 
+  :storage_size, 
+  :width, 
+  :height
+]
+const _label_attributes = [ # label (String or Symbol) type parameters
+  :gen_data,
+  :bus_data,
+  :branch_data,
+  :dcline_data,
+  :storage_data,
+  :gen_data_type,
+  :bus_data_type,
+  :branch_data_type,
+  :dcline_data_type,
+  :storage_data_type
+]
+
+# Validates the given plot_attributes according to their type
+function _validate_plot_attributes(plot_attributes::Dict{Symbol, Any})
+  for attr in keys(plot_attributes)
+    if !haskey(default_plot_attributes, attr)
+      Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(attr))")
+    end
+  end
+
+  # validate color attributes
+  for attr in _color_attributes
+      color = plot_attributes[attr]
+      if !(typeof(color) <: Union{String, Symbol})
+        Memento.warn(_LOGGER, "Color value for $(repr(attr)) should be given as symbol or string")
+      else
+        try
+          parse(Colors.Colorant, color) # try to parse the color as a CSS string
+        catch e
+          Memento.warn(_LOGGER, "Invalid color $(repr(color)) given for $(repr(attr))")
+        end
+      end
+  end
+
+  # validate numeric attributes
+  for attr in _numeric_attributes
+    value = plot_attributes[attr]
+    if !(typeof(value) <: Number)
+      Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number")
+    end
+  end
+
+  # validate data label attributes
+  for attr in _string_attributes
+    value = plot_attributes[attr]
+    if !(typeof(value) <: Union{String, Symbol})
+      Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
+    end
+  end
+end

@@ -141,7 +141,21 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
     return data
 end
 
+# Checks that the given column plot_attributes[data_attr] exists in the data
+function _validate_data(data::DataFrames.DataFrame, data_column::Union{String, Symbol}, data_name::String)
+    if !(data_column in names(data) || data_column in propertynames(data))
+        Memento.warn(_LOGGER, "Data column $(repr(data_column)) does not exist for $(data_name)")
+    end
+end
 
+# Checks that the given data type attribute is a valid VegaLite data type
+function _validate_data_type(plot_attributes::Dict{Symbol, Any}, attr::Symbol)
+    valid_types = Set([:quantitative, :temporal, :ordinal, :nominal, :geojson])
+    data_type = plot_attributes[attr]
+    if !(Symbol(data_type) in valid_types)
+        Memento.warn(_LOGGER, "Data type $(repr(data_type)) not a valid VegaLite data type")
+    end
+end
 
 function plot_vega( case::Dict{String,<:Any};
                     spring_constant::Float64=1e-3,
@@ -149,10 +163,23 @@ function plot_vega( case::Dict{String,<:Any};
                     kwargs...
     )
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    _validate_plot_attributes(plot_attributes) # check the attributes for valid input types
 
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
     PMD = PowerModelsDataFrame(data)
+
+    # validate data-related attributes
+    _validate_data_type(plot_attributes, :gen_data_type)
+    _validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    _validate_data_type(plot_attributes, :bus_data_type)
+    _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
+    _validate_data_type(plot_attributes, :branch_data_type)
+    _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
+    _validate_data_type(plot_attributes, :dcline_data_type)
+    _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
+
+    # make the plots
     p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
