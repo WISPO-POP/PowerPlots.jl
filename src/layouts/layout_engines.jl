@@ -1,5 +1,5 @@
 "NetworkX Kamada-Kawai layout function"
-function kamada_kawai_layout(graph::PowerModelsGraph{T}; dist=nothing, pos=nothing, weight="weight", scale=1.0, center=nothing, dim=2) where T <: LightGraphs.AbstractGraph
+function kamada_kawai_layout_nx(graph::PowerModelsGraph{T}; dist=nothing, pos=nothing, weight="weight", scale=1.0, center=nothing, dim=2) where T <: LightGraphs.AbstractGraph
     G = nx.Graph()
     for edge in edges(graph)
         if get_property(graph,edge,:edge_type, "none") == "connector"

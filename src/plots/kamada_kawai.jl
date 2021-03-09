@@ -54,7 +54,6 @@ function _kamada_kawai_solve(dist_mtx::Array{Float64,2}, pos_arr::Array{Float64,
     meanwt = 1e-3
 
     opt = NLopt.Opt(:LD_LBFGS, length(pos_vec))
-    @show opt
     opt.xtol_rel = 1e-4
     opt.min_objective = (pos_vec, grad)->_kamada_kawai_costfn(pos_vec,grad,1.0./(dist_mtx + LinearAlgebra.I(nNodes) * 1e-3), meanwt, dim, nNodes)
     (minf,minx,ret) = NLopt.optimize(opt, pos_vec)
@@ -83,7 +82,6 @@ function _kamada_kawai_costfn(pos_vec::Vector{Float64}, grad::Vector{Float64}, i
 
     cost = 0.5 * sum(offset.^2)
     gradient = OMEinsum.ein"jk,jk,ijk->ij"(invdist, offset, direction) - OMEinsum.ein"jk,jk,ijk->ik"(invdist, offset, direction)
-    @show gradient
 
     # # Additional parabolic term to encourage mean position to be near origin:
     sumpos = sum(pos_arr, dims=2)
