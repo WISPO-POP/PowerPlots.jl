@@ -182,7 +182,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:branch_data_type],
             title="Branch",
             scale={
-                range=[plot_attributes[:branch_color]]
+                range=plot_attributes[:branch_color]
             },
             # legend={orient="bottom-right"}
         },    ) +
@@ -203,7 +203,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:dcline_data_type],
             title="DCLine",
             scale={
-                range=[plot_attributes[:dcline_color]]
+                range=plot_attributes[:dcline_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -226,7 +226,7 @@ function plot_vega( case::Dict{String,<:Any};
             type="nominal",
             title="Connector",
             scale={
-                range=[plot_attributes[:connector_color]]
+                range=plot_attributes[:connector_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -246,7 +246,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:bus_data_type],
             title="Bus",
             scale={
-                range=[plot_attributes[:bus_color]]
+                range=plot_attributes[:bus_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -266,7 +266,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:gen_data_type],
             title="Gen",
             scale={
-                range=[plot_attributes[:gen_color]]
+                range=plot_attributes[:gen_color]
             }
             # legend={orient="bottom-right"}
         },
