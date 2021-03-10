@@ -112,7 +112,7 @@ function _validate_plot_attributes(plot_attributes::Dict{Symbol, Any})
   end
 
   # validate data label attributes
-  for attr in _string_attributes
+  for attr in _label_attributes
     value = plot_attributes[attr]
     if !(typeof(value) <: Union{String, Symbol})
       Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
