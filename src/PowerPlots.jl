@@ -40,13 +40,13 @@ function silence()
     Memento.info(_LOGGER, "Suppressing information and warning messages for the rest of this session.  Use the Memento package for more fine-grained control of logging.")
     Memento.setlevel!(Memento.getlogger(PowerPlots), "error")
 end
-_hide_function(silence)
+_hide_function(silence) # do not export, potential conflict of PowerModels.silence()
 
 "allows the user to set the logging level without the need to add Memento"
 function logger_config!(level)
     Memento.config!(Memento.getlogger("PowerPlots"), level)
 end
-_hide_function(logger_config!)
+_hide_function(logger_config!) # do not export, potential conflict of PowerModels.logger_config!()
 
 function __init__()
     copy!(nx, PyCall.pyimport_conda("networkx", "networkx"))
