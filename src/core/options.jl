@@ -49,3 +49,34 @@ const attribute_aliases = Dict(
   :dcline_size => [:dclinesize, :line_size, :edge_size],
   :connector_size => [:connectorsize, :edge_size],
 )
+
+const _color_attributes = [ # color (String or Symbol) type parameters
+  :gen_color, 
+  :bus_color, 
+  :branch_color, 
+  :connector_color, 
+  :storage_color, 
+  :dcline_color
+]
+const _numeric_attributes = [ # numeric parameters
+  :gen_size, 
+  :bus_size, 
+  :branch_size, 
+  :connector_size, 
+  :dcline_size, 
+  :storage_size, 
+  :width, 
+  :height
+]
+const _label_attributes = [ # label (String or Symbol) type parameters
+  :gen_data,
+  :bus_data,
+  :branch_data,
+  :dcline_data,
+  :storage_data,
+  :gen_data_type,
+  :bus_data_type,
+  :branch_data_type,
+  :dcline_data_type,
+  :storage_data_type
+]
