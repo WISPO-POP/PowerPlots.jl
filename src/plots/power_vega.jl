@@ -141,6 +141,50 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
     return data
 end
 
+# Validates the given plot_attributes according to their type
+function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
+    for attr in keys(plot_attributes)
+      if !haskey(default_plot_attributes, attr)
+        Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(attr))")
+      end
+    end
+  
+    # validate color attributes
+    for attr in _color_attributes
+        color = plot_attributes[attr]
+        if !(typeof(color) <: Union{String, Symbol, Vector})
+          Memento.warn(_LOGGER, "Color value for $(repr(attr)) should be given as symbol or string")
+        else
+          try
+            if typeof(color) <: Vector
+                parse.(Colors.Colorant, color) # parses all colors as CSS color
+            else
+                parse(Colors.Colorant, color) # try to parse the color as a CSS color
+                plot_attributes[attr] = [color] # package color into an array
+            end
+          catch e
+            Memento.warn(_LOGGER, "Invalid color $(repr(color)) given for $(repr(attr))")
+          end
+        end
+    end
+  
+    # validate numeric attributes
+    for attr in _numeric_attributes
+      value = plot_attributes[attr]
+      if !(typeof(value) <: Number)
+        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number")
+      end
+    end
+  
+    # validate data label attributes
+    for attr in _label_attributes
+      value = plot_attributes[attr]
+      if !(typeof(value) <: Union{String, Symbol})
+        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
+      end
+    end
+  end
+
 # Checks that the given column plot_attributes[data_attr] exists in the data
 function _validate_data(data::DataFrames.DataFrame, data_column::Union{String, Symbol}, data_name::String)
     if !(data_column in names(data) || data_column in propertynames(data))
@@ -163,7 +207,7 @@ function plot_vega( case::Dict{String,<:Any};
                     kwargs...
     )
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    _validate_plot_attributes(plot_attributes) # check the attributes for valid input types
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_graph_vega(case, spring_constant)
     remove_information!(data)
@@ -209,7 +253,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:branch_data_type],
             title="Branch",
             scale={
-                range=[plot_attributes[:branch_color]]
+                range=plot_attributes[:branch_color]
             },
             # legend={orient="bottom-right"}
         },    ) +
@@ -230,7 +274,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:dcline_data_type],
             title="DCLine",
             scale={
-                range=[plot_attributes[:dcline_color]]
+                range=plot_attributes[:dcline_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -253,7 +297,7 @@ function plot_vega( case::Dict{String,<:Any};
             type="nominal",
             title="Connector",
             scale={
-                range=[plot_attributes[:connector_color]]
+                range=plot_attributes[:connector_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -273,7 +317,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:bus_data_type],
             title="Bus",
             scale={
-                range=[plot_attributes[:bus_color]]
+                range=plot_attributes[:bus_color]
             },
             # legend={orient="bottom-right"}
         },
@@ -293,7 +337,7 @@ function plot_vega( case::Dict{String,<:Any};
             type=plot_attributes[:gen_data_type],
             title="Gen",
             scale={
-                range=[plot_attributes[:gen_color]]
+                range=plot_attributes[:gen_color]
             }
             # legend={orient="bottom-right"}
         },
@@ -303,9 +347,9 @@ end
 
 
 function remove_information!(data::Dict{String,<:Any})
-    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "br_status", "t_bus",  "qf", "angmin", "angmax", "qt", "transformer", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index"],
+    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "transformer", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
                         "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id", "area","lam_p","zone", "bus_i"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
-                        "gen"     => ["gen_status","vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin","model", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",],#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", ]
+                        "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin","model", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",],#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]
     )
     for comp_type in ["bus","branch","gen"]
         for (id, comp) in data[comp_type]
