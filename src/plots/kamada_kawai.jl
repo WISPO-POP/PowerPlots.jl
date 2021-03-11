@@ -93,27 +93,15 @@ function _kamada_kawai_costfn(pos_vec::Vector{Float64}, grad::Vector{Float64}, i
     if length(grad) > 0
         grad[:] = gradient[:]
     end
-    #println("Cost: $(cost) \t |G|: $(norm(grad)) \t |pos_vec|: $(norm(pos_vec))")
+
     return cost
 end
 
 function layout_graph_KK!(G,ids) #return type must be dictionary
-    a = adjacency_matrix(G)
     pos = kamada_kawai_layout(G)
     positions = Dict(zip(ids,pos)) #zip node ids to generated positions
     return positions
 end
-
-###############
-# Test Script #
-###############
-
-# # case = parse_file("pglib_opf_case1354_pegase.m")
-#case = parse_file("pglib_opf_case5_pjm.m")
-# # case = parse_file("pglib_opf_case3_lmbd.m")
-#@time data = create_grid_layout_KK(case); # this takes a while to generate the bus coordinates.
-#df = form_df(data)
-#p = plot_power_system_vega(df)
 
 
 

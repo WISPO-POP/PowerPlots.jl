@@ -58,7 +58,7 @@ include("plots/kamada_kawai.jl")
 include("plots/power_vega.jl")
 
 include("layouts/common.jl")
-include("layouts/layout_engines.jl") 
+include("layouts/layout_engines.jl")
 
 include("graph/common.jl")
 
