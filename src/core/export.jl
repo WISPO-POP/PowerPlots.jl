@@ -6,20 +6,9 @@
 # Do not add PowerModelsAnalytics-defined symbols to this exclude list. Instead, rename
 # them with an underscore.
 
-# Which symbols to exclude from the export
-const _EXCLUDE_SYMBOLS = [Symbol(@__MODULE__), :eval, :include]
-function _hide_function(f::Function) # adds the given function to the excluded symbols
-    push!(_EXCLUDE_SYMBOLS, Symbol(f))
-end
-
-_hide_function(silence) # do not export, potential conflict of PowerModels.silence()
-_hide_function(logger_config!)  # do not export, potential conflict of PowerModels.logger_config!()
-
-# do not export macros used for aliases
-push!(_EXCLUDE_SYMBOLS, Symbol("@process_aliases"))
-push!(_EXCLUDE_SYMBOLS, Symbol("@prepare_plot_attributes"))
-
-
+# add the module name, :eval, :include to the excluded symbols list (empty list if it does not exist), and changes it to const
+union!((isdefined(@__MODULE__, :_EXCLUDE_SYMBOLS) ? _EXCLUDE_SYMBOLS : const _EXCLUDE_SYMBOLS = []),
+    [Symbol(@__MODULE__), :eval, :include])
 for sym in names(@__MODULE__, all=true)
     sym_string = string(sym)
     if sym in _EXCLUDE_SYMBOLS || startswith(sym_string, "_")

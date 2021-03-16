@@ -4,14 +4,6 @@
 const node_types = ["bus","gen","storage"]
 const edge_types = ["switch","branch","dcline","transformer"]
 
-
-function _layout_graph!(G, ids) # generate positions using NetworkLayout:Spring
-    a = adjacency_matrix(G)
-    positions = Spring.layout(a, 2;C=0.5,iterations=100)
-    positions = Dict(zip(ids, positions)) # zip node ids to generated positions
-    return positions
-end
-
 function layout_graph_vega(case::Dict{String,Any}, spring_const;
     node_types::Array{String,1}=["bus","gen","storage"],
     edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
@@ -28,25 +20,25 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
     edge_comp_map = Dict()
     for edge_type in edge_types
         temp_edge = get(data, edge_type, Dict())
-        for (id, edge) in temp_edge
+        for (id,edge) in temp_edge
             edge["src"] = "bus_$(edge["f_bus"])"
             edge["dst"] = "bus_$(edge["t_bus"])"
         end
-        temp_map = Dict(string(comp["source_id"][1], "_", comp["source_id"][2]) => comp for (comp_id, comp) in temp_edge)
-        merge!(edge_comp_map, temp_map)
+        temp_map = Dict(string(comp["source_id"][1],"_",comp["source_id"][2]) => comp for (comp_id, comp) in temp_edge)
+        merge!(edge_comp_map,temp_map)
     end
     # connectors
     connector_map = Dict()
     for node_type in node_types
-        if node_type != "bus"
+        if node_type!="bus"
             nodes = get(data, node_type, Dict())
-            for (id, node) in nodes
+            for (id,node) in nodes
                 temp_connector = Dict()
                 temp_connector["src"] = "$(node_type)_$(id)"
                 temp_connector["dst"] = "bus_$(node["$(node_type)_bus"])"
 
-                temp_map = Dict(string("connector_", (length(connector_map) + 1)) => temp_connector)
-                merge!(connector_map, temp_map)
+                temp_map = Dict(string("connector_",(length(connector_map) + 1)) => temp_connector)
+                merge!(connector_map,temp_map)
             end
         end
     end
@@ -75,16 +67,11 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
         i = i + 1 # increment i
     end
 
-    # need to modify so that edges are indexed from src id to dst id, rather than lightgraph index to index
-    # current workaround is to create dictionary mapping component ids to lightgraph indices
-    # this means that idmap[componentID] == lg index for a given component (bus in this case)
-
-
-    for (id, edge) in edge_comp_map
+    for (id,edge) in edge_comp_map
         add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
     end
 
-    for (id, edge) in connector_map
+    for (id,edge) in connector_map
         add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
     end
 
@@ -104,22 +91,22 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
             end
         end
         # spring_const = 1e-2
-        k = spring_const * minimum(std([p for p in values(pos)]))
+        k = spring_const*minimum(std([p for p in values(pos)]))
         positions = nx.spring_layout(G; pos=pos,  fixed=fixed, k=k,  iterations=100)
         # positions = pos
     end
 
     # Set Node Positions
     for (node, (x, y)) in positions
-        (comp_type, comp_id) = split(node, "_")
+        (comp_type,comp_id) = split(node, "_")
         data[comp_type][comp_id]["xcoord_1"] = x
         data[comp_type][comp_id]["ycoord_1"] = y
     end
     # Set Edge positions
     for (edge, val) in (edge_comp_map)
-        (x, y) = positions[val["src"]]
-        (x2, y2) = positions[val["dst"]]
-        (comp_type, comp_id) = split(edge, "_")
+        (x,y) = positions[val["src"]]
+        (x2,y2) = positions[val["dst"]]
+        (comp_type,comp_id) = split(edge, "_")
         data[comp_type][comp_id]["xcoord_1"] = x
         data[comp_type][comp_id]["ycoord_1"] = y
         data[comp_type][comp_id]["xcoord_2"] = x2
@@ -129,7 +116,7 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
     # Create connector dictionary
     data["connector"] = Dict{String,Any}()
     for (edge, con) in connector_map
-        _, id = split(edge, "_")
+        _,id = split(edge, "_")
         data["connector"][id] =  Dict(
             "src" => con["src"],
             "dst" => con["dst"],
@@ -141,9 +128,9 @@ function layout_graph_vega(case::Dict{String,Any}, spring_const;
     end
     # Set Connector positions
     for (edge, val) in (connector_map)
-        (x, y) = positions[val["src"]]
-        (x2, y2) = positions[val["dst"]]
-        (comp_type, comp_id) = split(edge, "_")
+        (x,y) = positions[val["src"]]
+        (x2,y2) = positions[val["dst"]]
+        (comp_type,comp_id) = split(edge, "_")
         data[comp_type][comp_id]["xcoord_1"] = x
         data[comp_type][comp_id]["ycoord_1"] = y
         data[comp_type][comp_id]["xcoord_2"] = x2
@@ -218,7 +205,6 @@ function plot_vega( case::Dict{String,<:Any};
                     kwargs...
     )
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    print(plot_attributes)
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_graph_vega(case, spring_constant)
@@ -360,7 +346,7 @@ end
 
 function remove_information!(data::Dict{String,<:Any})
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "transformer", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
-                        "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id", "area","lam_p","zone", "bus_i"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+                        "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id", "area","lam_p","zone"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv","bus_i"],
                         "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin","model", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",],#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]
     )
     for comp_type in ["bus","branch","gen"]
