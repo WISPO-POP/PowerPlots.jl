@@ -1,31 +1,20 @@
-
 ## Experimental Feature!
-
-# import PyCall
-# const nx = PyCall.PyNULL()
-# const scipy = PyCall.PyNULL()
-
-# function __init__()
-#     copy!(nx, PyCall.pyimport_conda("networkx", "networkx"))
-#     copy!(scipy, PyCall.pyimport_conda("scipy", "scipy"))
-# end
 
 ## convert to DataFrames
 const node_types = ["bus","gen","storage"]
 const edge_types = ["switch","branch","dcline","transformer"]
 
-
-function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
-    node_types::Array{String,1} = ["bus","gen","storage"],
-    edge_types::Array{String,1} = ["switch","branch","dcline","transformer"],
+function layout_graph_vega(case::Dict{String,Any}, spring_const;
+    node_types::Array{String,1}=["bus","gen","storage"],
+    edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
     )
 
     data = deepcopy(case)
     node_comp_map = Dict()
     for node_type in node_types
         temp_node = get(data, node_type, Dict())
-        temp_map = Dict(string(comp["source_id"][1],"_",comp["source_id"][2]) => comp  for (comp_id, comp) in temp_node)
-        merge!(node_comp_map,temp_map)
+        temp_map = Dict(string(comp["source_id"][1], "_", comp["source_id"][2]) => comp  for (comp_id, comp) in temp_node)
+        merge!(node_comp_map, temp_map)
     end
 
     edge_comp_map = Dict()
@@ -48,15 +37,15 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
                 temp_connector["src"] = "$(node_type)_$(id)"
                 temp_connector["dst"] = "bus_$(node["$(node_type)_bus"])"
 
-                temp_map = Dict(string("connector_",(length(connector_map)+1)) => temp_connector)
+                temp_map = Dict(string("connector_",(length(connector_map) + 1)) => temp_connector)
                 merge!(connector_map,temp_map)
             end
         end
     end
 
 
-    # find fixed positions of nodes
-    pos = Dict()
+    # find fixed positions of nodes--not currently supported with NetworkLayout.jl
+ #=    pos = Dict()
     for (id,node) in node_comp_map
         if haskey(node, "xcoord_1") && haskey(node, "ycoord_1")
             pos[id] = [node["xcoord_1"], node["ycoord_1"]]
@@ -64,35 +53,45 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
             pos[id] = missing
         end
     end
-    fixed = [node for (node, p) in pos if !ismissing(p)]
+    fixed = [node for (node, p) in pos if !ismissing(p)] =#
 
-    G = nx.Graph()
-    for (id,node) in node_comp_map
-        G.add_node(id)
+    G = PowerModelsGraph(0) # construct empty powermodels graph
+    ids = []
+    idmap = Dict()
+    i = 1 # set up iterator, need to associate LG generated indices with the 'id' field, can use metagraph to add 'id' field to
+    for (id, node) in node_comp_map
+        add_vertex!(G) # add vertex to graph
+        set_property!(G, i, :id, id) # set :id property to be equal to id.
+        push!(ids, id) # add node id (a string "compType_idNo") to list
+        push!(idmap, id => i) # push map from id to lg index to dictionary
+        i = i + 1 # increment i
     end
+
     for (id,edge) in edge_comp_map
-        G.add_edge(edge["src"], edge["dst"], weight=1.0)
-    end
-    for (id,edge) in connector_map
-        G.add_edge(edge["src"], edge["dst"], weight=1.0)
+        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
     end
 
+    for (id,edge) in connector_map
+        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+    end
+
+    fixed = [] # empty to force position generation for all nodes
     if isempty(fixed)
-        positions = nx.kamada_kawai_layout(G, dist=nothing, pos=nothing, weight="weight", scale=1.0, center=nothing, dim=2)
-    else
+        positions = layout_graph_KK!(G, ids)
+    else # not accessible
         avg_x, avg_y = mean(hcat(skipmissing([v for v in values(pos)])...), dims=2)
         std_x, std_y = std(hcat(skipmissing([v for v in values(pos)])...), dims=2)
         for (v, p) in pos
             if ismissing(p)
-                #get parent bus coord, or center of figure
+                # get parent bus coord, or center of figure
                 comp_type, comp_id = split(v, "_")
-                x1 = get(get(data["bus"],string(get(case[comp_type][comp_id],"$(comp_type)_bus", NaN)),Dict()),"xcoord_1", avg_x)
-                y1 = get(get(data["bus"],string(get(case[comp_type][comp_id],"$(comp_type)_bus", NaN)),Dict()),"ycoord_1", avg_x)
-                pos[v] = [x1,y1] + [std_x*(rand()-0.5), std_y*(rand()-0.5)]*300
+                x1 = get(get(data["bus"], string(get(case[comp_type][comp_id], "$(comp_type)_bus", NaN)), Dict()), "xcoord_1", avg_x)
+                y1 = get(get(data["bus"], string(get(case[comp_type][comp_id], "$(comp_type)_bus", NaN)), Dict()), "ycoord_1", avg_x)
+                pos[v] = [x1,y1] + [std_x * (rand() - 0.5), std_y * (rand() - 0.5)] * 300
             end
         end
         # spring_const = 1e-2
-        k=spring_const*minimum(std([p for p in values(pos)]))
+        k = spring_const*minimum(std([p for p in values(pos)]))
         positions = nx.spring_layout(G; pos=pos,  fixed=fixed, k=k,  iterations=100)
         # positions = pos
     end
@@ -118,7 +117,7 @@ function layout_graph_vega(case::Dict{String,<:Any}, spring_const;
     data["connector"] = Dict{String,Any}()
     for (edge, con) in connector_map
         _,id = split(edge, "_")
-        data["connector"][id]=  Dict(
+        data["connector"][id] =  Dict(
             "src" => con["src"],
             "dst" => con["dst"],
             "xcoord_1" => 0.0,
@@ -183,7 +182,8 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
         Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
       end
     end
-  end
+end
+
 
 # Checks that the given column plot_attributes[data_attr] exists in the data
 function _validate_data(data::DataFrames.DataFrame, data_column::Union{String, Symbol}, data_name::String)
