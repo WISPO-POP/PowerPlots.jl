@@ -24,6 +24,7 @@ macro process_aliases(plot_attributes, attribute_aliases)
                     $(esc(plot_attributes)), $(esc(attribute_aliases))))) for sym in attributes]
   ex
 end
+push!(_EXCLUDE_SYMBOLS, Symbol("@process_aliases"))
 
 # called after aliases are processed via @process_aliases
 # removes any alias keys from plot_attributes
@@ -68,6 +69,7 @@ macro prepare_plot_attributes(kwargs)
   push!(ex.args, Expr(:(=), esc(:plot_attributes), :plot_attributes)); # create external plot_attributes dict
   ex
 end
+push!(_EXCLUDE_SYMBOLS, Symbol("@prepare_plot_attributes"))
 
 # #=== Example Usage ===#
 # function plot_vega(case; spring_constant=1e-3, kwargs...)
