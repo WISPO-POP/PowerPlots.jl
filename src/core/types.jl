@@ -48,31 +48,28 @@ mutable struct PowerModelsDataFrame
     connector::DataFrames.DataFrame
 
     function PowerModelsDataFrame(case::Dict{String,<:Any})
-        if InfrastructureModels.ismultinetwork(case)
-            comp_dataframes = tuple((DataFrames.DataFrame() for i in 1:7)...)
-            for (nw_id, net) in case["nw"]
-                comp_dataframes_new= _PowerModelsDataFrame(net::Dict{String,<:Any})
-                for df in comp_dataframes_new
-                    df[!,"nw_id"].=nw_id
+        data = deepcopy(case)
+        comp_dataframes = tuple((DataFrames.DataFrame() for i in 1:7)...)
+        if InfrastructureModels.ismultinetwork(data)
+            for (nw_id, net) in data["nw"]
+
+                net["nw_id"]=nw_id # give each network, component its parent nw_id
+                for comp_type in supported_component_types
+                    for (comp_id, comp) in get(data,comp_type,Dict())
+                        comp["nw_id"] = nw_id
+                    end
                 end
-                append!.(comp_dataframes, comp_dataframes_new)
+
+                comp_dataframes_new= _PowerModelsDataFrame(net::Dict{String,<:Any}, comp_dataframes...)
             end
+
             #combine toplevel and network metadata
-            metadata = _metadata_to_dataframe(case)
-            metadata[!,"nw_id"].="top_level"
-            for name in names(metadata)
-                if !(name in names(comp_dataframes[1]))
-                    comp_dataframes[1][!,name].=missing
-                end
-            end
-            for name in names(comp_dataframes[1])
-                if !(name in names(metadata))
-                    metadata[!,name].=missing
-                end
-            end
-            vcat(comp_dataframes[1],metadata)
+            data["nw_id"] = "top_level"
+            _metadata_to_dataframe(data, comp_dataframes[1])
         else
-            comp_dataframes = _PowerModelsDataFrame(case::Dict{String,<:Any})
+            ## not a multinetwork
+            comp_dataframes = _PowerModelsDataFrame(data::Dict{String,<:Any}, comp_dataframes...)
+
         end
         new(comp_dataframes...)
     end
@@ -80,7 +77,7 @@ end
 
 
 ""
-function _PowerModelsDataFrame(sn_net::Dict{String,<:Any})
+function _PowerModelsDataFrame(sn_net::Dict{String,<:Any}, metadata, bus, gen, branch, dcline, load, connector)
 
         data = deepcopy(sn_net) # prevent overwriting input data
 
@@ -91,21 +88,22 @@ function _PowerModelsDataFrame(sn_net::Dict{String,<:Any})
             end
         end
 
+
         ## Assign component DataFrames
-        metadata = _metadata_to_dataframe(data)
-        bus = _comp_dict_to_dataframe(data["bus"])
-        gen = _comp_dict_to_dataframe(data["gen"])
-        branch = _comp_dict_to_dataframe(data["branch"])
-        dcline = _comp_dict_to_dataframe(data["dcline"])
-        load = _comp_dict_to_dataframe(data["load"])
-        connector = _comp_dict_to_dataframe(get(data,"connector",Dict{String,Any}()))
+        _metadata_to_dataframe(data, metadata)
+        _comp_dict_to_dataframe(get(data,"bus", Dict{String,Any}()), bus)
+        _comp_dict_to_dataframe(get(data,"gen", Dict{String,Any}()), gen)
+        _comp_dict_to_dataframe(get(data,"branch", Dict{String,Any}()), branch)
+        _comp_dict_to_dataframe(get(data,"dcline", Dict{String,Any}()), dcline)
+        _comp_dict_to_dataframe(get(data,"load", Dict{String,Any}()), load)
+        _comp_dict_to_dataframe(get(data,"connector",Dict{String,Any}()), connector)
 
     return (metadata,bus,gen,branch,dcline,load,connector)
 end
 
 
 "convert non-component data into a dataframe"
-function _metadata_to_dataframe(data)
+function _metadata_to_dataframe(data, metadata)
     ## Seperate componets Dicts from metadata
     metadata_key = Symbol[]
     metadata_val = Any[]
@@ -116,30 +114,29 @@ function _metadata_to_dataframe(data)
             end
         else
             push!(metadata_key,Symbol(k))
-            push!(metadata_val,[v])
+            push!(metadata_val,v)
         end
     end
-    metadata = DataFrames.DataFrame(metadata_val,metadata_key)
+
+    metadata_dict = Dict(zip(metadata_key, metadata_val))
+    DataFrames.push!(metadata, metadata_dict, cols=:union)
     return metadata
 end
 
 
 "convert a componet dictionary such as `bus` into a dataframe."
-function _comp_dict_to_dataframe(comp_dict::Dict{String,<:Any})
+function _comp_dict_to_dataframe(comp_dict::Dict{String,<:Any}, df)
     if length(comp_dict) <= 0 ## Should there be an empty dataframe, or a nonexistent dataframe?
-        return DataFrames.DataFrame()
+        return df
     end
 
-    columns = [Symbol(k) => (typeof(v) <: Array || typeof(v) <: Dict) ? String[] : typeof(v)[] for (k,v) in first(comp_dict)[2]]
-
-    df = DataFrames.DataFrame(columns...)
     for (i, component) in comp_dict
         for (k,v) in component
             if typeof(v) <: Array || typeof(v) <: Dict
                 component[k] = string(v)
             end
         end
-        push!(df, component)
+        DataFrames.push!(df, component, cols=:union)
     end
 
     return df
