@@ -147,7 +147,7 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
         Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(attr))")
       end
     end
-  
+
     # validate color attributes
     for attr in _color_attributes
         color = plot_attributes[attr]
@@ -166,7 +166,7 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
           end
         end
     end
-  
+
     # validate numeric attributes
     for attr in _numeric_attributes
       value = plot_attributes[attr]
@@ -174,7 +174,7 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
         Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number")
       end
     end
-  
+
     # validate data label attributes
     for attr in _label_attributes
       value = plot_attributes[attr]
@@ -206,6 +206,10 @@ function plot_vega( case::Dict{String,<:Any};
                     color_symbol=:ComponentType,
                     kwargs...
     )
+    if InfrastructureModels.ismultinetwork(case)
+        Memento.error(_PM._LOGGER, "plot_vega does not yet support multinetwork data")
+    end
+
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
