@@ -55,7 +55,7 @@ mutable struct PowerModelsDataFrame
 
                 net["nw_id"]=nw_id # give each network, component its parent nw_id
                 for comp_type in supported_component_types
-                    for (comp_id, comp) in get(data,comp_type,Dict())
+                    for (comp_id, comp) in get(net,comp_type,Dict())
                         comp["nw_id"] = nw_id
                     end
                 end
