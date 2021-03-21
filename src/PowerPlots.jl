@@ -17,7 +17,7 @@ import Plots
 import VegaLite
 import DataFrames
 import Memento
-# import JSON
+import JSON
 
 #imports for kamada kawai layout
 import GeometryBasics
