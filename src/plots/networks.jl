@@ -116,7 +116,7 @@ function plot_network!(plt::Plots.Plot,
     end
 
     if !all(hasprop(graph, node, :x) && hasprop(graph, node, :y) for node in vertices(graph))
-        layout_graph!(graph, kamada_kawai_layout; use_buscoords=use_buscoords, apply_spring_layout=apply_spring_layout, spring_const=spring_const)
+        layout_graph!(graph, kamada_kawai_layout_nx; use_buscoords=use_buscoords, apply_spring_layout=apply_spring_layout, spring_const=spring_const)
     end
 
     # Apply membership and formatting
