@@ -1,7 +1,7 @@
 # PowerPlots
 
 ![CI](https://github.com/WISPO-POP/PowerPlots.jl/workflows/CI/badge.svg)
-[![Codecov](https://codecov.io/gh/WISPO-POP/PowerPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/WISPO-POP/PowerPlots.jl/stable/)
+[![Codecov](https://codecov.io/gh/WISPO-POP/PowerPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/WISPO-POP/PowerPlots.jl)
 [![Documentation](https://github.com/WISPO-POP/PowerPlots.jl/branch/master/graph/badge.svg)](https://WISPO-POP.github.io/PowerPlots.jl/stable/)
 
 
