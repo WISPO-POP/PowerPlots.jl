@@ -269,7 +269,18 @@ function plot_vega( case::Dict{String,<:Any};
                 range=plot_attributes[:branch_color]
             },
             # legend={orient="bottom-right"}
-        },    ) +
+        },
+        },
+        selection={
+            grid={
+                type=:interval,
+                resolve=:global,
+                bind=:scales,
+                translate="[mousedown[!event.shiftKey], window:mouseup] > window:mousemove!",
+                zoom="wheel![!event.shiftKey]"
+            }
+        },
+    ) +
     VegaLite.@vlplot(
         mark ={
             :rule,
