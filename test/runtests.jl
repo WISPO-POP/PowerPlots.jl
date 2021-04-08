@@ -4,6 +4,7 @@ using Test
 using PowerModels
 import Ipopt
 
+PowerModels.silence()
 data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
 
 @testset "PowerPlots.jl" begin
@@ -21,12 +22,6 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
      plot_power_flow(data)
 
      # these functions work if we got this far
-     @test true
-
-
-     ## Test vegalite plotting
-     case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
-     plot_vega(case)
      @test true
 
 end
