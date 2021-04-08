@@ -170,8 +170,14 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
     # validate numeric attributes
     for attr in _numeric_attributes
       value = plot_attributes[attr]
-      if !(typeof(value) <: Number)
-        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number")
+      if !(typeof(value) <: Union{Number, String})
+        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number or numeric String")
+      elseif typeof(value) <: String
+        try
+            parse(Float64, value)
+        catch e
+            Memento.warn(_LOGGER, "Invalid number $(repr(value)) given for $(repr(attr))")
+        end
       end
     end
 
@@ -186,7 +192,10 @@ end
 
 
 # Checks that the given column plot_attributes[data_attr] exists in the data
-function _validate_data(data::DataFrames.DataFrame, data_column::Union{String, Symbol}, data_name::String)
+function _validate_data(data::DataFrames.DataFrame, data_column::Any, data_name::String)
+    if !(typeof(data_column) <: Union{String, Symbol})
+        return
+    end
     if !(data_column in names(data) || data_column in propertynames(data))
         Memento.warn(_LOGGER, "Data column $(repr(data_column)) does not exist for $(data_name)")
     end
@@ -207,7 +216,7 @@ function plot_vega( case::Dict{String,<:Any};
                     kwargs...
     )
     if InfrastructureModels.ismultinetwork(case)
-        Memento.error(_PM._LOGGER, "plot_vega does not yet support multinetwork data")
+        Memento.error(_LOGGER, "plot_vega does not yet support multinetwork data")
     end
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
