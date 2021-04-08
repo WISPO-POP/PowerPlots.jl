@@ -270,7 +270,6 @@ function plot_vega( case::Dict{String,<:Any};
             },
             # legend={orient="bottom-right"}
         },
-        },
         selection={
             grid={
                 type=:interval,
