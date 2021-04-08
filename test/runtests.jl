@@ -19,7 +19,6 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         plot_network(data)
         plot_network!(data)
 
-
         plot_network_status!(graph)
         plot_system_voltage(data)
 
@@ -89,7 +88,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         
         PowerPlots.logger_config!(start_level) # restore logger to initial level
     end
-
+  
     @testset "PowerModelsDataFrame" begin
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
         df = PowerModelsDataFrame(data)
