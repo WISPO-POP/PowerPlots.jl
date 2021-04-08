@@ -9,7 +9,8 @@
 
 "Kamada Kawai Layout"
 function kamada_kawai_layout(G::PowerModelsGraph{T}, dist::Union{Nothing,Matrix{Float64}}=nothing, pos::Union{Nothing,Matrix{Float64}}=nothing, weight="weight", scale=1, center=nothing, dim=2) where T<:LightGraphs.AbstractGraph #::Array{Array{Float64,1},1}
-    nNodes = nv(G)
+    graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
+    nNodes = LightGraphs.nv(graph)
     if nNodes == 0
         return
     end
@@ -17,13 +18,13 @@ function kamada_kawai_layout(G::PowerModelsGraph{T}, dist::Union{Nothing,Matrix{
     if dist===nothing
         dist=Dict()
         for i in 1:nNodes
-            dist[i]=dijkstra_shortest_paths(G, i).dists
+            dist[i]=LightGraphs.dijkstra_shortest_paths(graph, i).dists
         end
     end
     dist_mtx = 1e6 * ones(nNodes, nNodes) #reform dist into matrix, probably easier??
-    for nr in vertices(G)
+    for nr in LightGraphs.vertices(graph)
         rdist = dist[nr]
-        for nc in vertices(G)
+        for nc in LightGraphs.vertices(graph)
             dist_mtx[nr,nc] = rdist[nc]
         end
     end
@@ -31,7 +32,7 @@ function kamada_kawai_layout(G::PowerModelsGraph{T}, dist::Union{Nothing,Matrix{
         if dim >= 3
             pos= 2 .* rand(Float64,dim, nNodes) .- 1 #??? make a matrix n x dim
         elseif dim == 2
-            a = adjacency_matrix(G)
+            a = LightGraphs.adjacency_matrix(graph)
             pos = convert(Array,RecursiveArrayTools.VectorOfArray(NetworkLayout.Circular.layout(a)))
         else
             pos = [pt for pt in range(0, 1, length=nNodes)]
