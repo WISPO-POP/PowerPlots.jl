@@ -12,12 +12,9 @@ import NetworkLayout:Spring
 import Colors
 import Colors: @colorant_str
 
-import Plots
-
 import VegaLite
 import DataFrames
 import Memento
-# import JSON
 
 #imports for kamada kawai layout
 import GeometryBasics
@@ -26,15 +23,11 @@ import OMEinsum
 import RecursiveArrayTools
 
 
-# using NetworkLayout
-
-import PyCall
+# import PyCall
 
 _PM = PowerModels
 _IM = InfrastructureModels
 
-const nx = PyCall.PyNULL()
-const scipy = PyCall.PyNULL()
 
 # Create our module level logger (this will get precompiled)
 const _LOGGER = Memento.getlogger(@__MODULE__)
@@ -61,9 +54,6 @@ _hide_function(logger_config!) # do not export, potential conflict of PowerModel
 
 
 function __init__()
-    copy!(nx, PyCall.pyimport_conda("networkx", "networkx"))
-    copy!(scipy, PyCall.pyimport_conda("scipy", "scipy"))
-
     # Register the module level logger at runtime so that folks can access the logger via `getlogger(PowerPlots)`
     # NOTE: If this line is not included then the precompiled `PowerPlots._LOGGER` won't be registered at runtime.
     Memento.register(_LOGGER)
@@ -76,13 +66,6 @@ include("core/data.jl")
 include("core/options.jl")
 include("core/utils.jl")
 
-include("plots/graph.jl")
-include("plots/network_status.jl")
-include("plots/power_flow.jl")
-include("plots/system_voltage.jl")
-include("plots/networks.jl")
-
-include("plots/kamada_kawai.jl")
 include("plots/power_vega.jl")
 
 include("layouts/common.jl")
