@@ -27,6 +27,7 @@ include("core/types.jl")
 include("core/data.jl")
 include("core/options.jl")
 include("core/utils.jl")
+include("core/attribute_validation.jl")
 
 include("plots/plot.jl")
 
