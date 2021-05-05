@@ -3,37 +3,33 @@ module PowerPlots
 import InfrastructureModels
 import PowerModels
 import Statistics: mean, std
-import LinearAlgebra: norm
-import LightGraphs
+import LinearAlgebra
 
+import VegaLite
 import Colors
-import Colors: @colorant_str
+import DataFrames
+import Memento
 
-import Plots
+import LightGraphs
+import NetworkLayout
+import NetworkLayout:Spring
+import GeometryBasics
+import NLopt
+import OMEinsum
+import RecursiveArrayTools
 
-# using NetworkLayout
-
-import PyCall
-
-const nx = PyCall.PyNULL()
-const scipy = PyCall.PyNULL()
-
-function __init__()
-    copy!(nx, PyCall.pyimport_conda("networkx", "networkx"))
-    copy!(scipy, PyCall.pyimport_conda("scipy", "scipy"))
-end
+_PM = PowerModels
+_IM = InfrastructureModels
 
 
-
-include("core/types.jl")  # must be first to properly define new types
+include("core/configuration.jl")
+include("core/types.jl")
 include("core/data.jl")
 include("core/options.jl")
+include("core/utils.jl")
+include("core/attribute_validation.jl")
 
-include("plots/graph.jl")
-include("plots/network_status.jl")
-include("plots/power_flow.jl")
-include("plots/system_voltage.jl")
-include("plots/networks.jl")
+include("plots/plot.jl")
 
 include("layouts/common.jl")
 include("layouts/layout_engines.jl")
