@@ -1,135 +1,86 @@
-# """
-#     build_graph_network(case; kwargs...)
 
-# Builds a PowerModelsGraph of a PowerModels/PowerModelsDistribution network `case`.
+"Create a PowerModelsGraph using mappings for node->comp, edge->comp, connector->component"
+function create_pm_graph(node_comp_map::Dict{String,<:Any}, edge_comp_map::Dict{String,<:Any}, connector_map::Dict{String,<:Any})
+    G = PowerModelsGraph(0) # construct empty powermodels graph
+    ids = []
+    idmap = Dict()
+    i = 1 # set up iterator, need to associate LG generated indices with the 'id' field, can use metagraph to add 'id' field to
+    for (id, node) in node_comp_map
+        add_vertex!(G) # add vertex to graph
+        set_property!(G, i, :id, id) # set :id property to be equal to id.
+        push!(ids, id) # add node id (a string "compType_idNo") to list
+        push!(idmap, id => i) # push map from id to lg index to dictionary
+        i = i + 1 # increment i
+    end
 
-# # Parameters
+    for (id,edge) in edge_comp_map
+        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+    end
 
-# * `case::Dict{String,Any}`
+    for (id,edge) in connector_map
+        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+    end
+    return G,ids
+end
 
-#     Network case data structure
 
-# * `edge_types::Array`
+"""
+    Create a dictionary map for nodes from components. This is used to create a PowerModelsGraph structure. `node_types` is a string
+    array for of all the components that are considered nodes in the graph.
+    ```Dict("gen_1"=>case["gen"]["1"])```
+"""
+function get_node_comp_map(data::Dict{String,<:Any},node_types::Array{String,1})
+    node_comp_map = Dict{String,Any}()
+    for node_type in node_types
+        temp_node = get(data, node_type, Dict{String,Any}())
+        temp_map = Dict(string(comp["source_id"][1], "_", comp["source_id"][2]) => comp  for (comp_id, comp) in temp_node)
+        merge!(node_comp_map, temp_map)
+    end
+    return node_comp_map
+end
 
-#     Default: `["branch", "dcline", "transformer"]`. List of component types that are graph edges.
 
-# * `source_types::Dict{String,Dict{String,String}}`
+"""
+    Create a dictionary map for edges from components. This is used to create a PowerModelsGraph structure. `edge_types` is a string
+    array for of all the components that are considered edges in the graph, like branches and dclines.
+    ```Dict("branch_1"=>case["branch"]["1"])```
+    A dictionary entry is added to specify the from and to buses in node mapping form `bus_1`.
+"""
+function get_edge_comp_map(data::Dict{String,<:Any},node_types::Array{String,1})
+    edge_comp_map = Dict{String,Any}()
+    for edge_type in edge_types
+        temp_edge = get(data, edge_type, Dict{String,Any}())
+        for (id,edge) in temp_edge
+            edge["src"] = "bus_$(edge["f_bus"])"
+            edge["dst"] = "bus_$(edge["t_bus"])"
+        end
+        temp_map = Dict(string(comp["source_id"][1],"_",comp["source_id"][2]) => comp for (comp_id, comp) in temp_edge)
+        merge!(edge_comp_map,temp_map)
+    end
+    return edge_comp_map
+end
 
-#     Default:
-#     ```
-#     Dict("gen"=>Dict("active"=>"pg", "reactive"=>"qg", "status"=>"gen_status", "active_max"=>"pmax", "active_min"=>"pmin"),
-#         "storage"=>Dict("active"=>"ps", "reactive"=>"qs", "status"=>"status"))
-#     ```
 
-#     Dictionary containing information about different generator types, including basic `gen` and `storage`.
+"""
+    Create a dictionary map for edges that connect nodes to buses. This is used to create a PowerModelsGraph structure. `node_types` is a string
+    array for of all the components that are considered nodes in the graph, and a connector branch is created for each non-bus node between the
+    node and the parent bus.
+    ```Dict("connector_1"=>Dict("src"=>"gen_1","dst"=>"bus_1"))```
+"""
+function get_connector_map(data::Dict{String,<:Any},node_types::Array{String,1})
+    connector_map = Dict{String,Any}()
+    for node_type in node_types
+        if node_type!="bus"
+            nodes = get(data, node_type, Dict{String,Any}())
+            for (id,node) in nodes
+                temp_connector = Dict{String,Any}()
+                temp_connector["src"] = "$(node_type)_$(id)"
+                temp_connector["dst"] = "bus_$(node["$(node_type)_bus"])"
 
-# * `exclude_sources::Union{Nothing,Array}`
-
-#     Default: `nothing`. A list of patterns of generator names to not include in the graph.
-
-# * `aggregate_sources::Bool`
-
-#     Default: `false`. If `true`, generators will be aggregated by type for each bus.
-
-# * `switch::String`
-
-#     Default: `"breaker"`. The keyword that indicates branches are switches.
-
-# # Returns
-
-# * `graph::PowerModelsGraph{LightGraphs.SimpleDiGraph}`
-
-#     Simple Directional Graph including metadata
-# """
-# function build_graph_network(case::Dict{String,Any};
-#                              edge_types=["branch", "dcline", "transformer"],
-#                              source_types=["gen", "storage"],
-#                              exclude_sources::Bool=false,
-#                              aggregate_sources::Bool=false)::PowerModelsGraph
-
-#      if exclude_sources == true
-#          source_types=String[]
-#      end
-
-#     connected_buses = Set(edge[k] for k in ["f_bus", "t_bus"] for edge_type in edge_types for edge in values(get(case, edge_type, Dict())))
-
-#     sources = [(source_type, source) for source_type in source_types for source in values(get(case, source_type, Dict()))]
-#     n_buses = length(connected_buses)
-#     n_sources = length(sources)
-
-#     graph = PowerModelsGraph(n_buses + n_sources)
-#     bus_graph_map = Dict(bus["bus_i"] => i for (i, bus) in enumerate(values(get(case, "bus", Dict()))))
-#     source_graph_map = Dict("$(source_type)_$(gen["index"])" => i for (i, (source_type, gen)) in zip(n_buses+1:n_buses+n_sources, sources))
-
-#     graph_bus_map = Dict(v => k for (k, v) in bus_graph_map)
-#     graph_source_map = Dict(v => k for (k, v) in source_graph_map)
-#     graph_map = merge(graph_bus_map, graph_source_map)
-
-#     for edge_type in edge_types
-#         for edge in values(get(case, edge_type, Dict()))
-#             add_edge!(graph, bus_graph_map[edge["f_bus"]], bus_graph_map[edge["t_bus"]])
-
-#             props = Dict{Symbol,Any}(:id => edge["index"],
-#                                      :label => string(edge_type,"_",edge["index"]),
-#                                      :edge_type => edge_type,
-#                                      :data => edge
-#                                      )
-#             set_properties!(graph, LightGraphs.Edge(bus_graph_map[edge["f_bus"]], bus_graph_map[edge["t_bus"]]), props)
-#         end
-#     end
-
-#     # Add Generator Nodes
-#     for source_type in source_types
-#         for source in values(get(case, source_type, Dict()))
-#             add_edge!(graph, source_graph_map["$(source_type)_$(source["index"])"], bus_graph_map[source["$(source_type)_bus"]])
-
-#             node_props = Dict(:id => source["index"],
-#                               :node_type => source_type,
-#                               :parent_node =>bus_graph_map[source[string(source_type,"_bus")]],
-#                               :label => string(source_type,"_",source["index"]),
-#                               :data => source
-#                               )
-#             set_properties!(graph, source_graph_map["$(source_type)_$(source["index"])"], node_props)
-
-#             edge_props = Dict(:id => source["index"],
-#                               :edge_type => "connector",
-#                               )
-#             set_properties!(graph, LightGraphs.Edge(source_graph_map["$(source_type)_$(source["index"])"], bus_graph_map[source["$(source_type)_bus"]]), edge_props)
-#         end
-#     end
-
-#     # Add bus data
-#     for bus in values(get(case, "bus", Dict()))
-#         if haskey(bus, "buscoord")
-#             set_property!(graph, bus_graph_map[bus["bus_i"]], :buscoord, bus["buscoord"])
-#         end
-
-#         node_props = Dict(:id => bus["index"],
-#                           :node_type => "bus",
-#                           :label => string("bus_", bus["index"]),
-#                           :data => bus
-#                           )
-#         set_properties!(graph, bus_graph_map[bus["bus_i"]], node_props)
-#     end
-
-#     # add load data to buses
-#     bus_load_map = Dict()
-#     for (id, load) in get(case, "load", Dict())
-#         load_bus = load["load_bus"]
-#         if haskey(bus_load_map, load_bus)
-#             push!(bus_load_map[load_bus], id)
-#         else
-#             bus_load_map[load_bus] = [id]
-#         end
-#     end
-
-#     for (bus,loads) in bus_load_map
-#         load_data = Dict()
-#         for id in loads
-#             load_data[id]=case["load"][id]
-#         end
-#         set_properties!(graph, bus_graph_map[bus], Dict(:load=>load_data))
-#     end
-
-#     return graph
-# end
+                temp_map = Dict(string("connector_",(length(connector_map) + 1)) => temp_connector)
+                merge!(connector_map,temp_map)
+            end
+        end
+    end
+    return connector_map
+end
