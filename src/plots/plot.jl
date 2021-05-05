@@ -36,7 +36,27 @@ function powerplot( case::Dict{String,<:Any};
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = VegaLite.@vlplot(
+    p = plot_base(plot_attributes)
+    if !(isempty(PMD.branch))
+        p = p+plot_branch(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.dcline))
+        p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.connector))
+        p = p+plot_connector(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.bus))
+        p = p+plot_bus(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.gen))
+        p = p+plot_gen(PMD, plot_attributes)
+    end
+    return p
+end
+
+ function plot_base(plot_attributes::Dict{Symbol,Any})
+    return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
         config={view={stroke=nothing}},
@@ -47,8 +67,12 @@ function powerplot( case::Dict{String,<:Any};
                 color=:independent
             }
         },
-    ) +
-    VegaLite.@vlplot(
+    )
+ end
+
+
+ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    return VegaLite.@vlplot(
         mark ={
             :rule,
             tooltip=("content" => "data"),
@@ -68,8 +92,12 @@ function powerplot( case::Dict{String,<:Any};
                 range=plot_attributes[:branch_color]
             },
             # legend={orient="bottom-right"}
-        },    ) +
-    VegaLite.@vlplot(
+        },
+    )
+ end
+
+function plot_dcline(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    return VegaLite.@vlplot(
         mark ={
             :rule,
             tooltip=("content" => "data"),
@@ -90,8 +118,11 @@ function powerplot( case::Dict{String,<:Any};
             },
             # legend={orient="bottom-right"}
         },
-    ) +
-    VegaLite.@vlplot(
+    )
+end
+
+function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+return VegaLite.@vlplot(
         mark ={
             :rule,
             "tooltip" =("content" => "data"),
@@ -113,8 +144,11 @@ function powerplot( case::Dict{String,<:Any};
             },
             # legend={orient="bottom-right"}
         },
-    ) +
-    VegaLite.@vlplot(
+    )
+end
+
+function plot_bus(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    return VegaLite.@vlplot(
         data = PMD.bus,
         mark ={
             :circle,
@@ -133,8 +167,11 @@ function powerplot( case::Dict{String,<:Any};
             },
             # legend={orient="bottom-right"}
         },
-    )+
-    VegaLite.@vlplot(
+    )
+end
+
+function plot_gen(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    return VegaLite.@vlplot(
         data = PMD.gen,
         mark ={
             :circle,
@@ -154,7 +191,6 @@ function powerplot( case::Dict{String,<:Any};
             # legend={orient="bottom-right"}
         },
     )
-    return p
 end
 
 
