@@ -1,10 +1,3 @@
-## Experimental Feature!
-
-## convert to DataFrames
-const node_types = ["bus","gen","storage"]
-const edge_types = ["switch","branch","dcline","transformer"]
-
-
 
 function powerplot( case::Dict{String,<:Any};
                     spring_constant::Float64=1e-3,
