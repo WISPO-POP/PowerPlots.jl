@@ -29,31 +29,31 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
             output != nothing && output != """Data column "ComponentType" does not exist for DC line"""
         end
 
-        @test_nolog(logger, "warn", is_unexpected_warning, plot_vega(case)) # vanilla function call should not cause any unexpected error messages
-        @test_nolog(logger, "error", r".+", plot_vega(case)) # vanilla function call should not cause any error messages
+        @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case)) # vanilla function call should not cause any unexpected error messages
+        @test_nolog(logger, "error", r".+", powerplot(case)) # vanilla function call should not cause any error messages
 
         # Color attribute tests
-        @test_nolog(logger, "error", r".+", plot_vega(case; bus_color=:red, branch_color=["blue", :green])) # valid function call should not cause any error messages
-        @test_nolog(logger, "warn", is_unexpected_warning, plot_vega(case; bus_color=:red, branch_color=["blue", :green])) # test valid colors
-        @test_warn(logger, r"Ignoring unexpected attribute (.*)$", plot_vega(case; fake_attr=nothing)) # test ignoring of invalid attributes
-        @test_warn(logger, r"Color value for (.*) should be given as symbol or string$", plot_vega(case; bus_color=0)) # test invalid color type warning
-        @test_warn(logger, r"Invalid color (.*) given for (.*)$", plot_vega(case; bus_color=:goosegray)) # test invalid CSS color warning
-        @test_warn(logger, r"Invalid color (.*) given for (.*)$", plot_vega(case; bus_color=[:red, 0])) # test array with invalid CSS colors
+        @test_nolog(logger, "error", r".+", powerplot(case; bus_color=:red, branch_color=["blue", :green])) # valid function call should not cause any error messages
+        @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case; bus_color=:red, branch_color=["blue", :green])) # test valid colors
+        @test_warn(logger, r"Ignoring unexpected attribute (.*)$", powerplot(case; fake_attr=nothing)) # test ignoring of invalid attributes
+        @test_warn(logger, r"Color value for (.*) should be given as symbol or string$", powerplot(case; bus_color=0)) # test invalid color type warning
+        @test_warn(logger, r"Invalid color (.*) given for (.*)$", powerplot(case; bus_color=:goosegray)) # test invalid CSS color warning
+        @test_warn(logger, r"Invalid color (.*) given for (.*)$", powerplot(case; bus_color=[:red, 0])) # test array with invalid CSS colors
 
         # Numeric attribute tests
-        @test_nolog(logger, "error", r".+", plot_vega(case; width=100, height="100")) # valid function call should not cause any error messages
-        @test_nolog(logger, "warn", is_unexpected_warning, plot_vega(case; width=100, height="100")) # test valid numeric attribute
-        @test_warn(logger, r"Invalid number (.*) given for (.*)$", plot_vega(case; width="abcd")) # test invalid numeric string given for numeric attribute
-        @test_warn(logger, r"Value for (.*) should be given as a number or numeric String$", plot_vega(case; width=:zero)) # test invalid datatype given for numeric attribute
+        @test_nolog(logger, "error", r".+", powerplot(case; width=100, height="100")) # valid function call should not cause any error messages
+        @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case; width=100, height="100")) # test valid numeric attribute
+        @test_warn(logger, r"Invalid number (.*) given for (.*)$", powerplot(case; width="abcd")) # test invalid numeric string given for numeric attribute
+        @test_warn(logger, r"Value for (.*) should be given as a number or numeric String$", powerplot(case; width=:zero)) # test invalid datatype given for numeric attribute
 
         # Data label tests
-        @test_nolog(logger, "error", r".+", plot_vega(case; bus_data=:ComponentType, gen_data="ComponentType",
+        @test_nolog(logger, "error", r".+", powerplot(case; bus_data=:ComponentType, gen_data="ComponentType",
             bus_data_type=:ordinal, gen_data_type="nominal")) # valid function call should not cause any error messages
-        @test_nolog(logger, "warn", is_unexpected_warning, plot_vega(case; bus_data=:ComponentType,
+        @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case; bus_data=:ComponentType,
             gen_data="ComponentType", bus_data_type=:ordinal, gen_data_type="nominal")) # test valid function call
-        @test_warn(logger, r"Value for (.*) should be given as a String or Symbol$", plot_vega(case; bus_data=0)) # test invalid datatype passed into data label
-        @test_warn(logger, r"Data column :blah does not exist for (.*)$", plot_vega(case; bus_data=:blah)) # test invalid data column
-        @test_warn(logger, r"Data type :blah not a valid VegaLite data type$", plot_vega(case; bus_data_type=:blah)) # test invalid data type
+        @test_warn(logger, r"Value for (.*) should be given as a String or Symbol$", powerplot(case; bus_data=0)) # test invalid datatype passed into data label
+        @test_warn(logger, r"Data column :blah does not exist for (.*)$", powerplot(case; bus_data=:blah)) # test invalid data column
+        @test_warn(logger, r"Data type :blah not a valid VegaLite data type$", powerplot(case; bus_data_type=:blah)) # test invalid data type
 
         PowerPlots.logger_config!(start_level) # restore logger to initial level
     end

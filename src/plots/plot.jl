@@ -210,13 +210,13 @@ function _validate_data_type(plot_attributes::Dict{Symbol, Any}, attr::Symbol)
     end
 end
 
-function plot_vega( case::Dict{String,<:Any};
+function powerplot( case::Dict{String,<:Any};
                     spring_constant::Float64=1e-3,
                     color_symbol=:ComponentType,
                     kwargs...
     )
     if InfrastructureModels.ismultinetwork(case)
-        Memento.error(_LOGGER, "plot_vega does not yet support multinetwork data")
+        Memento.error(_LOGGER, "powerplot does not yet support multinetwork data")
     end
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary

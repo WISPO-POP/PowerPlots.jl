@@ -72,7 +72,7 @@ end
 push!(_EXCLUDE_SYMBOLS, Symbol("@prepare_plot_attributes"))
 
 # #=== Example Usage ===#
-# function plot_vega(case; spring_constant=1e-3, kwargs...)
+# function powerplot(case; spring_constant=1e-3, kwargs...)
 #   # Copy the line below at the start of the plot method
 #   @prepare_plot_attributes(kwargs); # creates the plot_attributes dictionary
 

@@ -66,7 +66,7 @@ include("core/data.jl")
 include("core/options.jl")
 include("core/utils.jl")
 
-include("plots/power_vega.jl")
+include("plots/plot.jl")
 
 include("layouts/common.jl")
 include("layouts/layout_engines.jl")
