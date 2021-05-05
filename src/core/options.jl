@@ -51,21 +51,21 @@ const attribute_aliases = Dict(
 )
 
 const _color_attributes = [ # color (String or Symbol) type parameters
-  :gen_color, 
-  :bus_color, 
-  :branch_color, 
-  :connector_color, 
-  :storage_color, 
+  :gen_color,
+  :bus_color,
+  :branch_color,
+  :connector_color,
+  :storage_color,
   :dcline_color
 ]
 const _numeric_attributes = [ # numeric parameters
-  :gen_size, 
-  :bus_size, 
-  :branch_size, 
-  :connector_size, 
-  :dcline_size, 
-  :storage_size, 
-  :width, 
+  :gen_size,
+  :bus_size,
+  :branch_size,
+  :connector_size,
+  :dcline_size,
+  :storage_size,
+  :width,
   :height
 ]
 const _label_attributes = [ # label (String or Symbol) type parameters
