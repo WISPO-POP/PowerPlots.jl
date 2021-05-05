@@ -158,7 +158,8 @@ function powerplot( case::Dict{String,<:Any};
 end
 
 
-function remove_information!(data::Dict{String,<:Any}, invalid_keys)
+"Remove keys from componet dictionaries based on input invalid keys"
+function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})
     for comp_type in ["bus","branch","gen"]
         for (id, comp) in data[comp_type]
             for key in keys(comp)
