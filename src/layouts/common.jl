@@ -11,11 +11,7 @@ function layout_graph_vega(case::Dict{String,<:Any};
     )
 
     data = deepcopy(case)
-    node_comp_map = get_node_comp_map(data,node_types)
-    edge_comp_map = get_edge_comp_map(data,edge_types)
-    connector_map = get_connector_map(data,node_types)
-
-    G,ids = create_pm_graph(node_comp_map, edge_comp_map, connector_map)
+    G,ids,node_comp_map,edge_comp_map,connector_map = create_pm_graph(data,node_types,edge_types)
 
     positions = layout_graph_KK!(G, ids)  #TODO add way to select layout algorithm
 

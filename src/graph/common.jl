@@ -1,6 +1,12 @@
 
-"Create a PowerModelsGraph using mappings for node->comp, edge->comp, connector->component"
-function create_pm_graph(node_comp_map::Dict{String,<:Any}, edge_comp_map::Dict{String,<:Any}, connector_map::Dict{String,<:Any})
+"Create a PowerModelsGraph where node_types specifs component types that are nodes in the graph, and edge_type specifices components that are edges."
+function create_pm_graph(data::Dict{String,<:Any}, node_types::Array{String,1}, edge_types::Array{String,1})
+
+    node_comp_map = get_node_comp_map(data,node_types)
+    edge_comp_map = get_edge_comp_map(data,edge_types)
+    connector_map = get_connector_map(data,node_types)
+
+
     G = PowerModelsGraph(0) # construct empty powermodels graph
     ids = []
     idmap = Dict()
@@ -20,7 +26,7 @@ function create_pm_graph(node_comp_map::Dict{String,<:Any}, edge_comp_map::Dict{
     for (id,edge) in connector_map
         add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
     end
-    return G,ids
+    return (G,ids,node_comp_map,edge_comp_map,connector_map)
 end
 
 
@@ -46,7 +52,7 @@ end
     ```Dict("branch_1"=>case["branch"]["1"])```
     A dictionary entry is added to specify the from and to buses in node mapping form `bus_1`.
 """
-function get_edge_comp_map(data::Dict{String,<:Any},node_types::Array{String,1})
+function get_edge_comp_map(data::Dict{String,<:Any},edge_types::Array{String,1})
     edge_comp_map = Dict{String,Any}()
     for edge_type in edge_types
         temp_edge = get(data, edge_type, Dict{String,Any}())
