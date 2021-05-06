@@ -22,5 +22,4 @@ makedocs(
 
 deploydocs(
     repo = "github.com/WISPO-POP/PowerPlots.jl.git",
-    push_preview = true
 )

@@ -1,4 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"
+PowerPlots = "229d1e32-5c67-4c9a-a884-d6a3a7f23cfa"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
