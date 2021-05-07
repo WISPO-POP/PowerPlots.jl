@@ -19,7 +19,7 @@ powerplot(data, bus_color=["orange"], gen_color=[:purple], branch_color=["#AFAFA
 The aliases `node_color` and `edge_color` can overwrite all nodes and edges respectively. (does this apply in the order the keywords are placed?)
 
 ```@example power_data
-powerplot(data; node_color=["red"], edge_color=["purple")
+powerplot(data; node_color=["red"], edge_color=["purple"])
 ```
 
 ## Size
