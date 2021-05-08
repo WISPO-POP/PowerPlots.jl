@@ -199,3 +199,36 @@ function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String
         end
     end
 end
+
+# Convenient functions to mimic those present in old version with Plots backend
+
+"Create binary bus_status entry for each bus in data dictionary"
+function _prepare_bus_status!(data)
+    for bus in keys(data["bus"])
+        #set bus status to 1 (active) if no status has already been set
+        if "bus_status" ∉ keys(data["bus"][bus])
+            data["bus"][bus]["bus_status"] = 1
+        end
+    end
+end
+
+"Plot network with components colored based on status"
+function powerplot_network_status(data,bus_size = 1e2,gen_size = 3e2,branch_size = 3, bus_data = "bus_status", branch_data = "br_status",gen_data = "gen_status", bus_color = [:red,:green], branch_color = [:red,:green], gen_color = [:yellow,:blue])
+    _prepare_bus_status!(data) #make sure all buses have assigned status
+    #if all branches are active, vegalite grabs the first color in the branch_color list
+    #this makes sure that's the active color, which is second in the original list
+    if 0 ∉ [data["branch"][branch]["br_status"] for branch in keys(data["branch"])]
+        branch_color = [branch_color[2]]#create a new list, containing only the "active" color
+    end
+
+    if 0 ∉ [data["gen"][gen]["gen_status"] for gen in keys(data["gen"])]
+        gen_color = [gen_color[2]]#create a new list, containing only the "active" color
+    end
+
+    if 0 ∉ [data["bus"][bus]["bus_status"] for bus in keys(data["bus"])]
+        bus_color = [bus_color[2]]#create a new list, containing only the "active" color
+    end
+
+
+    powerplot(data,bus_size = bus_size,gen_size=gen_size,branch_size=branch_size,bus_data = bus_data,branch_data = branch_data,gen_data = gen_data, bus_color = bus_color,branch_color = branch_color, gen_color = gen_color)
+end
