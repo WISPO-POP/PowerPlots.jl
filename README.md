@@ -1,4 +1,4 @@
-# PowerPlots
+# PowerPlots.jl
 
 ![CI](https://github.com/WISPO-POP/PowerPlots.jl/workflows/CI/badge.svg)
 [![Codecov](https://codecov.io/gh/WISPO-POP/PowerPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/WISPO-POP/PowerPlots.jl)
@@ -6,11 +6,12 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://wispo-pop.github.io/PowerPlots.jl/stable/)
 
 Tools for the analysis and visualization of PowerModels data and results.
-BETA / IN ACTIVE DEVELOPMENT: Features will change quickly and without warning
+
+***BETA / IN ACTIVE DEVELOPMENT**: Features will change quickly and without warning*
 
 
 ## Installation
-`PowerPlots` is a registered julia package and can be added with the following command.
+`PowerPlots.jl` is a registered julia package and can be added with the following command.
 
 ```julia
 Pkg> add PowerPlots
