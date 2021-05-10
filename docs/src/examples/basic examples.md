@@ -1,6 +1,7 @@
 # Basic Examples
 Simple examples for setting the data visualization and changing the color or size of components.
 
+
 ## Initialize
 ```@example power_data
 using PowerPlots, PowerModels
