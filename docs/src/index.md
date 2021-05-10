@@ -3,7 +3,7 @@
 ```@meta
 CurrentModule = PowerPlots
 ```
-[PowerPlots.jl](https://github.com/WISPO-POP/PowerPlots.jl) is a package for visualizing power grids, using the data spec from PowerModels.jl. This package uses VegaLite.jl as the plotting backend.
+[PowerPlots.jl](https://github.com/WISPO-POP/PowerPlots.jl) is a package for visualizing power grids, using the data spec from [PowerModels.jl](https://github.com/lanl-ansi/PowerModels.jl). This package uses [VegaLite.jl](https://github.com/queryverse/VegaLite.jl) as the plotting backend.
 
 ## Installation
 ```julia
@@ -20,9 +20,9 @@ case = parse_file("case14.m")
 powerplot(case)
 ```
 
-The function creates a layout for the graph and plots the system.  The plot is interactive, and hovering over a component allows you to see the component data. By default, plots are displayed in a browser window but using `ElectronDisplay.jl` will display plots in its own window.  Using the VSCode extension will display plots in the plot pane.
+The function creates a layout for the graph and plots the system.  The plot is interactive, and hovering over a component allows you to see the component data. By default, plots are displayed in a browser window but using [ElectronDisplay.jl](https://github.com/queryverse/ElectronDisplay.jl) will display plots in its own window.  Using the VSCode extension will display plots in the plot pane.
 
-**NOTE:** Interactive plots are not currently supported by some [notebooks](https://www.queryverse.org/VegaLite.jl/stable/gettingstarted/installation/#Notebook-frontends-1), like Jupyter Notebook. If using Jupyter Notebook, you can using `ElectronDisplay.jl` to display interactive plots.
+**NOTE:** Interactive VegaLite plots are not currently supported by some [notebooks](https://www.queryverse.org/VegaLite.jl/stable/gettingstarted/installation/#Notebook-frontends-1), like Jupyter Notebook. If you use Jupyter Notebook, you can using [ElectronDisplay.jl](https://github.com/queryverse/ElectronDisplay.jl) to display interactive plots.
 
 
 ## Creating Visualizations
