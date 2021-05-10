@@ -76,6 +76,13 @@ end
         x2={:xcoord_2,type="quantitative"},
         y={:ycoord_1,type="quantitative"},
         y2={:ycoord_2,type="quantitative"},
+        transform=[
+        {
+            calculate="datum.pt/datum.rate_a",
+            as="Percent_Loading"
+        }
+    ],
+    # size=:Percent_Loading,
         size={value=plot_attributes[:branch_size]},
         color={
             field=plot_attributes[:branch_data],

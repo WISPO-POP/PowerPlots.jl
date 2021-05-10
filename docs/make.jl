@@ -8,6 +8,18 @@ function Base.show(io::IO, m::MIME"text/html", v::VegaLite.VLSpec)
     print(io, ",{mode:'vega-lite'}).catch(console.warn);})</script>")
 end
 
+# makedocs(
+#     modules = [PowerPlots],
+#     format = Documenter.HTML(mathengine = Documenter.MathJax()),
+#     sitename = "PowerPlots",
+#     authors = "Noah Rhodes",
+#     pages = [
+#         "Home" => "index.md",
+#         "Examples" => "examples.md",
+#         "Plot Attributes" => "plot_attributes.md",
+#     ]
+# )
+
 makedocs(
     modules = [PowerPlots],
     format = Documenter.HTML(mathengine = Documenter.MathJax()),
@@ -15,10 +27,15 @@ makedocs(
     authors = "Noah Rhodes",
     pages = [
         "Home" => "index.md",
-        "Examples" => "examples.md",
-        "Plot Attributes" => "plot_attributes.md",
+        "Examples" => Any[
+            "examples/basic examples.md",
+            "examples/advanced examples.md",
+        ],
+        "Parameters" => "parameters.md",
+        "Experimental Features" => "experimental.md",
     ]
 )
+
 
 deploydocs(
     repo = "github.com/WISPO-POP/PowerPlots.jl.git",
