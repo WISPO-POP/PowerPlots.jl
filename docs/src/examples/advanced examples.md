@@ -81,11 +81,12 @@ for (branch_id,branch) in case["branch"]
     if case["bus"]["$(f_bus)"]["block"] == case["bus"]["$(t_bus)"]["block"]
         branch["block"] =  case["bus"]["$(f_bus)"]["block"]
     else
-        branch["block"] = "switch"
+        branch["block"] = "damaged"
     end
 end
 
 color_range = colorscheme2array(ColorSchemes.colorschemes[:tableau_10])
+color_range = [color_range[i] for i in[1,2,4,3]]
 plot1 = powerplot(case; bus_data=:block, gen_data=:block, branch_data=:block, node_color=color_range, branch_color=color_range)
 
 @set! plot1.resolve.scale.color=:shared # share color scale for all components
