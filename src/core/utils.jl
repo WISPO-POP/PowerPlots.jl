@@ -80,3 +80,9 @@ push!(_EXCLUDE_SYMBOLS, Symbol("@prepare_plot_attributes"))
 
 #   # Rest of plotting code...
 # end
+
+
+"Convert a color scheme `cs` into an array of string hex colors, usable by VegaLite"
+function colorscheme2array(cs::ColorSchemes.ColorScheme)
+    return a = ["#$(Colors.hex(c))" for c in cs]
+end

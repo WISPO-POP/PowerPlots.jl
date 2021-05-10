@@ -33,20 +33,40 @@ Aliases exist override all node and edge sizes.
 powerplot(data, node_size=1000, edge_size=10)
 ```
 
-## Color Schemes and System Data
-The color can be set to a range, and a data value can be associated with each element.  Here, the color range for buses is from gray to red, and the data shown is the votlage angle.
+## System Data
+Component data values from the PowerModels dictionary can be plotted by specfying the dictionary key.
 
 ```@example power_data
-p = powerplot(data, bus_data="va", bus_data_type="quantitative", bus_color=["gray","red"])
+p = powerplot(data, bus_data="va", bus_data_type="quantitative")
 ```
 
 ```@example power_data
 p = powerplot(data, branch_data="index",
                     branch_data_type="nominal",
-                    branch_color=["green","yellow"],
+                    gen_data="pmax",
+                    gen_data_type="quantitative",
+)
+```
+
+### Color Schemes
+Color ranges are automatically interpolated from a range that is provided.  If only a single color is given, the component will not change color based on the data.
+
+```@example power_data
+p = powerplot(data,
                     gen_data="pmax",
                     gen_data_type="quantitative",
                     gen_color=["#232323","#AAFAFA"]
+)
+```
+
+Color schemes from the package `ColorSchemes.jl` can also be used to specify a color range.
+
+```@example power_data
+using ColorSchemes
+powerplot(data;
+            gen_data=:pmax,
+            gen_color=colorscheme2array(ColorSchemes.colorschemes[:summer]),
+            gen_data_type=:quantitative
 )
 ```
 

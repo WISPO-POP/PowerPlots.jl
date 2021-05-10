@@ -10,11 +10,11 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
     # validate color attributes
     for attr in _color_attributes
         color = plot_attributes[attr]
-        if !(typeof(color) <: Union{String, Symbol, Vector})
+        if !(typeof(color) <: Union{String, Symbol, AbstractVector})
           Memento.warn(_LOGGER, "Color value for $(repr(attr)) should be given as symbol or string")
         else
           try
-            if typeof(color) <: Vector
+            if typeof(color) <: AbstractVector
                 parse.(Colors.Colorant, color) # parses all colors as CSS color
             else
                 parse(Colors.Colorant, color) # try to parse the color as a CSS color

@@ -1,11 +1,23 @@
+# Default Color Schemes
+# catergory 20b and 20c used as reference
+const color_schemes=Dict{Symbol,Any}(
+    :blues => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#3182BD", Colors.colorant"#C6DBEF", length=5))),#["#$(Colors.hex(c))" for c in ColorSchemes.ColorScheme(range(Colors.colorant"#3182BD", Colors.colorant"#C6DBEF", length=5))],
+    :greens => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#31A354", Colors.colorant"#C7E9C0", length=5))),
+    :oranges => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#E6550D", Colors.colorant"#FDD0A2", length=5))),
+    :reds => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#843C39", Colors.colorant"#E7969C", length=5))),
+    :purples => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#756BB1", Colors.colorant"#DADAEB", length=5))),
+
+)
+
+
 # Default plot attributes
-const default_plot_attributes = Dict{Symbol, Any}(
-  :gen_color => [:blue],
-  :bus_color => [:green],
-  :branch_color => [:black],
+default_plot_attributes = Dict{Symbol, Any}(
+  :gen_color => color_schemes[:oranges],
+  :bus_color => color_schemes[:greens],
+  :branch_color => color_schemes[:blues],
   :connector_color => [:gray],
-  :dcline_color => [:CadetBlue],
-  :storage_color => [:steelblue],
+  :dcline_color => color_schemes[:purples],
+  :storage_color => color_schemes[:oranges],
   :gen_size => 5e2,
   :bus_size => 5e2,
   :branch_size => 5,
