@@ -16,6 +16,12 @@ Tools for the analysis and visualization of PowerModels data and results.
 ```julia
 Pkg> add PowerPlots
 ```
+
+To add the lastest development version of `PowerPlots.jl` use the command:
+```julia
+Pkg> add https://github.com/WISPO-POP/PowerPlots.jl.git
+```
+
 ## Documentation
 The Documentation is available [here](https://wispo-pop.github.io/PowerPlots.jl/stable/).
 
