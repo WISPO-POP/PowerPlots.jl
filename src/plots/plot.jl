@@ -213,7 +213,7 @@ function _prepare_bus_status!(data)
 end
 
 "Plot network with components colored based on status"
-function powerplot_network_status(data,bus_size = 1e2,gen_size = 3e2,branch_size = 3, bus_data = "bus_status", branch_data = "br_status",gen_data = "gen_status", bus_color = [:red,:green], branch_color = [:red,:green], gen_color = [:yellow,:blue])
+function powerplot_network_status(data,bus_size = 1e2,gen_size = 3e2,branch_size = 1.5, bus_data = "bus_status", branch_data = "br_status",gen_data = "gen_status", bus_color = [:red,:green], branch_color = [:red,:green], gen_color = [:yellow,:blue])
     _prepare_bus_status!(data) #make sure all buses have assigned status
     #if all branches are active, vegalite grabs the first color in the branch_color list
     #this makes sure that's the active color, which is second in the original list
