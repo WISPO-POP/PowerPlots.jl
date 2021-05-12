@@ -141,3 +141,8 @@ function _comp_dict_to_dataframe(comp_dict::Dict{String,<:Any}, df)
 
     return df
 end
+
+"convert a componet dictionary such as `bus` into a dataframe."
+function comp_dict_to_dataframe(comp_dict::Dict{String,<:Any})
+    return _comp_dict_to_dataframe(comp_dict, DataFrames.DataFrame())
+end
