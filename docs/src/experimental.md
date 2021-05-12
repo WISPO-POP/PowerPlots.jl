@@ -15,14 +15,19 @@ VegaLite does not support geographic projections and zooming/panning yet, so com
 using PowerPlots
 using PowerPlots.Experimental
 using PowerModels
+using Setfield
 
+#TODO use a case with actual geo coordinates to show the difference.
 case = parse_file("case14.m")
-plot1 = powerplot(case; width=300, height=300)
-plot2 = deepcopy(plot1)
-PowerPlots.Experimental.cartesian2geo!(plot2)
+p1 = powerplot(case; width=300, height=300)
+p2 = deepcopy(p1)
+PowerPlots.Experimental.cartesian2geo!(p2)
 
-p = [plot1 plot2]
-p
+@set! p1.title = "Cartesian"
+@set! p2.title = "Geo Projection"
+
+p = [p1 p2]
+
 ```
 
 ## Add Zoom

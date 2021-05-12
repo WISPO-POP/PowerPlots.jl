@@ -70,6 +70,7 @@ module Experimental
             end
         end
         return plot
+    end
 
     "Make zoomable my modifying layer 1"
     function add_zoom!(plot::VegaLite.VLSpec)
