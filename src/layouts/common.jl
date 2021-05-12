@@ -1,10 +1,10 @@
 
 """
 Create a layout for a powermodels data dictionary.  This function creates a graph according to the specified keyword arguments `node_types`
-and `edge_types`.  A layout function is then applied, by default `layout_graph_KK!`.  A new case dictionary with the positions of the
+and `edge_types`.  A layout function is then applied, by default `layout_graph_kamada_kawai!`.  A new case dictionary with the positions of the
 components is returned.
 """
-function layout_graph_vega(case::Dict{String,<:Any};
+function layout_network!(case::Dict{String,<:Any};
     spring_const=1e-2,
     node_types::Array{String,1}=["bus","gen","storage"],
     edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
@@ -13,7 +13,7 @@ function layout_graph_vega(case::Dict{String,<:Any};
     data = deepcopy(case)
     G,ids,node_comp_map,edge_comp_map,connector_map = create_pm_graph(data,node_types,edge_types)
 
-    positions = layout_graph_KK!(G, ids)  #TODO add way to select layout algorithm
+    positions = layout_graph_kamada_kawai!(G, ids)  #TODO add way to select layout algorithm
 
     apply_node_positions!(data,positions, edge_comp_map, connector_map)
 
