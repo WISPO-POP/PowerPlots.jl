@@ -82,6 +82,15 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         df_mn = PowerModelsDataFrame(data_mn)
         @test true # these functions didn't error
     end
+
+    @testset "Experimental" begin
+        using PowerPlots.Experimental
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        plot1 = powerplot(case)
+        PowerPlots.Experimental.add_zoom!(plot1)
+        @test true # what do I test here?
+    end
+
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
