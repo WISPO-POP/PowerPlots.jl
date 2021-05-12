@@ -89,6 +89,13 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         plot1 = powerplot(case)
         PowerPlots.Experimental.add_zoom!(plot1)
         @test true # what do I test here?
+
+
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        plot1 = powerplot(case)
+        PowerPlots.Experimental.cartesian2geo!(plot1)
+        @test true # what do I test here?
+
     end
 
 end
