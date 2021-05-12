@@ -14,7 +14,7 @@ function powerplot( case::Dict{String,<:Any};
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
-    data = layout_graph_vega(case)
+    data = layout_network!(case)
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 

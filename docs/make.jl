@@ -32,6 +32,7 @@ makedocs(
             "examples/advanced examples.md",
         ],
         "Parameters" => "parameters.md",
+        "Data Transformations" => "data_transformations.md",
         "Experimental Features" => "experimental.md",
     ]
 )
