@@ -48,4 +48,18 @@ module Experimental
         return plot.layer[4]["encoding"]["color"]["scale"]["range"] = cr
     end
 
+
+    "Make zoomable my modifying layer 1"
+    function add_zoom!(plot::VegaLite.VLSpec)
+        return plot.layer[1]["selection"]=Dict{String,Any}(
+            "grid"=>Dict{String,Any}(
+                "type"=>:interval,
+                "resolve"=>:global,
+                "bind"=>:scales,
+                "translate"=>"[mousedown[!event.shiftKey], window:mouseup] > window:mousemove!",
+                "zoom"=>"wheel![!event.shiftKey]"
+            )
+        )
+    end
+
 end
