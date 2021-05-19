@@ -96,3 +96,15 @@ function layout_graph_kamada_kawai!(G,ids) #return type must be dictionary
     return positions
 end
 
+
+"Function to layout graph using NetworkLayouts 'Spring' algorithm"
+function layout_graph_spring!(G,ids)
+    graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
+    a = LightGraphs.adjacency_matrix(graph)
+    pos = Spring.layout(a,2;C = 0.5,iterations = 100)
+    positions = Dict(zip(ids,pos))
+
+    return positions
+end
+
+
