@@ -107,4 +107,3 @@ function layout_graph_spring!(G,ids)
     return positions
 end
 
-
