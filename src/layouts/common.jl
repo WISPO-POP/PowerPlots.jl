@@ -7,6 +7,7 @@ components is returned.
 function layout_network!(case::Dict{String,<:Any};
     spring_const=1e-2,
     layout = :kamada_kawai,
+    fixed,
     node_types::Array{String,1}=["bus","gen","storage"],
     edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
     )
@@ -15,7 +16,7 @@ function layout_network!(case::Dict{String,<:Any};
     G,ids,node_comp_map,edge_comp_map,connector_map = create_pm_graph(data,node_types,edge_types)
 
     if layout == :spring
-        positions = layout_graph_spring!(G,ids)
+        positions = layout_graph_spring!(G,ids,fixed = fixed)
     else
         positions = layout_graph_kamada_kawai!(G, ids)  #TODO add way to select layout algorithm
     end

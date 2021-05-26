@@ -97,11 +97,138 @@ function layout_graph_kamada_kawai!(G,ids) #return type must be dictionary
 end
 
 
+module Spring_v2
+import GeometryBasics
+import LinearAlgebra
+Point = GeometryBasics.Point #eliminate need to specify package when using Point type in module
+norm = LinearAlgebra.norm
+struct Layout{M<:AbstractMatrix,P<:AbstractVector,T<:AbstractFloat}
+    adj_matrix::M
+    positions::P
+    C::T
+    iterations::Int
+    initialtemp::T
+end
+
+function Layout(adj_matrix, PT::Type{Point{N,T}}=Point{2,Float64};
+                startpositions=map(x -> 2 .* rand(PT) .- 1, 1:size(adj_matrix, 1)), C=2.0, iterations=100,
+                initialtemp=2.0) where {N,T}
+    return Layout(adj_matrix, startpositions, T(C), Int(iterations), T(initialtemp))
+end
+
+layout(adj_matrix, dim::Int; kw_args...) = layout(adj_matrix, Point{dim,Float64}; kw_args...)
+
+function layout(adj_matrix, PT::Type{Point{N,T}}=Point{2,Float64};
+                startpositions=map(x -> 2 .* rand(PT) .- 1, 1:size(adj_matrix, 1)), fixed = nothing, kw_args...) where {N,T}
+
+    #since random start positions are defined in this function, add functionality to set start positions for fixed nodes
+    #note that type of start positions will be a dictionary with entries node => (x pos, y pos)
+    #supports 2d only right now, no need for 3d power grids.
+
+    #it is assumed that "fixed" is a dictionary mapping nodes to their positions, positions are expressed as Point{2,Float64}
+    for x in 1:size(adj_matrix,1) #loop through nodes
+        if fixed !=nothing
+            if x ∈ keys(fixed)
+                startpositions[x] = fixed[x]
+            end
+        end
+    end
+
+    #correct start positions are set for fixed nodes, and list of fixed nodes is passed forward to next function
+    return layout!(adj_matrix, startpositions,fixed; kw_args...)
+end
+
+function layout!(adj_matrix, startpositions::AbstractVector{Point{N,T}},fixed; kw_args...) where {N,T}
+    size(adj_matrix, 1) != size(adj_matrix, 2) && error("Adj. matrix must be square.")
+    # Layout object for the graph
+    network = Layout(adj_matrix, Point{N,T}; startpositions=startpositions, kw_args...)
+    next = iterate(network)#just a check to see if only single iteration, no need for fixed nodes
+    while next != nothing
+        (i, state) = next
+        next = iterate(network, state,fixed)
+    end
+    return network.positions
+end
+
+function iterate(network::Layout) #this is just a check to make sure that
+    network.iterations == 1 && return nothing
+    return network, 1
+end
+
+function iterate(network::Layout{M,P,T}, state,fixed) where {M,P,T}
+    # The optimal distance bewteen vertices
+    adj_matrix = network.adj_matrix
+    N = size(adj_matrix, 1)
+    force = zeros(eltype(P), N)
+    locs = network.positions
+    C = network.C
+    iterations = network.iterations
+    initialtemp = network.initialtemp
+    N = size(adj_matrix, 1)
+    Ftype = eltype(force)
+    K = C * sqrt(4.0 / N)
+
+    # Calculate forces
+    for i in 1:N
+        force_vec = Ftype(0)
+        for j in 1:N
+            i == j && continue
+            d = norm(locs[j] .- locs[i])
+            if adj_matrix[i, j] != zero(eltype(adj_matrix)) || adj_matrix[j, i] != zero(eltype(adj_matrix))
+                # F = d^2 / K - K^2 / d
+                F_d = d / K - K^2 / d^2
+            else
+                # Just repulsive
+                # F = -K^2 / d^
+                F_d = -K^2 / d^2
+            end
+            # d  /          sin θ = d_y/d = fy/F
+            # F /| dy fy    -> fy = F*d_y/d
+            #  / |          cos θ = d_x/d = fx/F
+            # /---          -> fx = F*d_x/d
+            # dx fx
+            force_vec += Ftype(F_d .* (locs[j] .- locs[i]))
+        end
+        force[i] = force_vec
+    end
+    # Cool down
+    temp = initialtemp / state
+    # Now apply them, but limit to temperature
+    for i in 1:N
+        force_mag = norm(force[i])
+        scale = min(force_mag, temp) ./ force_mag
+        #if is is a fixed node, do not update its position
+        if fixed != nothing
+            if i ∉ keys(fixed)
+                locs[i] += force[i] .* scale
+            end
+        end
+    end
+
+    network.iterations == state && return nothing #break out of while loop if iteration limit reached.
+    return network, (state + 1)
+end
+
+
+
+end #end module
+
+
 "Function to layout graph using NetworkLayouts 'Spring' algorithm"
-function layout_graph_spring!(G,ids)
+function layout_graph_spring!(G,ids;fixed)
     graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
     a = LightGraphs.adjacency_matrix(graph)
-    pos = Spring.layout(a,2;C = 0.5,iterations = 100)
+    if fixed !=nothing
+        #translate dictionary w/ entries int -> tuple(float64) to entries int -> Point{2,float64}
+        fixed_temp = Dict()
+        for (node,coords) in fixed
+            push!(fixed_temp,node => GeometryBasics.Point{2,Float64}(coords[1],coords[2]))
+        end
+        fixed = fixed
+        pos = Spring_v2.layout(a,fixed = fixed)
+    else
+        pos = Spring_v2.layout(a)
+    end
     positions = Dict(zip(ids,pos))
 
     return positions
