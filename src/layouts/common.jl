@@ -13,10 +13,21 @@ function layout_network!(case::Dict{String,<:Any};
     )
 
     data = deepcopy(case)
-    G,ids,node_comp_map,edge_comp_map,connector_map = create_pm_graph(data,node_types,edge_types)
+    G,ids,node_comp_map,node_idmap,edge_comp_map,connector_map = create_pm_graph(data,node_types,edge_types)
 
+    if fixed == true
+        fixed_nodes = Dict()
+        #code to go through case and node_idmap to fix correct nodes
+        for bus in keys(node_comp_map)
+            #if given bus has location set:
+            if haskey(node_comp_map[bus],"x_coord1") && haskey(node_comp_map[bus],"y_coord1")
+                push!(fixed_nodes,node_idmap[bus] => (node_comp_map[bus]["x_coord1"],node_comp_map[bus]["y_coord1"]))
+            end
+        end
+        positions = layout_graph_spring!(G,ids,fixed = fixed_nodes)
+    end
     if layout == :spring
-        positions = layout_graph_spring!(G,ids,fixed = fixed)
+        positions = layout_graph_spring!(G,ids,fixed = nothing)
     else
         positions = layout_graph_kamada_kawai!(G, ids)  #TODO add way to select layout algorithm
     end

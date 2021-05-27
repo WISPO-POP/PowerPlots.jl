@@ -9,24 +9,24 @@ function create_pm_graph(data::Dict{String,<:Any}, node_types::Array{String,1}, 
 
     G = PowerModelsGraph(0) # construct empty powermodels graph
     ids = []
-    idmap = Dict()
+    node_idmap = Dict()
     i = 1 # set up iterator, need to associate LG generated indices with the 'id' field, can use metagraph to add 'id' field to
     for (id, node) in node_comp_map
         add_vertex!(G) # add vertex to graph
         set_property!(G, i, :id, id) # set :id property to be equal to id.
         push!(ids, id) # add node id (a string "compType_idNo") to list
-        push!(idmap, id => i) # push map from id to lg index to dictionary
+        push!(node_idmap, id => i) # push map from id to lg index to dictionary
         i = i + 1 # increment i
     end
 
     for (id,edge) in edge_comp_map
-        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+        add_edge!(G, node_idmap[edge["src"]], node_idmap[edge["dst"]])
     end
 
     for (id,edge) in connector_map
-        add_edge!(G, idmap[edge["src"]], idmap[edge["dst"]])
+        add_edge!(G, node_idmap[edge["src"]], node_idmap[edge["dst"]])
     end
-    return (G,ids,node_comp_map,edge_comp_map,connector_map)
+    return (G,ids,node_comp_map,node_idmap,edge_comp_map,connector_map)
 end
 
 

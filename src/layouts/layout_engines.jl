@@ -215,16 +215,16 @@ end #end module
 
 
 "Function to layout graph using NetworkLayouts 'Spring' algorithm"
-function layout_graph_spring!(G,ids;fixed)
+function layout_graph_spring!(G,ids;fixed = nothing)
     graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
     a = LightGraphs.adjacency_matrix(graph)
-    if fixed !=nothing
+    if fixed != nothing
         #translate dictionary w/ entries int -> tuple(float64) to entries int -> Point{2,float64}
         fixed_temp = Dict()
         for (node,coords) in fixed
             push!(fixed_temp,node => GeometryBasics.Point{2,Float64}(coords[1],coords[2]))
         end
-        fixed = fixed
+        fixed = fixed_temp
         pos = Spring_v2.layout(a,fixed = fixed)
     else
         pos = Spring_v2.layout(a)
