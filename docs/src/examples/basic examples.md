@@ -28,7 +28,7 @@ powerplot(data; bus_color="orange",
                 width=300, height=300)
 ```
 
-The aliases `node_color` and `edge_color` can overwrite all nodes and edges respectively. (does this apply in the order the keywords are placed?)
+The aliases `node_color` and `edge_color` can overwrite all nodes and edges respectively.
 
 ```@example power_data
 powerplot(data; node_color="red", edge_color="purple", width=300, height=300)
