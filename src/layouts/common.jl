@@ -20,16 +20,17 @@ function layout_network!(case::Dict{String,<:Any};
         #code to go through case and node_idmap to fix correct nodes
         for bus in keys(node_comp_map)
             #if given bus has location set:
-            if haskey(node_comp_map[bus],"x_coord1") && haskey(node_comp_map[bus],"y_coord1")
-                push!(fixed_nodes,node_idmap[bus] => (node_comp_map[bus]["x_coord1"],node_comp_map[bus]["y_coord1"]))
+            if haskey(node_comp_map[bus],"xcoord_1") && haskey(node_comp_map[bus],"ycoord_1")
+                push!(fixed_nodes,node_idmap[bus] => (node_comp_map[bus]["xcoord_1"],node_comp_map[bus]["ycoord_1"]))
             end
         end
         positions = layout_graph_spring!(G,ids,fixed = fixed_nodes)
-    end
-    if layout == :spring
-        positions = layout_graph_spring!(G,ids,fixed = nothing)
     else
-        positions = layout_graph_kamada_kawai!(G, ids)  #TODO add way to select layout algorithm
+        if layout == :spring
+            positions = layout_graph_spring!(G,ids,fixed = nothing)
+        else
+            positions = layout_graph_kamada_kawai!(G, ids)  #TODO add way to select layout algorithm
+        end
     end
 
     apply_node_positions!(data,positions, edge_comp_map, connector_map)

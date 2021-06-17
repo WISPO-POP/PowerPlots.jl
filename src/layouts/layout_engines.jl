@@ -215,7 +215,7 @@ end #end module
 
 
 "Function to layout graph using NetworkLayouts 'Spring' algorithm"
-function layout_graph_spring!(G,ids;fixed = nothing)
+function layout_graph_spring!(G,ids; spring_const=2.0, fixed = nothing)
     graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
     a = LightGraphs.adjacency_matrix(graph)
     if fixed != nothing
@@ -225,9 +225,9 @@ function layout_graph_spring!(G,ids;fixed = nothing)
             push!(fixed_temp,node => GeometryBasics.Point{2,Float64}(coords[1],coords[2]))
         end
         fixed = fixed_temp
-        pos = Spring_v2.layout(a,fixed = fixed)
+        pos = Spring_v2.layout(a;C=spring_const,fixed = fixed)
     else
-        pos = Spring_v2.layout(a)
+        pos = Spring_v2.layout(a;C=spring_const)
     end
     positions = Dict(zip(ids,pos))
 
