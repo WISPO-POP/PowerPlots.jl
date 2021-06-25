@@ -56,8 +56,15 @@ mutable struct PowerModelsGraph
         end
         edge_comp_map = Dict(zip(edge_node_array,edge_comp_array))
 
+        # sum does not work when "bus" is only node_type
+        # edge_connector_count = sum(length(keys(get(data,node_type,Dict()))) for node_type in node_types if node_type != "bus")
+        edge_connector_count = 0
+        for node_type in node_types
+            if node_type != "bus"
+                edge_connector_count+= length(keys(get(data,node_type,Dict())))
+            end
+        end
 
-        edge_connector_count = sum(length(keys(get(data,node_type,Dict()))) for node_type in node_types if node_type != "bus")
         edge_connector_array = Vector{Tuple{String,String}}(undef,edge_connector_count)
         edge_node_array = Vector{Tuple{Int,Int}}(undef,edge_comp_count)
         i_3 = 1
