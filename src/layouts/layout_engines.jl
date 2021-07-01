@@ -1,7 +1,7 @@
 
 "Kamada Kawai Layout"
 function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,Matrix{Float64}}=nothing, pos::Union{Nothing,Matrix{Float64}}=nothing, weight="weight", scale=1, center=nothing, dim=2)
-    graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
+    graph = G.graph # convert to undirected graph
     nNodes = LightGraphs.nv(graph)
     if nNodes == 0
         return

@@ -74,12 +74,9 @@ case = parse_file("case14.m")
 # Create a graph where buses are nodes and branches are edges
 case_PMG = PowerModelsGraph(case, ["bus"], ["branch"]);
 ```
+
 ```@example PMG
-                            # Does the graph contain cycles?
-is_cyclic(case_PMG.graph)   # No, because of the directed edges
-```
-```@example PMG
-g = LightGraphs.SimpleGraph(case_PMG.graph) # convert to undirected graph
+g = LightGraphs.SimpleGraph(case_PMG.graph) # Does the graph contain cycles?
 is_cyclic(g)
 ```
 
