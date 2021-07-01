@@ -13,7 +13,7 @@ four fields: a LightGraphs.SimpleDiGraph, a map from the node ids to the compone
  a map from the edges to the components, and a map from the edges to conenctors.
 """
 mutable struct PowerModelsGraph
-    graph::LightGraphs.SimpleDiGraph
+    graph::LightGraphs.SimpleGraph
     node_comp_map::Dict{Int,Tuple{String, String}}
     edge_comp_map::Dict{Tuple{Int,Int},Tuple{String, String}}
     edge_connector_map::Dict{Tuple{Int,Int},Tuple{String, String}}
@@ -21,7 +21,7 @@ mutable struct PowerModelsGraph
     function PowerModelsGraph(data::Dict{String,<:Any}, node_types::Array{String,1}, edge_types::Array{String,1})
 
         node_count = sum(length(keys(get(data,node_type,Dict()))) for node_type in node_types)
-        G = LightGraphs.SimpleDiGraph(node_count) # create graph
+        G = LightGraphs.SimpleGraph(node_count) # create graph
 
         node_comp_array = Vector{Tuple{String,String}}(undef,node_count)
         i_1 = 1
@@ -96,7 +96,7 @@ end
 
 
 """
-PowerModelsDataFrame{T<:LightGraphs.AbstractGraph}
+PowerModelsDataFrame
 
 A structure containing a dataframe for each component type.
 """
