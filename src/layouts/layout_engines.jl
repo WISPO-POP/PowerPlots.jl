@@ -1,7 +1,7 @@
 
 "Kamada Kawai Layout"
-function kamada_kawai(G::PowerModelsGraph{T}, dist::Union{Nothing,Matrix{Float64}}=nothing, pos::Union{Nothing,Matrix{Float64}}=nothing, weight="weight", scale=1, center=nothing, dim=2) where T<:LightGraphs.AbstractGraph #::Array{Array{Float64,1},1}
-    graph = LightGraphs.SimpleGraph(G.graph) # convert to undirected graph
+function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,Matrix{Float64}}=nothing, pos::Union{Nothing,Matrix{Float64}}=nothing, weight="weight", scale=1, center=nothing, dim=2)
+    graph = G.graph # convert to undirected graph
     nNodes = LightGraphs.nv(graph)
     if nNodes == 0
         return
@@ -90,9 +90,7 @@ function _kamada_kawai_costfn(pos_vec::Vector{Float64}, grad::Vector{Float64}, i
     return cost
 end
 
-function layout_graph_kamada_kawai!(G,ids) #return type must be dictionary
-    pos = kamada_kawai(G)
-    positions = Dict(zip(ids,pos)) #zip node ids to generated positions
-    return positions
+function layout_graph_kamada_kawai!(G) #return type must be dictionary
+    return positions = kamada_kawai(G)
 end
 

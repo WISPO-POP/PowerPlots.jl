@@ -11,53 +11,44 @@ function layout_network!(case::Dict{String,<:Any};
     )
 
     data = deepcopy(case)
-    G,ids,node_comp_map,edge_comp_map,connector_map = create_pm_graph(data,node_types,edge_types)
-
-    positions = layout_graph_kamada_kawai!(G, ids)  #TODO add way to select layout algorithm
-
-    apply_node_positions!(data,positions, edge_comp_map, connector_map)
+    PMG = PowerModelsGraph(data,node_types,edge_types)
+    positions = layout_graph_kamada_kawai!(PMG)  #TODO add way to select layout algorithm
+    apply_node_positions!(data,positions, PMG)
 
     return data
 end
 
 
 "Apply positions to the data, using the mapping in edge_comp_map and connector_map"
-function apply_node_positions!(data,positions, edge_comp_map, connector_map)
+function apply_node_positions!(data,positions, PMG)
     # Set Node Positions
-    for (node, (x, y)) in positions
-        (comp_type,comp_id) = split(node, "_")
-        data[comp_type][comp_id]["xcoord_1"] = x
-        data[comp_type][comp_id]["ycoord_1"] = y
+    for (node,(comp_type,comp_id)) in PMG.node_comp_map
+        data[comp_type][comp_id]["xcoord_1"] = positions[node][1]
+        data[comp_type][comp_id]["ycoord_1"] = positions[node][2]
     end
     # Set Edge positions
-    for (edge, val) in (edge_comp_map)
-        (x,y) = positions[val["src"]]
-        (x2,y2) = positions[val["dst"]]
-        (comp_type,comp_id) = split(edge, "_")
-        data[comp_type][comp_id]["xcoord_1"] = x
-        data[comp_type][comp_id]["ycoord_1"] = y
-        data[comp_type][comp_id]["xcoord_2"] = x2
-        data[comp_type][comp_id]["ycoord_2"] = y2
+    for ((s,d),(comp_type,comp_id)) in PMG.edge_comp_map
+        data[comp_type][comp_id]["xcoord_1"] = positions[s][1]
+        data[comp_type][comp_id]["ycoord_1"] = positions[s][2]
+        data[comp_type][comp_id]["xcoord_2"] = positions[d][1]
+        data[comp_type][comp_id]["ycoord_2"] = positions[d][2]
     end
+
 
     # Create connector dictionary
     data["connector"] = Dict{String,Any}()
-    for (edge, con) in connector_map
-        _,id = split(edge, "_")
-        data["connector"][id] =  Dict{String,Any}(
-            "src" => con["src"],
-            "dst" => con["dst"],
+    id = 1
+    for ((s,d),(comp_type,comp_id)) in PMG.edge_connector_map
+        data["connector"][string(id)] =  Dict{String,Any}(
+            "src" => PMG.node_comp_map[s],
+            "dst" => PMG.node_comp_map[d],
+            "xcoord_1" => positions[s][1],
+            "ycoord_1" => positions[s][2],
+            "xcoord_2" => positions[d][1],
+            "ycoord_2" => positions[d][2],
+            "source_id"=> (comp_type,comp_id)
         )
-    end
-    # Set Connector positions
-    for (connector, val) in (connector_map)
-        (x,y) = positions[val["src"]]
-        (x2,y2) = positions[val["dst"]]
-        (comp_type,comp_id) = split(connector, "_")
-        data[comp_type][comp_id]["xcoord_1"] = x
-        data[comp_type][comp_id]["ycoord_1"] = y
-        data[comp_type][comp_id]["xcoord_2"] = x2
-        data[comp_type][comp_id]["ycoord_2"] = y2
+        id+=1
     end
 
     return data

@@ -89,6 +89,14 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test size(comp_df) == (7,19)
     end
 
+    @testset "PowerModelsGraph and Layouts" begin
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        PMG = PowerModelsGraph(case)
+        positions = layout_graph_kamada_kawai!(PMG)
+        @test size(positions) == (10,)
+        @test typeof(positions) == Vector{Vector{Float64}}
+    end
+
     @testset "Experimental" begin
         using PowerPlots.Experimental
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")

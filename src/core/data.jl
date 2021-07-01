@@ -13,14 +13,14 @@
 # end
 
 
-"Sets a `property` in the metadata at `key` of `graph` on `obj`"
-function set_property!(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, key::Symbol, property::Any) where T <: LightGraphs.AbstractGraph
-    if !haskey(graph.metadata, obj)
-        graph.metadata[obj] = Dict{Symbol,Any}()
-    end
+# "Sets a `property` in the metadata at `key` of `graph` on `obj`"
+# function set_property!(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, key::Symbol, property::Any) where T <: LightGraphs.AbstractGraph
+#     if !haskey(graph.metadata, obj)
+#         graph.metadata[obj] = Dict{Symbol,Any}()
+#     end
 
-    graph.metadata[obj][key] = property
-end
+#     graph.metadata[obj][key] = property
+# end
 
 
 # "Sets multiple `properties` in the metadata of `graph` on `obj` at `key`"
@@ -33,21 +33,21 @@ end
 # end
 
 
-"Gets the property in the metadata of `graph` on `obj` at `key`. If property doesn't exist, returns `default`"
-function get_property(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, key::Symbol, default::Any) where T <: LightGraphs.AbstractGraph
-    return get(get(graph.metadata, obj, Dict{Symbol,Any}()), key, default)
-end
+# "Gets the property in the metadata of `graph` on `obj` at `key`. If property doesn't exist, returns `default`"
+# function get_property(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, key::Symbol, default::Any) where T <: LightGraphs.AbstractGraph
+#     return get(get(graph.metadata, obj, Dict{Symbol,Any}()), key, default)
+# end
 
 
-"Adds an edge defined by `i` & `j` to `graph`"
-function add_edge!(graph::PowerModelsGraph{T}, i::Int, j::Int) where T <: LightGraphs.AbstractGraph
-    LightGraphs.add_edge!(graph.graph, i, j)
-end
+# "Adds an edge defined by `i` & `j` to `graph`"
+# function add_edge!(graph::PowerModelsGraph{T}, i::Int, j::Int) where T <: LightGraphs.AbstractGraph
+#     LightGraphs.add_edge!(graph.graph, i, j)
+# end
 
-"Add vertex to the graph"
-function add_vertex!(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
-    LightGraphs.add_vertex!(graph.graph)
-end
+# "Add vertex to the graph"
+# function add_vertex!(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
+#     LightGraphs.add_vertex!(graph.graph)
+# end
 
 # function adjacency_matrix(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
 #     return LightGraphs.adjacency_matrix(graph.graph)
