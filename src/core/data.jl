@@ -18,7 +18,7 @@
 end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
-function offest_parallel_branches!(data,offset)
+function offset_parallel_branches!(data,offset)
     for (bp, branch_ids) in get_parallel_branches(data)
         n_branches = length(branch_ids)
         found_coords = false
