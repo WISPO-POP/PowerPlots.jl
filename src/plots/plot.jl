@@ -15,6 +15,10 @@ function powerplot( case::Dict{String,<:Any};
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_network!(case)
+
+    # fix parallel branch coordinates
+    offset_parallel_branches!(data,plot_attributes[:parallel_edge_offset])
+
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 

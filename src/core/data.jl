@@ -1,3 +1,61 @@
+
+"return a Dict indexed by bus pairs, with a value of an array of the branch ids of parallel branches"
+ function get_parallel_branches(data)
+    branch_pairs = Dict()
+    for (id,branch) in data["branch"]
+        if !haskey(branch_pairs, (branch["f_bus"],branch["t_bus"]))
+            branch_pairs[(branch["f_bus"],branch["t_bus"])] = []
+        end
+        push!(branch_pairs[(branch["f_bus"],branch["t_bus"])], id)
+    end
+
+    for (bus_pair, branch_ids) in branch_pairs
+        if length(branch_ids)==1
+            delete!(branch_pairs,bus_pair)
+        end
+    end
+    return branch_pairs
+end
+
+"Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
+function offest_parallel_branches!(data,offset)
+    for (bp, branch_ids) in get_parallel_branches(data)
+        n_branches = length(branch_ids)
+        found_coords = false
+        ycoord_1 = 0.0
+        ycoord_2 = 0.0
+        xcoord_1 = 0.0
+        xcoord_2 = 0.0
+        for br_id in branch_ids
+            if haskey(data["branch"][br_id], "ycoord_1")
+                ycoord_1 = data["branch"][br_id]["ycoord_1"]
+                ycoord_2 = data["branch"][br_id]["ycoord_2"]
+                xcoord_1 = data["branch"][br_id]["xcoord_1"]
+                xcoord_2 = data["branch"][br_id]["xcoord_2"]
+                found_coords=true
+            end
+        end
+        if found_coords ==  false
+            Memento.warn(_LOGGER, "Could not find coordinates for any parallel branches in $branch_ids")
+        end
+
+        dx = xcoord_2 - xcoord_1
+        dy = ycoord_2 - ycoord_1
+        normal_direction = (-dy, dx)
+
+        of_range = range(-offset, offset, length=n_branches)
+
+        for i in 1:n_branches
+            data["branch"][branch_ids[i]]["ycoord_1"] = ycoord_1 + of_range[i]*normal_direction[2]
+            data["branch"][branch_ids[i]]["ycoord_2"] = ycoord_2 + of_range[i]*normal_direction[2]
+            data["branch"][branch_ids[i]]["xcoord_1"] = xcoord_1 + of_range[i]*normal_direction[1]
+            data["branch"][branch_ids[i]]["xcoord_2"] = xcoord_2 + of_range[i]*normal_direction[1]
+        end
+    end
+    return data
+end
+
+
 # "converts nan values to 0.0"
 # _convert_nan(x) = isnan(x) ? 0.0 : x
 # _replace_nan(v) = map(x -> isnan(x) ? zero(x) : x, v)

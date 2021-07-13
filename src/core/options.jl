@@ -36,6 +36,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :branch_data_type => "nominal",
   :dcline_data_type => "nominal",
   :storage_data_type => "nominal",
+  :parallel_edge_offset => 0.05,
 );
 
 # Returns a deepcopy of the default_plot_attributes, used to initialize plot_attributes in utils.jl
