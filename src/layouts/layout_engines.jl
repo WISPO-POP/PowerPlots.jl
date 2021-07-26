@@ -188,7 +188,7 @@ function new_kamada_kawai_costfn(
 
     nodesep .=  sqrt.(reshape(sum(x -> x^2, delta; dims=1),nNodes,nNodes))
     inv_nodesep .= 1.0./(nodesep+LinearAlgebra.I(nNodes)*1e-3)
-    direction .= OMEinsum.ein"ijk,jk -> ijk"(delta, inv_nodesep)
+    direction .= OMEinsum.ein"ijk,jk -> ijk"(delta, inv_nodesep) # 90% of time is spent here
 
     offset .= nodesep .* invdist .- 1.0
     for i in 1:nNodes
@@ -196,7 +196,7 @@ function new_kamada_kawai_costfn(
     end
 
     cost = 0.5 * sum(offset.^2)
-    gradient .= OMEinsum.ein"jk,jk,ijk->ij"(invdist, offset, direction) - OMEinsum.ein"jk,jk,ijk->ik"(invdist, offset, direction)
+    gradient .= OMEinsum.ein"jk,jk,ijk->ij"(invdist, offset, direction) .- OMEinsum.ein"jk,jk,ijk->ik"(invdist, offset, direction)
 
 
     # # Additional parabolic term to encourage mean position to be near origin:
