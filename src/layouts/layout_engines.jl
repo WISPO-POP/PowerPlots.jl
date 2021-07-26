@@ -179,7 +179,7 @@ function new_kamada_kawai_costfn(
     meanweight::Real,
     dim::Int,
     nNodes::Int
-    )
+    )::Real
 
     pos_arr .= reshape(pos_vec,dim,nNodes)
     for i in 1:nNodes
