@@ -1,4 +1,6 @@
 
+using Tullio
+
 "Kamada Kawai Layout"
 function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,Matrix{Float64}}=nothing, pos::Union{Nothing,Matrix{Float64}}=nothing, weight="weight", scale=1, center=nothing, dim=2)
     graph = G.graph # convert to undirected graph
@@ -52,7 +54,8 @@ function _kamada_kawai_solve(dist_mtx::Array{Float64,2}, pos_arr::Array{Float64,
     (minf,minx,ret) = NLopt.optimize(opt, pos_vec)
 
     numevals = opt.numevals # the number of function evaluations
-    #println("got $minf at $minx after $numevals iterations (returned $ret)")
+    # println("got $minf at $minx after $numevals iterations (returned $ret)")
+    # println("got $minf after $numevals iterations (returned $ret)")
     return reshape(minx, dim, nNodes)
 end
 
@@ -152,15 +155,18 @@ function new_kamada_kawai_solve(dist_mtx::AbstractMatrix{<:Real}, pos_arr::Abstr
     direction = Array{eltype(pos_arr),3}(undef,dim,nNodes,nNodes)
     offset = similar(dist_mtx)
     gradient = similar(pos_arr)
+    g1 = similar(pos_arr)
+    g2 = similar(pos_arr)
 
 
     opt = NLopt.Opt(:LD_LBFGS, length(pos_vec))
     opt.xtol_rel = 1e-4
-    opt.min_objective = (pos_vec, grad)->new_kamada_kawai_costfn(pos_vec,grad,nodesep,inv_nodesep,parr,gradient,invdist,delta,direction,offset, meanwt, dim, nNodes)
+    opt.min_objective = (pos_vec, grad)->new_kamada_kawai_costfn(pos_vec,grad,nodesep,inv_nodesep,parr,gradient,g1,g2,invdist,delta,direction,offset, meanwt, dim, nNodes)
     (minf,minx,ret) = NLopt.optimize(opt, pos_vec)
 
-    # numevals = opt.numevals # the number of function evaluations
-    #println("got $minf at $minx after $numevals iterations (returned $ret)")
+    numevals = opt.numevals # the number of function evaluations
+    # println("got $minf at $minx after $numevals iterations (returned $ret)")
+    # println("got $minf after $numevals iterations (returned $ret)")
     return reshape(minx, dim, nNodes)
 end
 
@@ -172,6 +178,8 @@ function new_kamada_kawai_costfn(
     inv_nodesep::AbstractMatrix{<:Real},
     pos_arr::AbstractMatrix{<:Real},
     gradient::AbstractMatrix{<:Real},
+    g1::AbstractMatrix{<:Real},
+    g2::AbstractMatrix{<:Real},
     invdist::AbstractMatrix{<:Real},
     delta::AbstractArray{<:Real,3},
     direction::AbstractArray{<:Real,3},
@@ -186,25 +194,25 @@ function new_kamada_kawai_costfn(
         delta[:,:,i] .= pos_arr .- pos_arr[:,i]
     end
 
-    nodesep .=  sqrt.(reshape(sum(x -> x^2, delta; dims=1),nNodes,nNodes))
-    inv_nodesep .= 1.0./(nodesep+LinearAlgebra.I(nNodes)*1e-3)
-    direction .= OMEinsum.ein"ijk,jk -> ijk"(delta, inv_nodesep) # 90% of time is spent here on laptop
+    nodesep .=  sqrt.(reshape(sum(x -> x^2, delta; dims=1),nNodes,nNodes)) # 1/3 allocations
+    inv_nodesep .= 1.0./(nodesep+LinearAlgebra.I(nNodes)*1e-3) # 1/3 allocations
+    @tullio direction[i,j,k] = delta[i,j,k] * inv_nodesep[j,k]
 
     offset .= nodesep .* invdist .- 1.0
     for i in 1:nNodes
         offset[i,i] = 0.0
     end
 
-    cost = 0.5 * sum(offset.^2)
-    gradient .= OMEinsum.ein"jk,jk,ijk->ij"(invdist, offset, direction) .- OMEinsum.ein"jk,jk,ijk->ik"(invdist, offset, direction) # 90% of time is here on desktop
+    cost = 0.5 * sum(x -> x^2, offset)
+    gradient .= (@tullio g1[i,j] = invdist[j,k]*offset[j,k]*direction[i,j,k] grad=false ) .- (@tullio g2[i,k] = invdist[j,k]*offset[j,k]*direction[i,j,k] grad=false )
 
 
     # # Additional parabolic term to encourage mean position to be near origin:
     sumpos = sum(pos_arr, dims=2)
     cost += 0.5 .* meanweight .* sum(sumpos.^2)
     origin_penalty = meanweight*sumpos
-    for i in 1:nNodes
-        gradient[:,i] += origin_penalty
+    @inbounds for i in 1:nNodes
+        gradient[:,i] = gradient[:,i] .+ origin_penalty
     end
     if length(grad) > 0
         grad[:] = gradient[:]
