@@ -1,10 +1,11 @@
-using LinearAlgebra: isapprox
 Pkg.activate(".")
 
+using LinearAlgebra
 using PowerModels
 using PowerPlots
 # using LightGraphs
-using OMEinsum
+# using OMEinsum
+# using Tullio
 using ProfileView
 # using RecursiveArrayTools
 # using NetworkLayout
@@ -21,12 +22,12 @@ for case in ["pglib_opf_case14_ieee.m","pglib_opf_case118_ieee.m","pglib_opf_cas
     @time pos1 = PowerPlots.kamada_kawai(pmg)
     @time pos2 = PowerPlots.new_kamada_kawai(pmg)
     println("Same Layout: $(isapprox(pos1,pos2; atol=1e-3))") # same result?
-    isapprox(pos1,pos2; atol=1e-3)
+    isapprox(pos1,pos2; atol=1e-2)
     println()
 end
 
 
-using LinearAlgebra
+using LinearAlgebra, BenchmarkTools
 dim = 2
 nNodes = 1000
 pos_arr = rand(dim,nNodes)
@@ -46,13 +47,13 @@ g2 = similar(pos_arr)
 grad = similar(pos_vec)
 meanwt = 1e-3
 
-ProfileView.@profview
+ProfileView.@profview  new_kamada_kawai_costfn(pos_vec,grad,nodesep,inv_nodesep,parr,gradient,g1,g2,invdist,delta,direction,offset, meanwt, dim, nNodes)
 @time new_kamada_kawai_costfn(pos_vec,grad,nodesep,inv_nodesep,parr,gradient,g1,g2,invdist,delta,direction,offset, meanwt, dim, nNodes)
 
-@benchmark new_kamada_kawai_costfn(pos_vec,grad,nodesep,inv_nodesep,parr,gradient,g1,g2,invdist,delta,direction,offset, meanwt, dim, nNodes)
+@time  new_kamada_kawai_costfn(pos_vec,grad,nodesep,inv_nodesep,parr,gradient,g1,g2,invdist,delta,direction,offset, meanwt, dim, nNodes)
 
 
-ProfileView.@profview
+# ProfileView.@profview PowerPlots._kamada_kawai_costfn(pos_vec,grad,1.0./(dist_mtx + LinearAlgebra.I(nNodes) * 1e-3), meanwt, dim, nNodes)
 @time PowerPlots._kamada_kawai_costfn(pos_vec,grad,1.0./(dist_mtx + LinearAlgebra.I(nNodes) * 1e-3), meanwt, dim, nNodes)
 
 ## Testing things with EINSUM
@@ -63,11 +64,12 @@ ProfileView.@profview
 
 
 ## Tesing many packages
-using Einsum,TensorCast, Tullio, TensorOperations
+# using Einsum,TensorCast, Tullio, TensorOperations
+using LoopVectorization
 
 A = 1:2
-B = 1:8000
-C = 1:8000
+B = 1:4000
+C = 1:4000
 
 x = rand(length(A),length(B),length(C))
 y = rand(length(B),length(C))
@@ -77,16 +79,53 @@ v = rand(length(B),length(C))
 w = rand(length(A),length(B),length(C))
 
 z = rand(length(A),length(B), length(C))
+# z = rand(length(A),length(B))
 z1=similar(z)
 z2=similar(z)
+z3=similar(z)
+
+
+
+@time call_tull2(x,y,z)
+@time mull2(x,y,z)
+isapprox(mull2(x,y,z), call_tull2(x,y,z3), atol=1e-6)
 
 
 @time call_tull3(u,v,w,z1,z2,z)
+@time mull3(u,v,w,z1,z2,z)
 
-# @time Einsum.@einsum z1[a,c] := y[b,c] * x[a,b,c]
-# @time OMEinsum.@ein z2[a,c] := y[b,c] * x[a,b,c]
-# @time TensorCast.@reduce z3[a,c] := sum(b) y[b,c] * x[a,b,c]
-# @time Tullio.@tullio z4[a,c] := y[b,c] * x[a,b,c]
+isapprox(mull3(u,v,w,z1,z2,z), call_tull3(u,v,w,z1,z2,z3), atol=1e-6)
+
+function mull2(x::AbstractArray{<:Real, 3},y::AbstractArray{<:Real, 2}, z::AbstractArray{<:Real,3})
+    # Tullio.@tullio z[a,c] := y[b,c] * x[a,b,c]
+    # Tullio.@tullio z[i,j,k] = x[i,j,k] * y[j,k]
+    @turbo for i in 1:size(z)[1]
+        for j in 1:size(z)[2]
+            for k in 1:size(z)[3]
+                z[i,j,k] = x[i,j,k]*y[j,k]
+            end
+        end
+    end
+    return z
+end
+
+function mull3(
+    u::AbstractArray{<:Real, 2},v::AbstractArray{<:Real, 2}, w::AbstractArray{<:Real,3},
+    z1::AbstractArray{<:Real, 2},z2::AbstractArray{<:Real, 2},z::AbstractArray{<:Real,2}
+    )
+    z1 .= zero(eltype(z1))
+    z2 .= zero(eltype(z2))
+    @turbo for i in 1:size(z)[1]
+        for j in 1:size(z)[2]
+            for k in 1:size(z)[2]
+                z1[i,j] += u[j,k]*v[j,k]*w[i,j,k]
+                z2[i,k] += u[j,k]*v[j,k]*w[i,j,k]
+            end
+        end
+    end
+    z .= z1.-z2
+    return z
+end
 
 function call_tull2(x::AbstractArray{<:Real, 3},y::AbstractArray{<:Real, 2}, z::AbstractArray{<:Real,3})
     # Tullio.@tullio z[a,c] := y[b,c] * x[a,b,c]
@@ -98,7 +137,7 @@ function call_tull3(
     u::AbstractArray{<:Real, 2},v::AbstractArray{<:Real, 2}, w::AbstractArray{<:Real,3},
     z1::AbstractArray{<:Real, 2},z2::AbstractArray{<:Real, 2},z::AbstractArray{<:Real,2}
     )
-    z .= (Tullio.@tullio a1[i,j] := u[j,k]*v[j,k]*w[i,j,k] grad=false ) .- (Tullio.@tullio a2[i,k] := u[j,k]*v[j,k]*w[i,j,k] grad=false )
+    z .= (Tullio.@tullio z1[i,j] = u[j,k]*v[j,k]*w[i,j,k] grad=false ) .- (Tullio.@tullio z2[i,k] = u[j,k]*v[j,k]*w[i,j,k] grad=false )
     return z
 end
 
