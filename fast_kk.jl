@@ -26,6 +26,10 @@ for case in ["pglib_opf_case14_ieee.m","pglib_opf_case118_ieee.m","pglib_opf_cas
     println()
 end
 
+case = "pglib_opf_case500_goc.m"
+data = PowerModels.parse_file("$(path)$(case)")
+@time powerplot(data, node_size=5, edge_size=1)
+@time new_powerplot(data, node_size=5, edge_size=1)
 
 using LinearAlgebra, BenchmarkTools
 dim = 2

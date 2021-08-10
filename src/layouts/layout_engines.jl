@@ -221,20 +221,28 @@ function new_kamada_kawai_costfn(
 end
 
 function new_layout_graph_kamada_kawai!(G::PowerModelsGraph) #return type must be dictionary
+    Memento.info(_LOGGER,"Using new layout algo")
     return positions = new_kamada_kawai(G)
 end
 
 
 function _calc_direction!(x::AbstractArray{<:Real, 3},y::AbstractArray{<:Real, 2}, z::AbstractArray{<:Real,3})::AbstractArray{<:Real,3}
-    @turbo for i in 1:size(z)[1]
-        for j in 1:size(z)[2]
-            for k in 1:size(z)[3]
-                z[i,j,k] = x[i,j,k]*y[j,k]
-            end
-        end
+    @simd for i in axes(z,1)
+        @views z[i,:,:] = x[i,:,:].*y[:,:]
     end
     return z
 end
+
+# function _calc_direction!(x::AbstractArray{Float32, 3},y::AbstractArray{Float32, 2}, z::AbstractArray{Float32,3})::AbstractArray{Float32,3}
+#     @turbo for i in 1:size(z)[1]
+#         for j in 1:size(z)[2]
+#             for k in 1:size(z)[3]
+#                 z[i,j,k] = x[i,j,k]*y[j,k]
+#             end
+#         end
+#     end
+#     return z
+# end
 
 function _calc_gradient!(
     u::AbstractArray{<:Real, 2},v::AbstractArray{<:Real, 2}, w::AbstractArray{<:Real,3},
@@ -242,9 +250,10 @@ function _calc_gradient!(
     )
     z1 .= zero(eltype(z1))
     z2 .= zero(eltype(z2))
-    @turbo for i in 1:size(z)[1]
-        for j in 1:size(z)[2]
-            for k in 1:size(z)[2]
+
+    @simd for i in axes(z,1)
+        for j in axes(z,2)
+             for k in axes(z,2)
                 z1[i,j] += u[j,k]*v[j,k]*w[i,j,k]
                 z2[i,k] += u[j,k]*v[j,k]*w[i,j,k]
             end
