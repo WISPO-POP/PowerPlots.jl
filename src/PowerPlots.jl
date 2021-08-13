@@ -31,6 +31,7 @@ include("core/options.jl")
 include("core/attribute_validation.jl")
 
 include("plots/plot.jl")
+include("plots/plot_processing.jl")
 
 include("layouts/common.jl")
 include("layouts/layout_engines.jl")
