@@ -2,6 +2,7 @@ module PowerPlots
 
 import InfrastructureModels
 import PowerModels
+import PowerModelsDistribution
 import Statistics: mean, std
 import LinearAlgebra
 
