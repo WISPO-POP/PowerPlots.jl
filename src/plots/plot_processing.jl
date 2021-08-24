@@ -1,11 +1,12 @@
 "Modify distribution grid data dictionary"
 function distr_data(case::Dict{String,<:Any})
     # create new dict
-    case_dist = deepcopy(case)
-    for comp_type in ["gen","branch","bus","switch","transformer"]
-        case_dist[comp_type] = Dict{String,Any}()
-    end
-    
+    case_dist = Dict{String, Any}("bus"=>Dict{String, Any}(),
+        "gen"=>Dict{String, Any}(),
+        "branch"=>Dict{String, Any}(),
+        "switch"=>Dict{String, Any}(),
+        "transformer"=>Dict{String, Any}()
+        )
     
     # add bus parameters
     for (idx,bus) in enumerate(case["bus"])

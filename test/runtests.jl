@@ -2,7 +2,6 @@ using PowerPlots
 using Test
 
 using PowerModels
-using PowerModelsDistribution
 # import Ipopt
 
 using Memento
@@ -111,13 +110,6 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         PowerPlots.Experimental.cartesian2geo!(plot1)
         @test true # what do I test here?
 
-    end
-
-    @testset "Distribution Grids" begin
-        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
-        math = transform_data_model(eng)
-        powerplot(math)
-        @test true # what do I test here?
     end
 
 end
