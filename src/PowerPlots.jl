@@ -16,7 +16,7 @@ import NetworkLayout
 import NetworkLayout:Spring
 import GeometryBasics
 import NLopt
-import OMEinsum
+# import OMEinsum
 import RecursiveArrayTools
 
 _PM = PowerModels
