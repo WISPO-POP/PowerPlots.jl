@@ -1,15 +1,18 @@
 
-"""
-    `layout_graph_kamada_kawai!(G::PowerModelsGraph; kwargs...)`
-    Apply the `kamada_kawai` layout to a PowerModelsGraph.
-"""
-function layout_graph_kamada_kawai!(G::PowerModelsGraph; kwargs...)
-    return positions = _kamada_kawai(G, kwargs...)
-end
 
-
-"Kamada Kawai Layout"
-function _kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing, pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing, weight="weight", scale=1, center=nothing, dim=2)
+"""
+    `kamada_kawai(
+        G::PowerModelsGraph,
+        dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing,
+        pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing,
+        weight="weight",
+        scale=1,
+        center=nothing,
+        dim=2)
+    `
+    calculate node positions use Kamada Kawai layout algorithm
+"""
+function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing, pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing, weight="weight", scale=1, center=nothing, dim=2; kwargs...)
     graph = G.graph # convert to undirected graph
     nNodes = LightGraphs.nv(graph)
     if nNodes == 0
@@ -34,7 +37,7 @@ function _kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<
             pos= 2 .* rand(Float64,dim, nNodes) .- 1
         elseif dim == 2
             a = LightGraphs.adjacency_matrix(graph)
-            pos = convert(Array,RecursiveArrayTools.VectorOfArray(NetworkLayout.Circular.layout(a)))
+            pos = convert(Array,RecursiveArrayTools.VectorOfArray(NetworkLayout.Shell()(a)))
         else
             pos = [pt for pt in range(0, 1, length=nNodes)]
         end
