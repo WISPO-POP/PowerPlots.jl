@@ -1,31 +1,31 @@
 
 # re-export NetworkLayout algorithms
 function Shell(; Ptype=Float64, nlist=Vector{Int}[], kwargs...)
-    NetworkLayout.Shell(;Ptype, nlist)
+    NetworkLayout.Shell(; Ptype=Ptype, nlist=nlist)
 end
 
 function SFDP(; dim=2, Ptype=Float64, tol=1.0, C=0.2, K=1.0, iterations=100, initialpos=GeometryBasics.Point{dim,Ptype}[], seed=1, kwargs...)
-    NetworkLayout.SFDP(;dim, Ptype, tol, C, K, iterations, initialpos, seed)
+    NetworkLayout.SFDP(;dim=dim,  Ptype=Ptype, tol=tol, C=C, K=K, iterations=iterations, initialpos=initialpos, seed=seed)
 end
 
-function Buchheim(;Ptype=Float64, nlist=Vector{Int}[], kwargs...)
-    NetworkLayout.Buchheim(;Ptype, nlist)
+function Buchheim(;Ptype=Float64, node_size=Float64[], kwargs...)
+    NetworkLayout.Buchheim(; Ptype=Ptype, node_size=node_size)
 end
 
 function Spring(; dim=2, Ptype=Float64, C=2.0, iterations=100, initialtemp=2.0, initialpos=GeometryBasics.Point{dim,Ptype}[], seed=1, kwargs...)
-    NetworkLayout.Spring(;dim, Ptype, C, iterations, initialtemp, initialpos, seed)
+    NetworkLayout.Spring(;dim=dim, Ptype=Ptype, C=C, iterations=iterations, initialtemp=initialtemp, initialpos=initialpos, seed=seed)
 end
 
 function Stress(;dim=2,Ptype=Float64,iterations=:auto,abstols=0.0,reltols=10e-6,abstolx=10e-6,weights=Array{Float64}(undef, 0, 0),initialpos=GeometryBasics.Point{dim,Ptype}[],seed=1, kwargs...)
-    NetworkLayout.Stress(;dim, Ptype, iterations, abstols, reltols, abstolx, weights, initialpos, seed)
+    NetworkLayout.Stress(;dim=dim, Ptype=Ptype, iterations=iterations, abstols=abstols, reltols=reltols, abstolx=abstolx, weights=weights, initialpos=initialpos, seed=seed)
 end
 
 function SquareGrid(; Ptype=Float64, cols=:auto, dx=Ptype(1), dy=Ptype(-1), skip=Tuple{Int,Int}[], kwargs...)
-    NetworkLayout.SquareGrid(;Ptype,cols,dx,dy,skip)
+    NetworkLayout.SquareGrid(; Ptype=Ptype,cols=cols,dx=dx,dy=dy,skip=skip)
 end
 
 function Spectral(;dim=3, Ptype=Float64, nodeweights=Float64[], kwargs...)
-    NetworkLayout.Spectral(;dim, Ptype, nodeweights)
+    NetworkLayout.Spectral(;dim=dim, Ptype=Ptype, nodeweights=nodeweights)
 end
 
 
@@ -46,7 +46,7 @@ function layout_network(case::Dict{String,<:Any};
     data = deepcopy(case)
     PMG = PowerModelsGraph(data,node_types,edge_types)
 
-    if fixed==true
+    if fixed==true # use fixed-position SFDP layout
         rng = MersenneTwister(1)
 
         # Find nodes with assigned positions
@@ -64,8 +64,7 @@ function layout_network(case::Dict{String,<:Any};
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(SFDP_fixed(; fixed = fixed_pos, initialpos=initialpos, kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
-    elseif layout_algorithm ∈ [Shell, SFDP, Buchheim, Spring, Stress, SquareGrid, Spectral]
-        # Create layout from NetowrkLayouts algorithms
+    elseif layout_algorithm ∈ [Shell, SFDP, Buchheim, Spring, Stress, SquareGrid, Spectral]  # Create layout from NetworkLayouts algorithms
         a = LightGraphs.adjacency_matrix(PMG.graph)
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(layout_algorithm(;kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
@@ -73,7 +72,6 @@ function layout_network(case::Dict{String,<:Any};
     elseif layout_algorithm==kamada_kawai
         # create layout using Kamada Kawai algorithm
         positions = layout_algorithm(PMG; kwargs...)
-
     else
         Memento.error(_LOGGER, "layout_algorithm `$(layout_algorithm)` not supported.")
     end
