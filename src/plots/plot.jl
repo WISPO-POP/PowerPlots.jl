@@ -10,7 +10,7 @@ function powerplot( case::Dict{String,<:Any};
     if InfrastructureModels.ismultinetwork(case)
         Memento.error(_LOGGER, "powerplot does not yet support multinetwork data")
     end
-    data = layout_network(case; layout_algorithm, fixed, kwargs...)
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
