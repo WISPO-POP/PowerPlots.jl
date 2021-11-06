@@ -13,7 +13,7 @@ import ColorSchemes
 import DataFrames
 import Memento
 
-import LightGraphs
+import Graphs
 import NetworkLayout
 import GeometryBasics
 import NLopt

@@ -50,7 +50,7 @@ function layout_network(case::Dict{String,<:Any};
         rng = MersenneTwister(1)
 
         # Find nodes with assigned positions
-        N = LightGraphs.nv(PMG.graph)
+        N = Graphs.nv(PMG.graph)
         fixed_pos = BitVector(undef,N)
         initialpos = Vector{GeometryBasics.Point{2,Float64}}(undef, N)
         for i in 1:length(fixed_pos)
@@ -60,12 +60,12 @@ function layout_network(case::Dict{String,<:Any};
         end
 
         # Create SFDP layout with fixed nodes
-        a = LightGraphs.adjacency_matrix(PMG.graph)
+        a = Graphs.adjacency_matrix(PMG.graph)
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(SFDP_fixed(; fixed = fixed_pos, initialpos=initialpos, kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
     elseif layout_algorithm ∈ [Shell, SFDP, Buchheim, Spring, Stress, SquareGrid, Spectral]  # Create layout from NetworkLayouts algorithms
-        a = LightGraphs.adjacency_matrix(PMG.graph)
+        a = Graphs.adjacency_matrix(PMG.graph)
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(layout_algorithm(;kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
