@@ -44,13 +44,7 @@ A layout algorithm can be selected using a keyword argument.
 layout_network(case; layout_algorithm=Spring)
 ```
 
-The keyword arugments for each algorithm are slightly different.
-
- - `kamada_kawai`
- *There are no currently supported arguments for this algorithm*.
-
-
-The following are layout algorithms from the package [NetworkLayouts.jl](https://juliagraphs.org/NetworkLayout.jl/stable/).  The arguments for these functions can be found in the documentation for `NetworkLayouts.jl`.
+The keyword arguments for each algorithm are vary.  The `kamada_kawai` layout has no supported arguments. The following are layout algorithms from the package [NetworkLayouts.jl](https://juliagraphs.org/NetworkLayout.jl/stable/).  The arguments for these functions can be found in the documentation for `NetworkLayouts.jl`.
 
 - [Shell](https://juliagraphs.org/NetworkLayout.jl/stable/#Shell/Circular-Layout)
 - [SFDP](https://juliagraphs.org/NetworkLayout.jl/stable/#Scalable-Force-Directed-Placement)
