@@ -56,17 +56,19 @@ module Experimental
 
         # create lat/lon channels from x/y channels
         for i in 1:length(plot.layer)
-            plot.layer[i]["encoding"]["longitude"] = plot.layer[i]["encoding"]["x"]
-            delete!(plot.layer[i]["encoding"],"x")
-            plot.layer[i]["encoding"]["latitude"] = plot.layer[i]["encoding"]["y"]
-            delete!(plot.layer[i]["encoding"],"y")
-            if haskey(plot.layer[i]["encoding"],"x2")
-                plot.layer[i]["encoding"]["longitude2"] = plot.layer[i]["encoding"]["x2"]
-                delete!(plot.layer[i]["encoding"],"x2")
-            end
-            if haskey(plot.layer[i]["encoding"],"y2")
-                plot.layer[i]["encoding"]["latitude2"] = plot.layer[i]["encoding"]["y2"]
-                delete!(plot.layer[i]["encoding"],"y2")
+            if haskey(plot.layer[i], "encoding")
+                plot.layer[i]["encoding"]["longitude"] = plot.layer[i]["encoding"]["x"]
+                delete!(plot.layer[i]["encoding"],"x")
+                plot.layer[i]["encoding"]["latitude"] = plot.layer[i]["encoding"]["y"]
+                delete!(plot.layer[i]["encoding"],"y")
+                if haskey(plot.layer[i]["encoding"],"x2")
+                    plot.layer[i]["encoding"]["longitude2"] = plot.layer[i]["encoding"]["x2"]
+                    delete!(plot.layer[i]["encoding"],"x2")
+                end
+                if haskey(plot.layer[i]["encoding"],"y2")
+                    plot.layer[i]["encoding"]["latitude2"] = plot.layer[i]["encoding"]["y2"]
+                    delete!(plot.layer[i]["encoding"],"y2")
+                end
             end
         end
         return plot
