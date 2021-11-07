@@ -1,17 +1,20 @@
 
-"""
-    `layout_graph_kamada_kawai!(G::PowerModelsGraph; kwargs...)`
-    Apply the `kamada_kawai` layout to a PowerModelsGraph.
-"""
-function layout_graph_kamada_kawai!(G::PowerModelsGraph; kwargs...)
-    return positions = _kamada_kawai(G, kwargs...)
-end
 
-
-"Kamada Kawai Layout"
-function _kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing, pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing, weight="weight", scale=1, center=nothing, dim=2)
+"""
+    `kamada_kawai(
+        G::PowerModelsGraph,
+        dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing,
+        pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing,
+        weight="weight",
+        scale=1,
+        center=nothing,
+        dim=2)
+    `
+    calculate node positions use Kamada Kawai layout algorithm
+"""
+function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing, pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing, weight="weight", scale=1, center=nothing, dim=2; kwargs...)
     graph = G.graph # convert to undirected graph
-    nNodes = LightGraphs.nv(graph)
+    nNodes = Graphs.nv(graph)
     if nNodes == 0
         return
     end
@@ -19,13 +22,13 @@ function _kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<
     if dist===nothing
         dist=Dict()
         for i in 1:nNodes
-            dist[i]=LightGraphs.dijkstra_shortest_paths(graph, i).dists
+            dist[i]=Graphs.dijkstra_shortest_paths(graph, i).dists
         end
     end
     dist_mtx = 1e6 * ones(nNodes, nNodes)
-    for nr in LightGraphs.vertices(graph)
+    for nr in Graphs.vertices(graph)
         rdist = dist[nr]
-        for nc in LightGraphs.vertices(graph)
+        for nc in Graphs.vertices(graph)
             dist_mtx[nr,nc] = rdist[nc]
         end
     end
@@ -33,8 +36,8 @@ function _kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<
         if dim >= 3
             pos= 2 .* rand(Float64,dim, nNodes) .- 1
         elseif dim == 2
-            a = LightGraphs.adjacency_matrix(graph)
-            pos = convert(Array,RecursiveArrayTools.VectorOfArray(NetworkLayout.Circular.layout(a)))
+            a = Graphs.adjacency_matrix(graph)
+            pos = convert(Array,RecursiveArrayTools.VectorOfArray(NetworkLayout.Shell()(a)))
         else
             pos = [pt for pt in range(0, 1, length=nNodes)]
         end
