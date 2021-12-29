@@ -5,6 +5,8 @@ import PowerModels
 import PowerModelsDistribution
 import Statistics: mean, std
 import LinearAlgebra
+import LinearAlgebra: norm
+import Random:MersenneTwister
 
 import VegaLite
 import Colors
@@ -12,12 +14,10 @@ import ColorSchemes
 import DataFrames
 import Memento
 
-import LightGraphs
+import Graphs
 import NetworkLayout
-import NetworkLayout:Spring
 import GeometryBasics
 import NLopt
-import OMEinsum
 import RecursiveArrayTools
 
 _PM = PowerModels
@@ -35,7 +35,8 @@ include("plots/plot.jl")
 include("plots/plot_processing.jl")
 
 include("layouts/common.jl")
-include("layouts/layout_engines.jl")
+include("layouts/kamada_kawaii_layout.jl")
+include("layouts/SFDP_fixed_layout.jl")
 
 include("graph/common.jl")
 
