@@ -10,17 +10,17 @@ function powerplot( case::Dict{String,<:Any};
     if InfrastructureModels.ismultinetwork(case)
         Memento.error(_LOGGER, "powerplot does not yet support multinetwork data")
     end
-    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-
-    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     # modify case dictionary for distribution grid data
     if haskey(case, "is_kron_reduced")
         case = distr_data(case)
     end
 
-    data = layout_network!(case)
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 
