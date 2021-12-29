@@ -2,7 +2,6 @@ using PowerPlots
 using Test
 
 using PowerModels
-using PowerModelsDistribution
 # import Ipopt
 
 using Memento
@@ -114,6 +113,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     end
 
     @testset "Distribution Grids" begin
+        using PowerModelsDistribution
         eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
         math = transform_data_model(eng)
         powerplot(math)
