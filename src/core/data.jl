@@ -4,7 +4,7 @@
 
 
 # "Returns true if PowerModelsGraph `graph` has a `property` on an edge or a node `obj`"
-# function hasprop(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, property::Symbol) where T <: LightGraphs.AbstractGraph
+# function hasprop(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}, property::Symbol) where T <: Graphs.AbstractGraph
 #     if haskey(graph.metadata, obj)
 #         return haskey(graph.metadata[obj], property)
 #     else
@@ -14,7 +14,7 @@
 
 
 # "Sets a `property` in the metadata at `key` of `graph` on `obj`"
-# function set_property!(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, key::Symbol, property::Any) where T <: LightGraphs.AbstractGraph
+# function set_property!(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}, key::Symbol, property::Any) where T <: Graphs.AbstractGraph
 #     if !haskey(graph.metadata, obj)
 #         graph.metadata[obj] = Dict{Symbol,Any}()
 #     end
@@ -24,7 +24,7 @@
 
 
 # "Sets multiple `properties` in the metadata of `graph` on `obj` at `key`"
-# function set_properties!(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, properties::Dict{Symbol,<:Any}) where T <: LightGraphs.AbstractGraph
+# function set_properties!(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}, properties::Dict{Symbol,<:Any}) where T <: Graphs.AbstractGraph
 #     if !haskey(graph.metadata, obj)
 #         graph.metadata[obj] = Dict{Symbol,Any}()
 #     end
@@ -34,60 +34,60 @@
 
 
 # "Gets the property in the metadata of `graph` on `obj` at `key`. If property doesn't exist, returns `default`"
-# function get_property(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, key::Symbol, default::Any) where T <: LightGraphs.AbstractGraph
+# function get_property(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}, key::Symbol, default::Any) where T <: Graphs.AbstractGraph
 #     return get(get(graph.metadata, obj, Dict{Symbol,Any}()), key, default)
 # end
 
 
 # "Adds an edge defined by `i` & `j` to `graph`"
-# function add_edge!(graph::PowerModelsGraph{T}, i::Int, j::Int) where T <: LightGraphs.AbstractGraph
-#     LightGraphs.add_edge!(graph.graph, i, j)
+# function add_edge!(graph::PowerModelsGraph{T}, i::Int, j::Int) where T <: Graphs.AbstractGraph
+#     Graphs.add_edge!(graph.graph, i, j)
 # end
 
 # "Add vertex to the graph"
-# function add_vertex!(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
-#     LightGraphs.add_vertex!(graph.graph)
+# function add_vertex!(graph::PowerModelsGraph{T}) where T <: Graphs.AbstractGraph
+#     Graphs.add_vertex!(graph.graph)
 # end
 
-# function adjacency_matrix(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
-#     return LightGraphs.adjacency_matrix(graph.graph)
+# function adjacency_matrix(graph::PowerModelsGraph{T}) where T <: Graphs.AbstractGraph
+#     return Graphs.adjacency_matrix(graph.graph)
 # end
 
-# function  dijkstra_shortest_paths(graph::PowerModelsGraph{T}, i) where T <: LightGraphs.AbstractGraph
-#     return LightGraphs.dijkstra_shortest_paths(graph.graph,i)
+# function  dijkstra_shortest_paths(graph::PowerModelsGraph{T}, i) where T <: Graphs.AbstractGraph
+#     return Graphs.dijkstra_shortest_paths(graph.graph,i)
 # end
 
 # "Returns an iterator of all of the nodes/vertices in `graph`"
-# function vertices(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
-#     return LightGraphs.vertices(graph.graph)
+# function vertices(graph::PowerModelsGraph{T}) where T <: Graphs.AbstractGraph
+#     return Graphs.vertices(graph.graph)
 # end
 
-# function nv(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
-#     return LightGraphs.nv(graph.graph)
+# function nv(graph::PowerModelsGraph{T}) where T <: Graphs.AbstractGraph
+#     return Graphs.nv(graph.graph)
 # end
 
 
 # "Returns an iterator of all the edges in `graph`"
-# function edges(graph::PowerModelsGraph{T}) where T <: LightGraphs.AbstractGraph
-#     return LightGraphs.edges(graph.graph)
+# function edges(graph::PowerModelsGraph{T}) where T <: Graphs.AbstractGraph
+#     return Graphs.edges(graph.graph)
 # end
 
 
 # "Returns all of the metadata for `obj` in `graph`"
-# function properties(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}) where T <: LightGraphs.AbstractGraph
+# function properties(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}) where T <: Graphs.AbstractGraph
 #     return get(graph.metadata, obj)
 # end
 
 
 # "get node/edge data from graph struct"
-# function get_data(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}) where T <: LightGraphs.AbstractGraph
+# function get_data(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}) where T <: Graphs.AbstractGraph
 #     return get_property(graph, obj, :data, Dict{String,Any}())
 # end
 
 
 # "Return label information for `obj` in graph.annotationdata[\"label\"]"
-# function get_label(graph::PowerModelsGraph{T}, obj::Union{Int,LightGraphs.AbstractEdge}, default::Any) where T <: LightGraphs.AbstractGraph
-#     return get(get(graph.annotationdata, "label", Dict{Union{Int,LightGraphs.AbstractEdge},Any}()), obj, default)
+# function get_label(graph::PowerModelsGraph{T}, obj::Union{Int,Graphs.AbstractEdge}, default::Any) where T <: Graphs.AbstractGraph
+#     return get(get(graph.annotationdata, "label", Dict{Union{Int,Graphs.AbstractEdge},Any}()), obj, default)
 # end
 
 # "Update properties dictionary recursively."

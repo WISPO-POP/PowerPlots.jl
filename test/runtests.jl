@@ -92,9 +92,25 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     @testset "PowerModelsGraph and Layouts" begin
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
         PMG = PowerModelsGraph(case)
-        positions = layout_graph_kamada_kawai!(PMG)
-        @test size(positions) == (10,)
-        @test typeof(positions) == Vector{Vector{Float64}}
+        # positions = layout_graph_kamada_kawai!(PMG)
+        # @test size(positions) == (10,)
+        # @test typeof(positions) == Vector{Vector{Float64}}
+
+        layout_network(case, layout_algorithm=Shell)
+        layout_network(case, layout_algorithm=SFDP)
+        # layout_network(case, layout_algorithm=Buchheim) # requires a tree-network
+        layout_network(case, layout_algorithm=Spring)
+        layout_network(case, layout_algorithm=Stress)
+        layout_network(case, layout_algorithm=SquareGrid)
+        layout_network(case, layout_algorithm=Spectral)
+        layout_network(case, layout_algorithm=kamada_kawai)
+
+
+        case["bus"]["1"]["xcoord_1"] = 1.0
+        case["bus"]["1"]["ycoord_1"] = 2.0
+        case = layout_network(case, fixed=true)
+        @test case["bus"]["1"]["xcoord_1"] == 1.0
+        @test case["bus"]["1"]["ycoord_1"] == 2.0
     end
 
     @testset "Experimental" begin
