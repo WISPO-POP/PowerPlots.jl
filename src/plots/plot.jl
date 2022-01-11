@@ -21,7 +21,7 @@ function powerplot(
     kwargs...)
 
     if InfrastructureModels.ismultinetwork(case)
-        return _powerplot_mn(case; layout_algorithm, fixed, invalid_keys, kwargs...)
+        return _powerplot_mn(case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
 
     # modify case dictionary for distribution grid data
@@ -89,7 +89,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     kwargs...)
 
     if InfrastructureModels.ismultinetwork(case)
-        return _powerplot_mn!(plt_layer, case; layout_algorithm, fixed, invalid_keys, kwargs...)
+        return _powerplot_mn!(plt_layer, case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
 
     # modify case dictionary for distribution grid data
