@@ -23,6 +23,12 @@ function powerplot(
     if InfrastructureModels.ismultinetwork(case)
         return _powerplot_mn(case; layout_algorithm, fixed, invalid_keys, kwargs...)
     end
+
+    # modify case dictionary for distribution grid data
+    if haskey(case, "is_kron_reduced")
+        case = distr_data(case)
+    end
+
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
