@@ -128,6 +128,14 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
     end
 
+    @testset "Distribution Grids" begin
+        using PowerModelsDistribution
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+        math = transform_data_model(eng)
+        powerplot(math)
+        @test true # what do I test here?
+    end
+    
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
