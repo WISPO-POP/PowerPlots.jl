@@ -11,6 +11,7 @@ import VegaLite
 import Colors
 import ColorSchemes
 import DataFrames
+import OrderedCollections
 import Memento
 
 import Graphs
