@@ -113,6 +113,23 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test case["bus"]["1"]["ycoord_1"] == 2.0
     end
 
+    @testset "Multinetwork plots" begin
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        case_mn = replicate(case, 2)
+
+        @testset "Basic multinetwork plot" begin
+            p = powerplot(case)
+            @test true # above line does not error
+        end
+
+        @testset "Layered multinetwork plot" begin
+            p = powerplot(case)
+            pp = powerplot!(p, case)
+            @test length(keys(pp.layer))==5 # 1 layer first plot, 4 component layers from second plot
+        end
+    end
+
+
     @testset "Experimental" begin
         using PowerPlots.Experimental
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
