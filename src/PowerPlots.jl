@@ -2,7 +2,6 @@ module PowerPlots
 
 import InfrastructureModels
 import PowerModels
-import PowerModelsDistribution
 import Statistics: mean, std
 import LinearAlgebra
 import LinearAlgebra: norm
@@ -12,6 +11,7 @@ import VegaLite
 import Colors
 import ColorSchemes
 import DataFrames
+import OrderedCollections
 import Memento
 
 import Graphs
