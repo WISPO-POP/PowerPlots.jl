@@ -147,12 +147,26 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
     @testset "Distribution Grids" begin
         using PowerModelsDistribution
+        PowerModelsDistribution.silence!()
         eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
         math = transform_data_model(eng)
-        powerplot(math)
+        p = powerplot(math)
         @test true # what do I test here?
+        p = powerplot!(p,math)
+        @test true
+
+        @testset "Multinetwork Distribution Grids" begin
+            eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+            eng_mn = PowerModelsDistribution.make_multinetwork(eng)
+            math_mn = transform_data_model(eng_mn)
+            p = powerplot(math_mn)
+            @test true
+            pp = powerplot!(p,math_mn)
+            @test true
+        end
+
     end
-    
+
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level

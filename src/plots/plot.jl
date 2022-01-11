@@ -91,6 +91,12 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     if InfrastructureModels.ismultinetwork(case)
         return _powerplot_mn!(plt_layer, case; layout_algorithm, fixed, invalid_keys, kwargs...)
     end
+
+    # modify case dictionary for distribution grid data
+    if haskey(case, "is_kron_reduced")
+        case = distr_data(case)
+    end
+
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
@@ -144,6 +150,9 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
+        if haskey(first(case["nw"])[2],"is_kron_reduced")
+            net = distr_data(net)
+        end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
     end
 
@@ -202,6 +211,9 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
+        if haskey(first(case["nw"])[2],"is_kron_reduced")
+            net = distr_data(net)
+        end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
     end
 
