@@ -2,6 +2,7 @@ PowerPlots.jl Change Log
 ========================
 ### Staged
 - Add support for plotting 3-phase grid data
+- Add support for multinetwork plots
 
 ### v0.3.0
 - Change PowerModelsGraph specification
