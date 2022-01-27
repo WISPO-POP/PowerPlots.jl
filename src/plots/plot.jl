@@ -315,26 +315,48 @@ end
 
 function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
     return VegaLite.@vlplot(
-        mark ={
-            :rule,
-            tooltip=("content" => "data"),
-            opacity =  1.0,
-        },
         data=PMD.branch,
-        x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:branch_size]},
-        color={
-            field=plot_attributes[:branch_data],
-            type=plot_attributes[:branch_data_type],
-            title="Branch",
-            scale={
-                range=plot_attributes[:branch_color]
+        layer=[
+            {
+                mark ={
+                    :rule,
+                    tooltip=("content" => "data"),
+                    opacity =  1.0,
+                },
+                x={:xcoord_1,type="quantitative"},
+                x2={:xcoord_2,type="quantitative"},
+                y={:ycoord_1,type="quantitative"},
+                y2={:ycoord_2,type="quantitative"},
+                size={value=plot_attributes[:branch_size]},
+                color={
+                    field=plot_attributes[:branch_data],
+                    type=plot_attributes[:branch_data_type],
+                    title="Branch",
+                    scale={
+                        range=plot_attributes[:branch_color]
+                    },
+                    # legend={orient="bottom-right"}
+                },
             },
-            # legend={orient="bottom-right"}
-        },
+            {
+                transform=[
+                    {
+                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+                        as="mid_x"
+                    },
+                    {
+                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+                        as="mid_y"
+                    }
+                ],
+                mark={
+                    :point,
+                    shape=:wedge,
+                },
+                x={:mid_x,type="quantitative"},
+                y={:mid_y,type="quantitative"}
+            }
+        ]
     )
 end
 
