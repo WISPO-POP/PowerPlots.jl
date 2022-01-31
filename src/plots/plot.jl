@@ -357,11 +357,11 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                 mark={
                     :point,
                     shape=:wedge,
+                    filled=true,
                 },
                 x={:mid_x,type="quantitative"},
                 y={:mid_y,type="quantitative"},
                 size={value="1000"},
-                fill=:black,
                 angle={value="$(flow_direction(PMD.branch))", scale={domain=[0,360]}}
             }
         ]
