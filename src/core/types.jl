@@ -66,7 +66,7 @@ mutable struct PowerModelsGraph
         end
 
         edge_connector_array = Vector{Tuple{String,String}}(undef,edge_connector_count)
-        edge_node_array = Vector{Tuple{Int,Int}}(undef,edge_comp_count)
+        edge_node_array = Vector{Tuple{Int,Int}}(undef,edge_connector_count)
         i_3 = 1
         for comp_type in node_types #add connectors
             if comp_type != "bus"
