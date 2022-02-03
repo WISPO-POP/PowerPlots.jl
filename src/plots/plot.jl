@@ -352,6 +352,13 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                     {
                         calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
                         as="mid_y"
+                    },
+                    {
+                        calculate="180*(if(datum.pt >= 0,
+                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+                        ))/PI",
+                        as="angle"
                     }
                 ],
                 mark={
@@ -362,7 +369,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                 x={:mid_x,type="quantitative"},
                 y={:mid_y,type="quantitative"},
                 size={value="1000"},
-                angle={value="$(flow_direction(PMD.branch))", scale={domain=[0,360]}}
+                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
             }
         ]
     )
