@@ -111,6 +111,19 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         case = layout_network(case, fixed=true)
         @test case["bus"]["1"]["xcoord_1"] == 1.0
         @test case["bus"]["1"]["ycoord_1"] == 2.0
+
+        # check functionality when nodes exceeds branches
+        case["gen"]["6"] = deepcopy(case["gen"]["1"])
+        case["gen"]["7"] = deepcopy(case["gen"]["1"])
+        case["gen"]["8"] = deepcopy(case["gen"]["1"])
+        case["gen"]["9"] = deepcopy(case["gen"]["1"])
+        case["gen"]["11"] = deepcopy(case["gen"]["1"])
+        case["gen"]["12"] = deepcopy(case["gen"]["1"])
+        case["gen"]["13"] = deepcopy(case["gen"]["1"])
+        case["gen"]["14"] = deepcopy(case["gen"]["1"])
+        case["gen"]["15"] = deepcopy(case["gen"]["1"])
+        PMG = PowerModelsGraph(case)
+
     end
 
     @testset "Multinetwork plots" begin
@@ -170,3 +183,4 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
+
