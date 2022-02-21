@@ -369,6 +369,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                     :point,
                     shape=:wedge,
                     filled=true,
+                    opacity=1.0,
                 },
                 x={:mid_x,type="quantitative"},
                 y={:mid_y,type="quantitative"},
