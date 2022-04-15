@@ -21,32 +21,22 @@ end
 function offset_parallel_branches!(data,offset)
     for (bus_pair, branch_ids) in get_parallel_branches(data)
         n_branches = length(branch_ids)
-        ycoord_1 = 0.0
-        ycoord_2 = 0.0
-        xcoord_1 = 0.0
-        xcoord_2 = 0.0
-        for br_id in branch_ids
-            if haskey(data["branch"][br_id], "ycoord_1")
-                ycoord_1 = data["branch"][br_id]["ycoord_1"]
-                ycoord_2 = data["branch"][br_id]["ycoord_2"]
-                xcoord_1 = data["branch"][br_id]["xcoord_1"]
-                xcoord_2 = data["branch"][br_id]["xcoord_2"]
-            else
-                Memento.warn(_LOGGER, "Could not find coordinates for branches in $br_id")
-            end
-        end
+        xcoord_1 = data["bus"]["$(bus_pair[1])"]["xcoord_1"]
+        ycoord_1 = data["bus"]["$(bus_pair[1])"]["ycoord_1"]
+        xcoord_2 = data["bus"]["$(bus_pair[2])"]["xcoord_1"]
+        ycoord_2 = data["bus"]["$(bus_pair[2])"]["ycoord_1"]
 
         dx = xcoord_2 - xcoord_1
         dy = ycoord_2 - ycoord_1
         normal_direction = (-dy, dx)
 
-        of_range = range(-offset, offset, length=n_branches)
+        offset_range = range(-offset, offset, length=n_branches)
 
         for i in 1:n_branches
-            data["branch"][branch_ids[i]]["ycoord_1"] = ycoord_1 + of_range[i]*normal_direction[2]
-            data["branch"][branch_ids[i]]["ycoord_2"] = ycoord_2 + of_range[i]*normal_direction[2]
-            data["branch"][branch_ids[i]]["xcoord_1"] = xcoord_1 + of_range[i]*normal_direction[1]
-            data["branch"][branch_ids[i]]["xcoord_2"] = xcoord_2 + of_range[i]*normal_direction[1]
+            data["branch"][branch_ids[i]]["ycoord_1"] = ycoord_1 + offset_range[i]*normal_direction[2]
+            data["branch"][branch_ids[i]]["ycoord_2"] = ycoord_2 + offset_range[i]*normal_direction[2]
+            data["branch"][branch_ids[i]]["xcoord_1"] = xcoord_1 + offset_range[i]*normal_direction[1]
+            data["branch"][branch_ids[i]]["xcoord_2"] = xcoord_2 + offset_range[i]*normal_direction[1]
         end
     end
     return data
