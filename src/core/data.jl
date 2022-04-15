@@ -19,9 +19,8 @@ end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
 function offset_parallel_branches!(data,offset)
-    for (bp, branch_ids) in get_parallel_branches(data)
+    for (bus_pair, branch_ids) in get_parallel_branches(data)
         n_branches = length(branch_ids)
-        found_coords = false
         ycoord_1 = 0.0
         ycoord_2 = 0.0
         xcoord_1 = 0.0
@@ -32,11 +31,9 @@ function offset_parallel_branches!(data,offset)
                 ycoord_2 = data["branch"][br_id]["ycoord_2"]
                 xcoord_1 = data["branch"][br_id]["xcoord_1"]
                 xcoord_2 = data["branch"][br_id]["xcoord_2"]
-                found_coords=true
+            else
+                Memento.warn(_LOGGER, "Could not find coordinates for branches in $br_id")
             end
-        end
-        if found_coords ==  false
-            Memento.warn(_LOGGER, "Could not find coordinates for any parallel branches in $branch_ids")
         end
 
         dx = xcoord_2 - xcoord_1
