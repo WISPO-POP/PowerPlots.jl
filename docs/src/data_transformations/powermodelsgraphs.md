@@ -3,7 +3,7 @@ The PowerModels data dictionary is useful for storing and accessing data about a
 
 ```julia
 mutable struct PowerModelsGraph
-    graph::LightGraphs.SimpleDiGraph
+    graph::Graphs.SimpleDiGraph
     node_comp_map::Dict{Int,Tuple{String, String}}
     edge_comp_map::Dict{Tuple{Int,Int},Tuple{String, String}}
     edge_connector_map::Dict{Tuple{Int,Int},Tuple{String, String}}
@@ -68,7 +68,7 @@ case_PMG = PowerModelsGraph(case)
 ```@example PMG
 using PowerModels
 using PowerPlots
-using LightGraphs
+using Graphs
 case = parse_file("case14.m")
 
 # Create a graph where buses are nodes and branches are edges
@@ -76,7 +76,7 @@ case_PMG = PowerModelsGraph(case, ["bus"], ["branch"]);
 ```
 
 ```@example PMG
-g = LightGraphs.SimpleGraph(case_PMG.graph) # Does the graph contain cycles?
+g = Graphs.SimpleGraph(case_PMG.graph) # Does the graph contain cycles?
 is_cyclic(g)
 ```
 

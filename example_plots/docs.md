@@ -71,7 +71,7 @@ const default_bus_odd_even_properties = Dict(
 
 function set_properties_bus_odd_even!(graph::PowerModelsGraph{T};
                    membership_properties::Dict{String,Any}=Dict{String,Any}(),
-                    ) where T <: LightGraphs.AbstractGraph
+                    ) where T <: Graphs.AbstractGraph
 
     properties = deepcopy(default_bus_odd_even_properties)
     update_properties!(properties, membership_properties)

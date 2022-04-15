@@ -83,4 +83,14 @@ powerplot(data;
             width=300, height=300
 )
 ```
+## Distribution Grids
+Open a three-phase distribution system case using [PowerModelsDistribution.jl](https://github.com/lanl-ansi/PowerModelsDistribution.jl) and run the command `powerplot` on the data.
 
+```
+using PowerModelsDistribution
+using PowerPlots
+eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+math = transform_data_model(eng)
+powerplot(math)
+# example works, but fails to run in documentation
+```
