@@ -48,7 +48,7 @@ function powerplot(
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = plot_base(plot_attributes)
+    p = plot_base(data, plot_attributes)
     if !(isempty(PMD.branch))
         p = p+plot_branch(PMD, plot_attributes)
     end
@@ -116,7 +116,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = plot_base(plot_attributes)
+    p = plot_base(data, plot_attributes)
 
     # add layer
     p = p+plt_layer
@@ -271,13 +271,23 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 end
 
 
-function plot_base(plot_attributes::Dict{Symbol,Any})
+function plot_base(data::Dict{String, <:Any}, plot_attributes::Dict{Symbol,Any})
+    min_x = data["layout_extent"]["min_x"]
+    max_x = data["layout_extent"]["max_x"]
+    min_y = data["layout_extent"]["min_y"]
+    max_y = data["layout_extent"]["max_y"]
+    width = data["layout_extent"]["width"]
+    height = data["layout_extent"]["height"]
+    padding = data["layout_extent"]["padding"]
+
+    println(data["layout_extent"])
+
     return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
         config={view={stroke=nothing}},
-        x={axis=nothing},
-        y={axis=nothing},
+        x={axis=nothing, scale={domain=[min_x-padding,max_x+padding]}},
+        y={axis=nothing, scale={domain=[min_y-padding,max_y+padding]}},
         resolve={
             scale={
                 color=:independent
