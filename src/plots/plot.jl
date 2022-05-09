@@ -276,18 +276,17 @@ function plot_base(data::Dict{String, <:Any}, plot_attributes::Dict{Symbol,Any})
     max_x = data["layout_extent"]["max_x"]
     min_y = data["layout_extent"]["min_y"]
     max_y = data["layout_extent"]["max_y"]
-    width = data["layout_extent"]["width"]
-    height = data["layout_extent"]["height"]
-    padding = data["layout_extent"]["padding"]
 
-    println(data["layout_extent"])
+    # Set axes to same size to match a uniform Cartesian space
+    min_coord = min(min_x, min_y)
+    max_coord = max(max_x, max_y)
 
     return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
         config={view={stroke=nothing}},
-        x={axis=nothing, scale={domain=[min_x-padding,max_x+padding]}},
-        y={axis=nothing, scale={domain=[min_y-padding,max_y+padding]}},
+        x={axis=nothing,scale={domain=[min_coord,max_coord]}},
+        y={axis=nothing,scale={domain=[min_coord,max_coord]}},
         resolve={
             scale={
                 color=:independent
