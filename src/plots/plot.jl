@@ -171,7 +171,7 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     for (nwid,nw) in data["nw"]
       remove_information!(nw, invalid_keys)
-    end 
+    end
 
     PMD = PowerModelsDataFrame(data)
 
@@ -222,14 +222,14 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
-    
+
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
         if haskey(first(case["nw"])[2],"is_kron_reduced")
             net = distr_data(net)
         end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-        
+
         # fix parallel branch coordinates
         offset_parallel_branches!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
@@ -255,7 +255,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # add layers
     old_layer_count = 1 # used to only reference new powerplot layers in logic below
-    if haskey(plt_layer.params,"layer")
+    if hasproperty(plt_layer,:layer)
         old_layer_count=length(keys(plt_layer.layer))
     end
     p = p+plt_layer
