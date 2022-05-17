@@ -180,6 +180,23 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
     end
 
+    @testset "Parameter Settings" begin
+        @testset "parallel_edge_offset" begin
+            data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+            data["dcline"]["1"]=Dict{String,Any}("index"=>1, "f_bus"=>1, "t_bus"=>2)
+
+            data = layout_network(data)
+            offset_parallel_edges!(data,0.0) # no offset, ensures coordinates values are set for both edges
+            @test data["dcline"]["1"]["xcoord_1"] == data["branch"]["1"]["xcoord_1"]
+            @test data["dcline"]["1"]["xcoord_2"] == data["branch"]["1"]["xcoord_2"]
+
+            offset_parallel_edges!(data,0.05) # offset, ensures coordinates values are different
+            @test isapprox(data["dcline"]["1"]["xcoord_1"] - data["branch"]["1"]["xcoord_1"], .03, atol=1e-1)
+            @test isapprox(data["dcline"]["1"]["xcoord_2"] - data["branch"]["1"]["xcoord_2"], .03, atol=1e-1)
+        end
+    end
+
+
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level

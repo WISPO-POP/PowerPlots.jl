@@ -1,26 +1,29 @@
 
-"return a Dict indexed by bus pairs, with a value of an array of the branch ids of parallel branches"
- function get_parallel_branches(data)
-    branch_pairs = Dict()
-    for (id,branch) in data["branch"]
-        if !haskey(branch_pairs, (branch["f_bus"],branch["t_bus"]))
-            branch_pairs[(branch["f_bus"],branch["t_bus"])] = []
+"return a Dict indexed by bus pairs, with a value of an array of tuples of edge types and edge ids of parallel edges"
+ function get_parallel_edges(data)
+    edge_pairs = Dict()
+    for edge_type in ["branch","dcline"] # supported edge_types
+        for (id,edge) in get(data, edge_type, Dict())
+            bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
+            if !haskey(edge_pairs, bus_pair)
+                edge_pairs[bus_pair] = []
+            end
+            push!(edge_pairs[bus_pair], (edge_type, id))
         end
-        push!(branch_pairs[(branch["f_bus"],branch["t_bus"])], id)
     end
 
-    for (bus_pair, branch_ids) in branch_pairs
-        if length(branch_ids)==1
-            delete!(branch_pairs,bus_pair)
+    for (bus_pair, edges) in edge_pairs
+        if length(edges)==1
+            delete!(edge_pairs,bus_pair)
         end
     end
-    return branch_pairs
+    return edge_pairs
 end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
-function offset_parallel_branches!(data,offset)
-    for (bus_pair, branch_ids) in get_parallel_branches(data)
-        n_branches = length(branch_ids)
+function offset_parallel_edges!(data,offset)
+    for (bus_pair, edges) in get_parallel_edges(data)
+        n_edges = length(edges)
         xcoord_1 = data["bus"]["$(bus_pair[1])"]["xcoord_1"]
         ycoord_1 = data["bus"]["$(bus_pair[1])"]["ycoord_1"]
         xcoord_2 = data["bus"]["$(bus_pair[2])"]["xcoord_1"]
@@ -30,13 +33,14 @@ function offset_parallel_branches!(data,offset)
         dy = ycoord_2 - ycoord_1
         normal_direction = (-dy, dx)
 
-        offset_range = range(-offset, offset, length=n_branches)
+        offset_range = range(-offset, offset, length=n_edges)
 
-        for i in 1:n_branches
-            data["branch"][branch_ids[i]]["ycoord_1"] = ycoord_1 + offset_range[i]*normal_direction[2]
-            data["branch"][branch_ids[i]]["ycoord_2"] = ycoord_2 + offset_range[i]*normal_direction[2]
-            data["branch"][branch_ids[i]]["xcoord_1"] = xcoord_1 + offset_range[i]*normal_direction[1]
-            data["branch"][branch_ids[i]]["xcoord_2"] = xcoord_2 + offset_range[i]*normal_direction[1]
+        for i in eachindex(edges)
+            (edge_type, edge_id) = edges[i]
+            data[edge_type][edge_id]["ycoord_1"] = ycoord_1 + offset_range[i]*normal_direction[2]
+            data[edge_type][edge_id]["ycoord_2"] = ycoord_2 + offset_range[i]*normal_direction[2]
+            data[edge_type][edge_id]["xcoord_1"] = xcoord_1 + offset_range[i]*normal_direction[1]
+            data[edge_type][edge_id]["xcoord_2"] = xcoord_2 + offset_range[i]*normal_direction[1]
         end
     end
     return data

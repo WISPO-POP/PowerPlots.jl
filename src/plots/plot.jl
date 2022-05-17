@@ -35,7 +35,7 @@ function powerplot(
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_branches!(data,plot_attributes[:parallel_edge_offset])
+    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
@@ -106,7 +106,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_branches!(data,plot_attributes[:parallel_edge_offset])
+    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
@@ -166,12 +166,12 @@ function _powerplot_mn(case::Dict{String,<:Any};
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
-        offset_parallel_branches!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
+        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
 
     for (nwid,nw) in data["nw"]
       remove_information!(nw, invalid_keys)
-    end 
+    end
 
     PMD = PowerModelsDataFrame(data)
 
@@ -222,16 +222,16 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
-    
+
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
         if haskey(first(case["nw"])[2],"is_kron_reduced")
             net = distr_data(net)
         end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-        
+
         # fix parallel branch coordinates
-        offset_parallel_branches!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
+        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
 
     for (nwid,nw) in data["nw"]
