@@ -79,7 +79,8 @@ const _numeric_attributes = [ # numeric parameters
   :dcline_size,
   :storage_size,
   :width,
-  :height
+  :height,
+  :parallel_edge_offset,
 ]
 const _label_attributes = [ # label (String or Symbol) type parameters
   :gen_data,
