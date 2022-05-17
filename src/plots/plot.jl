@@ -255,7 +255,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # add layers
     old_layer_count = 1 # used to only reference new powerplot layers in logic below
-    if haskey(plt_layer.params,"layer")
+    if hasproperty(plt_layer,:layer)
         old_layer_count=length(keys(plt_layer.layer))
     end
     p = p+plt_layer
