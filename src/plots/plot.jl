@@ -377,7 +377,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                 },
                 x={:mid_x,type="quantitative"},
                 y={:mid_y,type="quantitative"},
-                size={:power, scale={range=[500,3000]}, type="quantitative"},
+                size={:power, scale={range=[500,3000]}, type="quantitative", legend=nothing},
                 angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
             }
         ]
