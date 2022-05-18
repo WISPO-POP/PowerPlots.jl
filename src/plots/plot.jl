@@ -323,11 +323,6 @@ end
 
 
 function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    flow_direction = function(branch_data)
-        println(branch_data)
-        return 60
-    end
-
     return VegaLite.@vlplot(
         data=PMD.branch,
         layer=[
