@@ -323,6 +323,11 @@ end
 
 
 function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    flow_legend = true
+    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+        flow_legend = nothing
+    end
+    
     return VegaLite.@vlplot(
         data=PMD.branch,
         layer=[
@@ -378,7 +383,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                 },
                 x={:mid_x,type="quantitative"},
                 y={:mid_y,type="quantitative"},
-                size={:power, scale={range=[500,3000]}, type="quantitative", legend=nothing},
+                size={:power, scale={range=[500,3000]}, type="quantitative", legend=flow_legend},
                 angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
             }
         ]

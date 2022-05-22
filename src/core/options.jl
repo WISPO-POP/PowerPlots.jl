@@ -37,6 +37,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :branch_data_type => "nominal",
   :dcline_data_type => "nominal",
   :storage_data_type => "nominal",
+  :show_flow_legend => false,
 );
 
 # Returns a deepcopy of the default_plot_attributes, used to initialize plot_attributes in utils.jl
@@ -62,6 +63,7 @@ const attribute_aliases = Dict(
   :dcline_size => [:dclinesize, :line_size, :edge_size],
   :connector_size => [:connectorsize, :edge_size],
   :flow_color => [:flowcolor, :arrow_color, :arrowcolor],
+  :show_flow_legend => [:flowlegend, :flow_legend, :arrowlegend, :arrow_legend, :show_arrow_legend],
 )
 
 const _color_attributes = [ # color (String or Symbol) type parameters
