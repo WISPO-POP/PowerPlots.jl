@@ -18,6 +18,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :connector_color => [:gray],
   :dcline_color => color_schemes[:purples],
   :storage_color => color_schemes[:oranges],
+  :flow_color => :black,
   :gen_size => 5e2,
   :bus_size => 5e2,
   :branch_size => 5,
@@ -60,6 +61,7 @@ const attribute_aliases = Dict(
   :branch_size => [:branchsize, :line_size, :edge_size],
   :dcline_size => [:dclinesize, :line_size, :edge_size],
   :connector_size => [:connectorsize, :edge_size],
+  :flow_color => [:flowcolor, :arrow_color, :arrowcolor],
 )
 
 const _color_attributes = [ # color (String or Symbol) type parameters
@@ -68,7 +70,8 @@ const _color_attributes = [ # color (String or Symbol) type parameters
   :branch_color,
   :connector_color,
   :storage_color,
-  :dcline_color
+  :dcline_color,
+  :flow_color
 ]
 const _numeric_attributes = [ # numeric parameters
   :gen_size,
