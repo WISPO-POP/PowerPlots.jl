@@ -97,3 +97,6 @@ const _label_attributes = [ # label (String or Symbol) type parameters
   :dcline_data_type,
   :storage_data_type
 ]
+const _boolean_attributes = [ # boolean type parameters
+  :show_flow_legend,
+]
