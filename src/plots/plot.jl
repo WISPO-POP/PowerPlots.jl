@@ -358,7 +358,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                         as="mid_y"
                     },
                     {
-                        calculate="180*(if(datum.pt >= 0,
+                        calculate="180*(if(datum.pf >= 0,
                             atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
                             atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
                         ))/PI",
