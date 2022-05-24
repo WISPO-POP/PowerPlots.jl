@@ -33,6 +33,7 @@ include("core/attribute_validation.jl")
 
 include("plots/plot.jl")
 include("plots/plot_processing.jl")
+include("plots/plot_series.jl")
 
 include("layouts/common.jl")
 include("layouts/kamada_kawaii_layout.jl")

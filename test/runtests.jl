@@ -196,7 +196,34 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
     end
 
+    @testset "Heatmap" begin
+        data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        data_mn = replicate(data, 20)
 
+        p1 = power_heatmap(data_mn, :gen, :pg; title="Gen Power")
+
+        @test p1==power_heatmap(data_mn, :gen,  "pg"; title="Gen Power")
+        @test p1==power_heatmap(data_mn, "gen", "pg"; title="Gen Power")
+        @test p1==power_heatmap(data_mn, "gen", :pg;  title="Gen Power")
+    end
+
+    @testset "power_param" begin
+
+    sol_opf = run_opf(data, DCPPowerModel, Gurobi.Optimizer)
+    update_data!(data,sol_opf["solution"])
+
+    power_param(data, :gen, "pg")
+    power_param(data_mn, :gen, 2, "pg")
+    power_param(data_mn, :gen, "pg", plot_type=:line)
+    power_param(data_mn, :gen, "pg"; plot_type=:line, aggregate="mean")
+    power_param(data_mn, :gen, "pg", plot_type=:line, aggregate="sum")
+    power_param(data_mn, :gen, "pg", plot_type=:line, aggregate="max")
+    power_param(data_mn, :gen, "pg", plot_type=:line, aggregate="min")
+
+
+    @test_warn(logger, r"aggregation `mi` not supported. Choose one of \"min\", \"max\",\"sum\",\"mean\"",
+    power_param(data_mn, :gen, "pg", plot_type=:line, aggregate="mi")) # invalid aggregation type
+    end
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
