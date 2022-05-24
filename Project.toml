@@ -37,7 +37,7 @@ OrderedCollections = "~1"
 PowerModels = "~0.17, ~0.18, ~0.19"
 PowerModelsDistribution = "~0.11,~0.12,~0.13,~0.14"
 RecursiveArrayTools = "~2"
-Setfield = "~0.7"
+Setfield = "~0.7, 1"
 VegaLite = "^2.0"
 julia = "^1"
 
