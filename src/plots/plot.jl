@@ -327,6 +327,10 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
     if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
         flow_legend = nothing
     end
+    flow_opacity = 1.0
+    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+        flow_opacity = 0.0
+    end
     
     return VegaLite.@vlplot(
         data=PMD.branch,
@@ -378,7 +382,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                     :point,
                     shape=:wedge,
                     filled=true,
-                    opacity=1.0,
+                    opacity=flow_opacity,
                     color=plot_attributes[:flow_color],
                 },
                 x={:mid_x,type="quantitative"},
