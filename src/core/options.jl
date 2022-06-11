@@ -37,7 +37,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :branch_data_type => "nominal",
   :dcline_data_type => "nominal",
   :storage_data_type => "nominal",
-  :show_flow => false,
+  :show_flow => true,
   :show_flow_legend => false,
 );
 
