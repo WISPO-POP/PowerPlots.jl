@@ -58,6 +58,11 @@ p = powerplot(data, bus_data="bus_type",
                     width=300, height=300
 )
 ```
+### Power Flow
+If the variables `pf` (power from) and `pt` (power to) exist in the data, power flow directions can be visualized using the `show_flow` boolean toggle (true by default).
+```@example power_data
+p = powerplot(data, show_flow=true)
+```
 
 ### Color Ranges
 Color ranges are automatically interpolated from a range that is provided.  If only a single color is given, the component will not change color based on the data.
