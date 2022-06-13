@@ -12,8 +12,8 @@ These paramters modify the entire plot.
 
 ## Component Parameters
 These parameters modify a specific component.
-### Switches
-There are several component 'switch' parameters that control whether certain display properties of components are on or off. These accept boolean values.
+### Toggles
+There are several component 'toggle' parameters that control whether certain display properties of components are on or off. These accept boolean values.
 | Keyword | Description | Default |
 | ------- | ----------- | ------- |
 | `show_flow` | whether flow arrows are displayed | `true` |
