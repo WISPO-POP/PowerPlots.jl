@@ -24,7 +24,7 @@ The color arguments can accept several inputs.  A single color can be specified 
 ```julia
 powerplot(case; branch_color=:yellow)
 powerplot(case; branch_color="yellow")
-powerplot(case; branch_color="#FFA71A)
+powerplot(case; branch_color="#FFA71A")
 ```
 
 A color range can be created by using several colors in an array. The range is used when component data is specified.
