@@ -16,7 +16,7 @@ These parameters modify a specific component.
 There are several component 'switch' parameters that control whether certain display properties of components are on or off. These accept boolean values.
 | Keyword | Description | Default |
 | ------- | ----------- | ------- |
-| `show_flow` | whether flow arrows are displayed | `false` |
+| `show_flow` | whether flow arrows are displayed | `true` |
 | `show_flow_legend` | whether the legend for the flow arrows is shown | `false` |
 ### Color
 The color arguments can accept several inputs.  A single color can be specified using a color name as a symbol or a string.  [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) names are supported.  In addition, hex color values in a string are supported.
