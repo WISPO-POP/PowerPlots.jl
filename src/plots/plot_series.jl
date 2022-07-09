@@ -102,7 +102,7 @@ end
 "Plot a heatmap of component parameters across network ids."
 function power_heatmap(data::Dict{String,<:Any}, comp::Symbol, param::Symbol; title=""::String)
     PMD = PowerModelsDataFrame(data)
-    getfield(PMD,comp_type)[!,:nw_id] = parse.(Int,getfield(PMD,comp_type)[!,:nw_id])
+    getfield(PMD,comp)[!,:nw_id] = parse.(Int,getfield(PMD,comp)[!,:nw_id])
 
     p = VegaLite.@vlplot(
         data=getproperty(PMD,comp),
