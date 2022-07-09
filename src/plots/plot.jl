@@ -29,10 +29,13 @@ function powerplot(
         case = distr_data(case)
     end
 
-    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+    # fix parallel branch coordinates
+    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
@@ -97,10 +100,13 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
         case = distr_data(case)
     end
 
-    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+    # fix parallel branch coordinates
+    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
@@ -149,15 +155,20 @@ function _powerplot_mn(case::Dict{String,<:Any};
     kwargs... )
 
     data = deepcopy(case)
+
+    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
     for (nwid,net) in data["nw"]
         if haskey(first(case["nw"])[2],"is_kron_reduced")
             net = distr_data(net)
         end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+        # fix parallel branch coordinates
+        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
 
-    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
     for (nwid,nw) in data["nw"]
       remove_information!(nw, invalid_keys)
     end
@@ -209,16 +220,20 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
     kwargs... )
 
+    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
         if haskey(first(case["nw"])[2],"is_kron_reduced")
             net = distr_data(net)
         end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+        # fix parallel branch coordinates
+        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
 
-    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
     for (nwid,nw) in data["nw"]
       remove_information!(nw, invalid_keys)
     end
@@ -240,7 +255,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # add layers
     old_layer_count = 1 # used to only reference new powerplot layers in logic below
-    if haskey(plt_layer.params,"layer")
+    if hasproperty(plt_layer,:layer)
         old_layer_count=length(keys(plt_layer.layer))
     end
     p = p+plt_layer

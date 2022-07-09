@@ -5,8 +5,12 @@ These paramters modify the entire plot.
 
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
-| `width`     | width of the plot in pixels | 500 |
-| `height`    | height of the plot in pixels | 500 |
+| `width`     | width of the plot in pixels | `500` |
+| `height`    | height of the plot in pixels | `500` |
+| `layout_algorithim` | algorithm for generating network layout (see [Layouts](@ref)) | `kamada_kawai` |
+| `fixed` | use fixed coordinates from network model | `false` |
+| `parallel_edge_offset` | offset distance between parallel edges | `0.05` |
+
 
 
 

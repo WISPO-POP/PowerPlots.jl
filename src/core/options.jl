@@ -39,6 +39,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :storage_data_type => "nominal",
   :show_flow => true,
   :show_flow_legend => false,
+  :parallel_edge_offset => 0.05,
 );
 
 # Returns a deepcopy of the default_plot_attributes, used to initialize plot_attributes in utils.jl
@@ -85,7 +86,8 @@ const _numeric_attributes = [ # numeric parameters
   :dcline_size,
   :storage_size,
   :width,
-  :height
+  :height,
+  :parallel_edge_offset,
 ]
 const _label_attributes = [ # label (String or Symbol) type parameters
   :gen_data,

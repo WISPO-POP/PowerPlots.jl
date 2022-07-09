@@ -58,9 +58,15 @@ p = powerplot(data, bus_data="bus_type",
                     width=300, height=300
 )
 ```
+
 ### Power Flow
 If the variables `pf` (power from) and `pt` (power to) exist in the data, power flow directions can be visualized using the `show_flow` boolean toggle (true by default).
 ```@example power_data
+# Solve AC power flow and add values to data dictionary
+using Ipopt, PowerModels
+result = solve_ac_opf(data, Ipopt.Optimizer)
+update_data!(data, result["solution"])
+
 p = powerplot(data, show_flow=true)
 ```
 
@@ -99,3 +105,17 @@ math = transform_data_model(eng)
 powerplot(math)
 # example works, but fails to run in documentation
 ```
+
+## Multinetworks
+`powerplot` detects if a network is a multinetwork and will create a slider to select which network to view.
+```@example power_data
+data_mn = PowerModels.replicate(data, 5)
+
+# create random data for each time period
+for (nwid,nw) in data_mn["nw"]
+    for (branchid,branch) in nw["branch"]
+        branch["value"] = rand()
+    end
+end
+
+powerplot(data_mn, branch_data=:value, branch_data_type=:quantitative)
