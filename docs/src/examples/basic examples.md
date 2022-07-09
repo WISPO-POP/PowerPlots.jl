@@ -45,7 +45,7 @@ Aliases to overide all node and edge sizes.
 powerplot(data, node_size=1000, edge_size=10, width=300, height=300)
 ```
 
-## Visualizing System Data
+# Visualizing System Data
 Component data values from the PowerModels dictionary can be plotted by specfying the dictionary key. The key can be either a string or a symbol.  The data type can be `:ordinal`, `:nominal`, or `:quantitative`.
 
 ```@example power_data
@@ -59,18 +59,7 @@ p = powerplot(data, bus_data="bus_type",
 )
 ```
 
-### Power Flow
-If the variables `pf` (power from) and `pt` (power to) exist in the data, power flow directions can be visualized using the `show_flow` boolean toggle (true by default).
-```@example power_data
-# Solve AC power flow and add values to data dictionary
-using Ipopt, PowerModels
-result = solve_ac_opf(data, Ipopt.Optimizer)
-update_data!(data, result["solution"])
-
-p = powerplot(data, show_flow=true)
-```
-
-### Color Ranges
+## Color Ranges
 Color ranges are automatically interpolated from a range that is provided.  If only a single color is given, the component will not change color based on the data.
 
 ```@example power_data
@@ -82,7 +71,7 @@ p = powerplot(data,
 )
 ```
 
-### Color Schemes
+## Color Schemes
 Color schemes from the package `ColorSchemes.jl` can also be used to specify a color range.
 
 ```@example power_data
@@ -94,20 +83,23 @@ powerplot(data;
             width=300, height=300
 )
 ```
-## Distribution Grids
-Open a three-phase distribution system case using [PowerModelsDistribution.jl](https://github.com/lanl-ansi/PowerModelsDistribution.jl) and run the command `powerplot` on the data.
 
-```
-using PowerModelsDistribution
-using PowerPlots
-eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
-math = transform_data_model(eng)
-powerplot(math)
-# example works, but fails to run in documentation
+# Power Flow
+If the variables `pf` (power from) and `pt` (power to) exist in the data, power flow directions can be visualized using the `show_flow` boolean toggle (true by default).
+
+```@example
+# Solve AC power flow and add values to data dictionary
+using Ipopt, PowerModels, PowerPlots
+data = parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+result = solve_ac_opf(data, Ipopt.Optimizer)
+update_data!(data, result["solution"])
+
+p = powerplot(data, show_flow=true)
 ```
 
-## Multinetworks
+# Multinetworks
 `powerplot` detects if a network is a multinetwork and will create a slider to select which network to view.
+
 ```@example power_data
 data_mn = PowerModels.replicate(data, 5)
 
@@ -119,3 +111,16 @@ for (nwid,nw) in data_mn["nw"]
 end
 
 powerplot(data_mn, branch_data=:value, branch_data_type=:quantitative)
+```
+
+# Distribution Grids
+Open a three-phase distribution system case using [PowerModelsDistribution.jl](https://github.com/lanl-ansi/PowerModelsDistribution.jl) and run the command `powerplot` on the data.
+
+```
+using PowerModelsDistribution
+using PowerPlots
+eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+math = transform_data_model(eng)
+powerplot(math)
+# example works, but fails to run in documentation
+```
