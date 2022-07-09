@@ -16,13 +16,21 @@ These paramters modify the entire plot.
 
 ## Component Parameters
 These parameters modify a specific component.
+### Toggles
+There are several component 'toggle' parameters that control whether certain display properties of components are on or off. These accept boolean values.
+
+| Keyword | Description | Default |
+| ------- | ----------- | ------- |
+| `show_flow` | whether flow arrows are displayed | `true` |
+| `show_flow_legend` | whether the legend for the flow arrows is shown | `false` |
+
 ### Color
 The color arguments can accept several inputs.  A single color can be specified using a color name as a symbol or a string.  [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) names are supported.  In addition, hex color values in a string are supported.
 
 ```julia
 powerplot(case; branch_color=:yellow)
 powerplot(case; branch_color="yellow")
-powerplot(case; branch_color="#FFA71A)
+powerplot(case; branch_color="#FFA71A")
 ```
 
 A color range can be created by using several colors in an array. The range is used when component data is specified.
@@ -47,6 +55,7 @@ powerplot(case; branch_color=colorscheme2array(ColorSchemes.colorschemes[:tablea
 | `bus_color`    |  set the color of a bus | `["#31A354", "#57B46F", "#7CC68A", "#A1D8A5", "#C7E9C0"]` |
 | `node_color`    |  set the color of all buses and generators | N/A |
 | `edge_color`    |  set the color of all branches, DC lines, and connectors | N/A|
+| `flow_color`  | set the color of flow arrows | `:black`
 
 
 ### Size

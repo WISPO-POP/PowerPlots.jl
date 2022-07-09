@@ -18,6 +18,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :connector_color => [:gray],
   :dcline_color => color_schemes[:purples],
   :storage_color => color_schemes[:oranges],
+  :flow_color => :black,
   :gen_size => 5e2,
   :bus_size => 5e2,
   :branch_size => 5,
@@ -36,6 +37,8 @@ default_plot_attributes = Dict{Symbol, Any}(
   :branch_data_type => "nominal",
   :dcline_data_type => "nominal",
   :storage_data_type => "nominal",
+  :show_flow => true,
+  :show_flow_legend => false,
   :parallel_edge_offset => 0.05,
 );
 
@@ -61,6 +64,9 @@ const attribute_aliases = Dict(
   :branch_size => [:branchsize, :line_size, :edge_size],
   :dcline_size => [:dclinesize, :line_size, :edge_size],
   :connector_size => [:connectorsize, :edge_size],
+  :flow_color => [:flowcolor, :arrow_color, :arrowcolor],
+  :show_flow => [:flow, :showflow, :arrows, :show_arrows, :showarrows, :flows, :show_flows, :showflows],
+  :show_flow_legend => [:flowlegend, :flow_legend, :arrowlegend, :arrow_legend, :show_arrow_legend],
 )
 
 const _color_attributes = [ # color (String or Symbol) type parameters
@@ -69,7 +75,8 @@ const _color_attributes = [ # color (String or Symbol) type parameters
   :branch_color,
   :connector_color,
   :storage_color,
-  :dcline_color
+  :dcline_color,
+  :flow_color
 ]
 const _numeric_attributes = [ # numeric parameters
   :gen_size,
@@ -93,4 +100,8 @@ const _label_attributes = [ # label (String or Symbol) type parameters
   :branch_data_type,
   :dcline_data_type,
   :storage_data_type
+]
+const _boolean_attributes = [ # boolean type parameters
+  :show_flow,
+  :show_flow_legend,
 ]

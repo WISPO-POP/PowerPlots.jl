@@ -46,6 +46,11 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test_warn(logger, r"Invalid number (.*) given for (.*)$", powerplot(case; width="abcd")) # test invalid numeric string given for numeric attribute
         @test_warn(logger, r"Value for (.*) should be given as a number or numeric String$", powerplot(case; width=:zero)) # test invalid datatype given for numeric attribute
 
+        # Boolean attribute tests
+        @test_nolog(logger, "error", r".+", powerplot(case; show_flow_legend=false)) # valid function call should not cause any error messages
+        @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case; show_flow_legend=true)) # test valid boolean attribute
+        @test_warn(logger, r"Value for (.*) should be given as a Bool$", powerplot(case; show_flow_legend="true")) # test invalid datatype
+
         # Data label tests
         @test_nolog(logger, "error", r".+", powerplot(case; bus_data=:ComponentType, gen_data="ComponentType",
             bus_data_type=:ordinal, gen_data_type="nominal")) # valid function call should not cause any error messages

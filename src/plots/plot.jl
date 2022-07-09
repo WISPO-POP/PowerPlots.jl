@@ -51,7 +51,7 @@ function powerplot(
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = plot_base(plot_attributes)
+    p = plot_base(data, plot_attributes)
     if !(isempty(PMD.branch))
         p = p+plot_branch(PMD, plot_attributes)
     end
@@ -122,7 +122,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = plot_base(plot_attributes)
+    p = plot_base(data, plot_attributes)
 
     # add layer
     p = p+plt_layer
@@ -286,13 +286,22 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 end
 
 
-function plot_base(plot_attributes::Dict{Symbol,Any})
+function plot_base(data::Dict{String, <:Any}, plot_attributes::Dict{Symbol,Any})
+    min_x = data["layout_extent"]["min_x"]
+    max_x = data["layout_extent"]["max_x"]
+    min_y = data["layout_extent"]["min_y"]
+    max_y = data["layout_extent"]["max_y"]
+
+    # Set axes to same size to match a uniform Cartesian space
+    min_coord = min(min_x, min_y)
+    max_coord = max(max_x, max_y)
+
     return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
         config={view={stroke=nothing}},
-        x={axis=nothing},
-        y={axis=nothing},
+        x={axis=nothing,scale={domain=[min_coord,max_coord]}},
+        y={axis=nothing,scale={domain=[min_coord,max_coord]}},
         resolve={
             scale={
                 color=:independent
@@ -329,27 +338,74 @@ end
 
 
 function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    flow_legend = true
+    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+        flow_legend = nothing
+    end
+    flow_opacity = 1.0
+    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+        flow_opacity = 0.0
+    end
+    
     return VegaLite.@vlplot(
-        mark ={
-            :rule,
-            tooltip=("content" => "data"),
-            opacity =  1.0,
-        },
         data=PMD.branch,
-        x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:branch_size]},
-        color={
-            field=plot_attributes[:branch_data],
-            type=plot_attributes[:branch_data_type],
-            title="Branch",
-            scale={
-                range=plot_attributes[:branch_color]
+        layer=[
+            {
+                mark ={
+                    :rule,
+                    tooltip=("content" => "data"),
+                    opacity =  1.0,
+                },
+                x={:xcoord_1,type="quantitative"},
+                x2={:xcoord_2,type="quantitative"},
+                y={:ycoord_1,type="quantitative"},
+                y2={:ycoord_2,type="quantitative"},
+                size={value=plot_attributes[:branch_size]},
+                color={
+                    field=plot_attributes[:branch_data],
+                    type=plot_attributes[:branch_data_type],
+                    title="Branch",
+                    scale={
+                        range=plot_attributes[:branch_color]
+                    },
+                    # legend={orient="bottom-right"}
+                },
             },
-            # legend={orient="bottom-right"}
-        },
+            {
+                transform=[
+                    {
+                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+                        as="mid_x"
+                    },
+                    {
+                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+                        as="mid_y"
+                    },
+                    {
+                        calculate="180*(if(datum.pf >= 0,
+                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+                        ))/PI",
+                        as="angle"
+                    },
+                    {
+                        calculate="abs(datum.pt)",
+                        as="power"
+                    }
+                ],
+                mark={
+                    :point,
+                    shape=:wedge,
+                    filled=true,
+                    opacity=flow_opacity,
+                    color=plot_attributes[:flow_color],
+                },
+                x={:mid_x,type="quantitative"},
+                y={:mid_y,type="quantitative"},
+                size={:power, scale={range=[500,3000]}, type="quantitative", legend=flow_legend},
+                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+            }
+        ]
     )
 end
 
