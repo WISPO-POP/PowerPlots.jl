@@ -1,7 +1,7 @@
 name = "PowerPlots"
 uuid = "229d1e32-5c67-4c9a-a884-d6a3a7f23cfa"
 authors = ["Noah Rhodes"]
-version = "0.4.3"
+version = "0.4.4"
 
 [deps]
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
