@@ -2,7 +2,7 @@ PowerPlots.jl Change Log
 ========================
 ### Staged
  - Add support for plotting parallel branches/dclines 
- - Add powerflow arrows to powerplo
+ - Add powerflow arrows to powerplots
 ### v0.4.2
 - Add support for plotting 3-phase grid data
 - Add support for multinetwork plots
