@@ -2,10 +2,10 @@
 function distr_data(case::Dict{String,<:Any})
     # create new dict
     case_dist = deepcopy(case)
-    for comp_type in ["gen","branch","bus","switch","transformer"]
+    for comp_type in ["gen","branch","bus","load","switch","transformer"]
         case_dist[comp_type] = Dict{String,Any}()
     end
-    
+
     # add bus parameters
     for (idx,bus) in enumerate(case["bus"])
         phases = phase_nodes(bus, "terminals")
@@ -31,10 +31,21 @@ function distr_data(case::Dict{String,<:Any})
             )
     end
 
+    # add load parameters
+    for (idx,load) in enumerate(case["load"])
+        phases = phase_nodes(load, "connections")
+        case_dist["load"]["$idx"] = Dict{String, Any}("phases"=> phases,
+            "pd"=> load[2]["pd"], "qd"=> load[2]["qd"],
+            "index"=> load[2]["index"], "name"=> load[2]["name"],
+            "status"=> load[2]["status"], "configuration"=> load[2]["configuration"],
+            "model"=> load[2]["model"], "load_bus"=> load[2]["load_bus"],
+            )
+    end
+
     # add branch parameters
     for (idx,branch) in enumerate(case["branch"])
         phases = phase_connectors(branch)
-        case_dist["branch"]["$idx"] = Dict{String, Any}("phases"=> phases, 
+        case_dist["branch"]["$idx"] = Dict{String, Any}("phases"=> phases,
             "br_status"=> branch[2]["br_status"], "index"=> branch[2]["index"],
             "transformer"=> "false", "name"=> branch[2]["name"],
             "from"=>case["bus"]["$(branch[2]["f_bus"])"]["name"],
@@ -57,7 +68,7 @@ function distr_data(case::Dict{String,<:Any})
     # add transformer parameters
     for (idx,transformer) in enumerate(case["transformer"])
         phases = phase_connectors(transformer)
-        case_dist["transformer"]["$idx"] = Dict{String, Any}("phases"=> phases, 
+        case_dist["transformer"]["$idx"] = Dict{String, Any}("phases"=> phases,
             "index"=> transformer[2]["index"], "polarity"=> transformer[2]["polarity"],
             "from"=>case["bus"]["$(transformer[2]["f_bus"])"]["name"],
             "to"=>case["bus"]["$(transformer[2]["t_bus"])"]["name"],
@@ -74,17 +85,17 @@ end
 "determine phases for buses and generators"
 function phase_nodes(data::Pair{String, Any}, key::String)
     phases = []
-    if 1 in data[2][key] 
+    if 1 in data[2][key]
         push!(phases,"A")
     end
-    if 2 in data[2][key] 
+    if 2 in data[2][key]
         push!(phases,"B")
     end
-    if 3 in data[2][key] 
+    if 3 in data[2][key]
         push!(phases,"C")
     end
     phases = join(phases)
-    
+
     return phases
 end
 
