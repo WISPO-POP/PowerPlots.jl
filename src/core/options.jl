@@ -4,9 +4,8 @@ const color_schemes=Dict{Symbol,Any}(
     :blues => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#3182BD", Colors.colorant"#C6DBEF", length=5))),#["#$(Colors.hex(c))" for c in ColorSchemes.ColorScheme(range(Colors.colorant"#3182BD", Colors.colorant"#C6DBEF", length=5))],
     :greens => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#31A354", Colors.colorant"#C7E9C0", length=5))),
     :oranges => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#E6550D", Colors.colorant"#FDD0A2", length=5))),
-    :reds => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#843C39", Colors.colorant"#E7969C", length=5))),
+    :reds => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#CB181D", Colors.colorant"#FCBBA1", length=5))),
     :purples => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#756BB1", Colors.colorant"#DADAEB", length=5))),
-
 )
 
 
@@ -20,13 +19,13 @@ default_plot_attributes = Dict{Symbol, Any}(
   :dcline_color => color_schemes[:purples],
   :storage_color => color_schemes[:oranges],
   :flow_color => :black,
-  :gen_size => 5e2,
+  :gen_size => 2e2,
   :bus_size => 5e2,
-  :load_size => 5e2,
+  :load_size => 2e2,
   :branch_size => 5,
   :connector_size => 3,
   :dcline_size => 5,
-  :storage_size => 5e2,
+  :storage_size => 2e2,
   :width => 500,
   :height => 500,
   :gen_data => "ComponentType",
