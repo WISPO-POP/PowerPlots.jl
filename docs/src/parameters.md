@@ -70,6 +70,7 @@ The size argument sets the size of a component.  The size does not vary with dat
 | `bus_size`    |  set the size of a bus | `500` |
 | `node_size`    |  set the size of all buses and generators | N/A |
 | `edge_size`    |  set the size of all branches, DC lines, and connectors | N/A |
+| `flow_arrow_size_range` | set size range for power flow arrows | `[500,3000]` |
 
 ### Data
 The data argument selects the data from the component dictionary to use in the visualization.  The data argument can be a string or a symbol.  The data value modifes the color of a component based on the color range.
