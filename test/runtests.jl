@@ -143,7 +143,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @testset "Layered multinetwork plot" begin
             p = powerplot(case_mn)
             pp = powerplot!(p, case_mn)
-            @test length(keys(pp.layer))==5 # 1 layer first plot, 4 component layers from second plot
+            @test length(keys(pp.layer))==6 # 1 layer first plot, 5 component layers from second plot
         end
     end
 

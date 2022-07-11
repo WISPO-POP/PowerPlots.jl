@@ -53,6 +53,7 @@ powerplot(case; branch_color=colorscheme2array(ColorSchemes.colorschemes[:tablea
 | `connector_color`    | set the color of a connector | `[:gray]` |
 | `gen_color`    |  set the color of a generator | `["#E6550D", "#EB7433", "#F19358", "#F8B17C", "#FDD0A2"]` |
 | `bus_color`    |  set the color of a bus | `["#31A354", "#57B46F", "#7CC68A", "#A1D8A5", "#C7E9C0"]` |
+| `load_color`    |  set the color of a load | `["#843C39", "#9D5352", "#B5696B", "#CE7F83", "#E7969C"]` |
 | `node_color`    |  set the color of all buses and generators | N/A |
 | `edge_color`    |  set the color of all branches, DC lines, and connectors | N/A|
 | `flow_color`  | set the color of flow arrows | `:black`
@@ -68,6 +69,7 @@ The size argument sets the size of a component.  The size does not vary with dat
 | `connector_size`    | set the size of a connector | `3` |
 | `gen_size`    |  set the size of a generator | `500` |
 | `bus_size`    |  set the size of a bus | `500` |
+| `load_size`    |  set the size of a load | `500` |
 | `node_size`    |  set the size of all buses and generators | N/A |
 | `edge_size`    |  set the size of all branches, DC lines, and connectors | N/A |
 | `flow_arrow_size_range` | set size range for power flow arrows | `[500,3000]` |
@@ -87,6 +89,7 @@ powerplot(case; gen_data=:pmin)
 | `connector_data`    | set the data of a connector | `"ComponentType"` |
 | `gen_data`    |  set the data of a generator | `"ComponentType"` |
 | `bus_data`    |  set the data of a bus | `"ComponentType"` |
+| `load_data`    |  set the data of a load | `"ComponentType"` |
 
 
 ### Data Type
@@ -104,3 +107,4 @@ powerplot(case; gen_data=:index, gen_data_type=:nominal) # the index is a discre
 | `connector_data_type`    | set the data type of a connector | `:nominal` |
 | `gen_data_type`    |  set the data type of a generator | `:nominal` |
 | `bus_data_type`    |  set the data type of a bus | `:nominal` |
+| `load_data_type`    |  set the data type of a load | `:nominal` |
