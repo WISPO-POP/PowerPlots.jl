@@ -39,6 +39,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :storage_data_type => "nominal",
   :show_flow => true,
   :show_flow_legend => false,
+  :flow_arrow_size_range=>[500,3000],
   :parallel_edge_offset => 0.05,
 );
 
