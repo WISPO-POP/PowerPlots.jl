@@ -545,10 +545,12 @@ end
 "Remove keys from componet dictionaries based on input invalid keys"
 function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})
     for comp_type in ["bus","branch","gen"]
-        for (id, comp) in data[comp_type]
-            for key in keys(comp)
-                if (key in invalid_keys[comp_type])
-                    delete!(comp,key)
+        if haskey(data, comp_type)
+            for (id, comp) in data[comp_type]
+                for key in keys(comp)
+                    if (key in invalid_keys[comp_type])
+                        delete!(comp,key)
+                    end
                 end
             end
         end
