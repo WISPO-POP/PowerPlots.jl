@@ -459,7 +459,7 @@ function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,
         y={:ycoord_1,type="quantitative"},
         y2={:ycoord_2,type="quantitative"},
         size={value=plot_attributes[:connector_size]},
-        strokeDash={value=[4,4]},
+        strokeDash={value=plot_attributes[:connector_dash]},
         color={
             field="ComponentType",
             type="nominal",
@@ -545,10 +545,12 @@ end
 "Remove keys from componet dictionaries based on input invalid keys"
 function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})
     for comp_type in ["bus","branch","gen"]
-        for (id, comp) in data[comp_type]
-            for key in keys(comp)
-                if (key in invalid_keys[comp_type])
-                    delete!(comp,key)
+        if haskey(data, comp_type)
+            for (id, comp) in data[comp_type]
+                for key in keys(comp)
+                    if (key in invalid_keys[comp_type])
+                        delete!(comp,key)
+                    end
                 end
             end
         end

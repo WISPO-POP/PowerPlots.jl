@@ -44,6 +44,7 @@ default_plot_attributes = Dict{Symbol, Any}(
   :show_flow_legend => false,
   :flow_arrow_size_range=>[500,3000],
   :parallel_edge_offset => 0.05,
+  :connector_dash=>[4,4],
 );
 
 # Returns a deepcopy of the default_plot_attributes, used to initialize plot_attributes in utils.jl
