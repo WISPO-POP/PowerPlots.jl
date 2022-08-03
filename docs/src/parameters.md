@@ -108,3 +108,10 @@ powerplot(case; gen_data=:index, gen_data_type=:nominal) # the index is a discre
 | `gen_data_type`    |  set the data type of a generator | `:nominal` |
 | `bus_data_type`    |  set the data type of a bus | `:nominal` |
 | `load_data_type`    |  set the data type of a load | `:nominal` |
+
+
+### Other Parameters
+
+| Keyword     | Description | Default |
+| ----------- | ----------- | ------- |
+| `:connector_dash`     | set dash size for connectors | `[4,4]` |
