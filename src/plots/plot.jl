@@ -67,6 +67,9 @@ function powerplot(
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
     end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
+    end
     return p
 end
 
@@ -142,6 +145,9 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
     end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
+    end
     return p
 end
 
@@ -202,6 +208,9 @@ function _powerplot_mn(case::Dict{String,<:Any};
     end
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
     end
 
     for i in keys(p.layer)  # add filter for nwid on each layer
@@ -274,6 +283,9 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     end
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
     end
 
     for i in keys(p.layer)  # add filter for nwid on each powerplot layer
@@ -506,6 +518,29 @@ function plot_gen(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
     )
 end
 
+
+function plot_load(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    return VegaLite.@vlplot(
+        data = PMD.load,
+        mark ={
+            :circle,
+            "tooltip" =("content" => "data"),
+            opacity =  1.0,
+        },
+        x={:xcoord_1,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        size={value=plot_attributes[:load_size]},
+        color={
+            field=plot_attributes[:load_data],
+            type=plot_attributes[:load_data_type],
+            title="Load",
+            scale={
+                range=plot_attributes[:load_color]
+            }
+            # legend={orient="bottom-right"}
+        },
+    )
+end
 
 "Remove keys from componet dictionaries based on input invalid keys"
 function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})

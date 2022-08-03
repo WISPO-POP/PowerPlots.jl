@@ -90,7 +90,7 @@ end
 
 
 ""
-function PowerModelsGraph(data::Dict{String,<:Any}; node_types=["bus","gen","storage"]::Array{String,1}, edge_types=["branch","dcline","switch"]::Array{String,1})
+function PowerModelsGraph(data::Dict{String,<:Any}; node_types=["bus","gen","storage","load"]::Array{String,1}, edge_types=["branch","dcline","switch"]::Array{String,1})
     return PowerModelsGraph(data, node_types, edge_types)
 end
 

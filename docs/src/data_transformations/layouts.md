@@ -64,4 +64,7 @@ The layout algorithm arguments can be also passed in directly through `powerplot
 powerplot(case; layout_algorithm=Spring, iterations=50)
 ```
 
-When using `fixed=true`, a variation of the `SFDP` algorithm is sued that does not update corrdinates with prior coordinates set.  The same arguments arguments as the `SFDP` algorithm can be used to modify the layout.
+When using `fixed=true`, a variation of the `SFDP` algorithm is used that does not update corrdinates with prior coordinates set.  The same arguments arguments as the `SFDP` algorithm can be used to modify the layout.
+
+
+The default weights for edge-type components (branches, dc lines, etc.) are `1.0`.  The default weight for connectors (links from  e.g. generators to buses) is 0.5.  They can be modified by passing the argument `edge_weight` or `connector_weight` to the layout function.  If a component has a `weight` entry in its data dictionary, such as `data["branch"]["1"]["weight"]`, this weight will be used instead.

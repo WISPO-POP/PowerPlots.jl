@@ -25,6 +25,7 @@ The colors of the components can be set, using simple keywords. Any valid [CSS c
 powerplot(data; bus_color="orange",
                 gen_color=:purple,
                 branch_color="#AFAFAF",
+                load_color=:black,
                 width=300, height=300)
 ```
 
@@ -37,7 +38,7 @@ powerplot(data; node_color="red", edge_color="purple", width=300, height=300)
 ## Modify Component Size
 The size of components can be set similarly.  A good size for node devices is typically around 100x larger than edge devices.
 ```@example power_data
-powerplot(data, bus_size=1000, gen_size=100, branch_size=2, connector_size=10)
+powerplot(data, bus_size=1000, gen_size=100, load_size=200, branch_size=2, connector_size=10)
 ```
 
 Aliases to overide all node and edge sizes.
@@ -55,6 +56,8 @@ p = powerplot(data, bus_data="bus_type",
                     branch_data_type="ordinal",
                     gen_data="pmax",
                     gen_data_type="quantitative",
+                    load_data="pd",
+                    load_data_type="quantitative",
                     width=300, height=300
 )
 ```

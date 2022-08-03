@@ -31,7 +31,7 @@ function offset_parallel_edges!(data,offset)
 
         dx = xcoord_2 - xcoord_1
         dy = ycoord_2 - ycoord_1
-        normal_direction = (-dy, dx)
+        normal_direction = (-dy, dx)./(sqrt(dx^2+dy^2))
 
         offset_range = range(-offset, offset, length=n_edges)
 

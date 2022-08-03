@@ -37,13 +37,41 @@ components is returned.
 function layout_network(case::Dict{String,<:Any};
     fixed = false,
     layout_algorithm = kamada_kawai,
-    node_types::Array{String,1}=["bus","gen","storage"],
+    node_types::Array{String,1}=["bus","gen","storage","load"],
     edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
+    connector_weight=0.5,
+    edge_weight=1.0,
     kwargs...
     )
 
     data = deepcopy(case)
     PMG = PowerModelsGraph(data,node_types,edge_types)
+
+    # calculate weights
+    weights = zeros(size(PMG.graph))
+    for ((s,d),(comp_type,comp_id)) in PMG.edge_comp_map
+
+        if haskey(case[comp_type][comp_id],"weight")
+            w = compcase[comp_type][comp_id]["weight"]
+        else
+            w=edge_weight
+        end
+        if w>weights[s,d]
+            weights[s,d]= w
+            weights[d,s]= w
+        end
+    end
+    for ((s,d),(comp_type,comp_id)) in PMG.edge_connector_map
+        if haskey(case[comp_type][comp_id],"weight")
+            w = compcase[comp_type][comp_id]["weight"]
+        else
+            w=connector_weight
+        end
+        if w>weights[s,d]
+            weights[s,d]= w
+            weights[d,s]= w
+        end
+    end
 
     if fixed==true # use fixed-position SFDP layout
         rng = MersenneTwister(1)
@@ -60,17 +88,19 @@ function layout_network(case::Dict{String,<:Any};
 
         # Create SFDP layout with fixed nodes
         a = Graphs.adjacency_matrix(PMG.graph)
+        a = a.*weights
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(SFDP_fixed(; fixed = fixed_pos, initialpos=initialpos, kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
     elseif layout_algorithm ∈ [Shell, SFDP, Buchheim, Spring, Stress, SquareGrid, Spectral]  # Create layout from NetworkLayouts algorithms
         a = Graphs.adjacency_matrix(PMG.graph)
+        a = a.*weights
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(layout_algorithm(;kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
     elseif layout_algorithm==kamada_kawai
         # create layout using Kamada Kawai algorithm
-        positions = layout_algorithm(PMG; kwargs...)
+        positions = layout_algorithm(PMG; weights=weights, kwargs...)
     else
         Memento.error(_LOGGER, "layout_algorithm `$(layout_algorithm)` not supported.")
     end

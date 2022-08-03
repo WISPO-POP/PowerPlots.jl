@@ -143,7 +143,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @testset "Layered multinetwork plot" begin
             p = powerplot(case_mn)
             pp = powerplot!(p, case_mn)
-            @test length(keys(pp.layer))==5 # 1 layer first plot, 4 component layers from second plot
+            @test length(keys(pp.layer))==6 # 1 layer first plot, 5 component layers from second plot
         end
     end
 
@@ -196,8 +196,10 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
             @test data["dcline"]["1"]["xcoord_2"] == data["branch"]["1"]["xcoord_2"]
 
             offset_parallel_edges!(data,0.05) # offset, ensures coordinates values are different
-            @test isapprox(data["dcline"]["1"]["xcoord_1"] - data["branch"]["1"]["xcoord_1"], .03, atol=1e-1)
-            @test isapprox(data["dcline"]["1"]["xcoord_2"] - data["branch"]["1"]["xcoord_2"], .03, atol=1e-1)
+            dist = sqrt((data["dcline"]["1"]["xcoord_1"] - data["branch"]["1"]["xcoord_1"])^2+
+                (data["dcline"]["1"]["ycoord_1"] - data["branch"]["1"]["ycoord_1"])^2
+            )
+            @test isapprox(dist, 0.05*2; atol=1e-8)
         end
     end
 
