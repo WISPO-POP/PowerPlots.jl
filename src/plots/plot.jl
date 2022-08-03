@@ -459,7 +459,7 @@ function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,
         y={:ycoord_1,type="quantitative"},
         y2={:ycoord_2,type="quantitative"},
         size={value=plot_attributes[:connector_size]},
-        strokeDash={value=[4,4]},
+        strokeDash={value=plot_attributes[:connector_dash]},
         color={
             field="ComponentType",
             type="nominal",
