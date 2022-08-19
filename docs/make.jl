@@ -32,6 +32,11 @@ makedocs(
             "examples/advanced examples.md",
         ],
         "Parameters" => "parameters.md",
+        "Data Transformations" => Any[
+            "data_transformations/powermodelsdataframes.md",
+            "data_transformations/powermodelsgraphs.md",
+            "data_transformations/layouts.md",
+        ],
         "Experimental Features" => "experimental.md",
     ]
 )

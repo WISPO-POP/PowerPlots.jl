@@ -3,7 +3,7 @@
 ```@meta
 CurrentModule = PowerPlots
 ```
-[PowerPlots.jl](https://github.com/WISPO-POP/PowerPlots.jl) is a package for visualizing power grids, using the data spec from [PowerModels.jl](https://github.com/lanl-ansi/PowerModels.jl). This package uses [VegaLite.jl](https://github.com/queryverse/VegaLite.jl) as the plotting backend.
+[PowerPlots.jl](https://github.com/WISPO-POP/PowerPlots.jl) is a package for visualizing power grids, using the data spec from [PowerModels.jl](https://github.com/lanl-ansi/PowerModels.jl) and [PowerModelsDistribution.jl](https://github.com/lanl-ansi/PowerModelsDistribution.jl). This package uses [VegaLite.jl](https://github.com/queryverse/VegaLite.jl) as the plotting backend.
 
 ## Installation
 ```julia

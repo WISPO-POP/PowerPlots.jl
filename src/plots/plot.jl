@@ -1,20 +1,39 @@
 
-function powerplot( case::Dict{String,<:Any};
-                    spring_constant::Float64=1e-3,
-                    color_symbol=:ComponentType,
-                    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
-                    "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
-                    "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
-                    kwargs...
-    )
+"""
+    `powerplot(
+        case::Dict{String,<:Any};
+        layout_algorithm=kamada_kawai,
+        fixed=false,
+        invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
+        "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+        "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
+        kwargs...)`
+
+Create a plower plot. Check github repo for documentation on kwarg options.
+"""
+function powerplot(
+    case::Dict{String,<:Any};
+    layout_algorithm=kamada_kawai,
+    fixed=false,
+    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
+    "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+    "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
+    kwargs...)
+
     if InfrastructureModels.ismultinetwork(case)
-        Memento.error(_LOGGER, "powerplot does not yet support multinetwork data")
+        return _powerplot_mn(case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
+
+    # modify case dictionary for distribution grid data
+    if haskey(case, "is_kron_reduced")
+        case = distr_data(case)
+    end
+
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
-    data = layout_graph_vega(case)
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 
@@ -48,7 +67,211 @@ function powerplot( case::Dict{String,<:Any};
     return p
 end
 
- function plot_base(plot_attributes::Dict{Symbol,Any})
+"""
+    `powerplot!(
+        plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
+        layout_algorithm=kamada_kawai,
+        fixed=false,
+        invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
+        "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+        "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
+        kwargs...)`
+
+Create a plower plot, with a different VegaLite plot as the bottom layer of the plot.  Primarily
+used to plot geographic map data underneath a power grid.
+"""
+function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
+    layout_algorithm=kamada_kawai,
+    fixed=false,
+    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
+    "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+    "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
+    kwargs...)
+
+    if InfrastructureModels.ismultinetwork(case)
+        return _powerplot_mn!(plt_layer, case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
+    end
+
+    # modify case dictionary for distribution grid data
+    if haskey(case, "is_kron_reduced")
+        case = distr_data(case)
+    end
+
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
+    remove_information!(data, invalid_keys)
+    PMD = PowerModelsDataFrame(data)
+
+    # validate data-related attributes
+    _validate_data_type(plot_attributes, :gen_data_type)
+    _validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    _validate_data_type(plot_attributes, :bus_data_type)
+    _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
+    _validate_data_type(plot_attributes, :branch_data_type)
+    _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
+    _validate_data_type(plot_attributes, :dcline_data_type)
+    _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
+
+    # make the plots
+    p = plot_base(plot_attributes)
+
+    # add layer
+    p = p+plt_layer
+
+    if !(isempty(PMD.branch))
+        p = p+plot_branch(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.dcline))
+        p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.connector))
+        p = p+plot_connector(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.bus))
+        p = p+plot_bus(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.gen))
+        p = p+plot_gen(PMD, plot_attributes)
+    end
+    return p
+end
+
+
+function _powerplot_mn(case::Dict{String,<:Any};
+    layout_algorithm=kamada_kawai,
+    fixed=false,
+    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
+    "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+    "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
+    kwargs... )
+
+    data = deepcopy(case)
+    for (nwid,net) in data["nw"]
+        if haskey(first(case["nw"])[2],"is_kron_reduced")
+            net = distr_data(net)
+        end
+        data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+    end
+
+    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+    for (nwid,nw) in data["nw"]
+      remove_information!(nw, invalid_keys)
+    end
+
+    PMD = PowerModelsDataFrame(data)
+
+
+    # validate data-related attributes
+    PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
+    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
+    PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
+    PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
+    PowerPlots._validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
+    PowerPlots._validate_data_type(plot_attributes, :dcline_data_type)
+    PowerPlots._validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
+
+    # make the plots
+    p = plot_base_mn(data,plot_attributes)
+    if !(isempty(PMD.branch))
+        p = p+plot_branch(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.dcline))
+        p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.connector))
+        p = p+plot_connector(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.bus))
+        p = p+plot_bus(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.gen))
+        p = p+plot_gen(PMD, plot_attributes)
+    end
+
+    for i in keys(p.layer)  # add filter for nwid on each layer
+        p.layer[i]["transform"] = OrderedCollections.OrderedDict{String, Any}[OrderedCollections.OrderedDict("filter"=>"datum.nw_id == nwid")]
+    end
+
+    return p
+end
+
+
+function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
+    layout_algorithm=kamada_kawai,
+    fixed=false,
+    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
+    "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
+    "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
+    kwargs... )
+
+    data = deepcopy(case)
+    for (nwid,net) in data["nw"]
+        if haskey(first(case["nw"])[2],"is_kron_reduced")
+            net = distr_data(net)
+        end
+        data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+    end
+
+    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+    for (nwid,nw) in data["nw"]
+      remove_information!(nw, invalid_keys)
+    end
+
+    PMD = PowerModelsDataFrame(data)
+
+    # validate data-related attributes
+    PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
+    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
+    PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
+    PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
+    PowerPlots._validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
+    PowerPlots._validate_data_type(plot_attributes, :dcline_data_type)
+    PowerPlots._validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
+
+    # make the plots
+    p = plot_base_mn(data,plot_attributes)
+
+    # add layers
+    old_layer_count = 1 # used to only reference new powerplot layers in logic below
+    if haskey(plt_layer.params,"layer")
+        old_layer_count=length(keys(plt_layer.layer))
+    end
+    p = p+plt_layer
+
+    if !(isempty(PMD.branch))
+        p = p+plot_branch(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.dcline))
+        p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.connector))
+        p = p+plot_connector(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.bus))
+        p = p+plot_bus(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.gen))
+        p = p+plot_gen(PMD, plot_attributes)
+    end
+
+    for i in keys(p.layer)  # add filter for nwid on each powerplot layer
+        if i > old_layer_count
+            p.layer[i]["transform"] = OrderedCollections.OrderedDict{String, Any}[OrderedCollections.OrderedDict("filter"=>"datum.nw_id == nwid")]
+        end
+    end
+
+    return p
+end
+
+
+function plot_base(plot_attributes::Dict{Symbol,Any})
     return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
@@ -61,10 +284,36 @@ end
             }
         },
     )
- end
+end
 
 
- function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+function plot_base_mn(case::Dict{String,Any},plot_attributes::Dict{Symbol,Any})
+    return p = VegaLite.@vlplot(
+    width=plot_attributes[:width],
+    height=plot_attributes[:height],
+    config={view={stroke=nothing}},
+    x={axis=nothing},
+    y={axis=nothing},
+    resolve={
+        scale={
+            color=:independent
+        }
+    },
+    params=[{
+        name="nwid",
+        select={type="point"},
+        value=minimum(parse.(Int,collect(keys(case["nw"])))),
+        bind={
+            input="range",
+            min=minimum(parse.(Int,collect(keys(case["nw"])))),
+            max=maximum((parse.(Int,collect(keys(case["nw"]))))),
+            step=1}
+        }],
+    )
+end
+
+
+function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
     return VegaLite.@vlplot(
         mark ={
             :rule,
@@ -87,7 +336,7 @@ end
             # legend={orient="bottom-right"}
         },
     )
- end
+end
 
 function plot_dcline(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
     return VegaLite.@vlplot(
@@ -115,7 +364,7 @@ function plot_dcline(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
 end
 
 function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-return VegaLite.@vlplot(
+    return VegaLite.@vlplot(
         mark ={
             :rule,
             "tooltip" =("content" => "data"),

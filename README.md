@@ -27,9 +27,9 @@ The Documentation is available [here](https://wispo-pop.github.io/PowerPlots.jl/
 
 
 ## Acknowledgements
-This code has been primarily developed by Noah Rhodes at the University of Wisconsin-Madison with the help of the following contributors,
- - Bryan Lu, University of Wisconsin-Madison, plot attribute processing
- - Joe Gorka, University of Wisconsin-Madison, modifying network layout algorithms
+This code has been primarily developed by [Noah Rhodes](https://github.com/noahrhodes) [nrhodes@wisc.edu](mailto:nrhodes@wisc.edu) at the University of Wisconsin-Madison with the help of the following contributors,
+ - [Bryan Luu](https://github.com/bryanluu): [bluu@wisc.edu](mailto:bluu@wisc.edu), University of Wisconsin-Madison, plot attribute processing
+ - [Joe Gorka](https://github.com/j-gorka): [jgorka@wisc.edu](mailto:jgorka@wisc.edu), University of Wisconsin-Madison, modifying network layout algorithms
 
 ## License
 

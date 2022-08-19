@@ -77,11 +77,71 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     @testset "PowerModelsDataFrame" begin
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
         df = PowerModelsDataFrame(data)
+        @test typeof(df) <:PowerModelsDataFrame
+        @test size(df.branch) == (7,20)
 
         data_mn = PowerModels.replicate(data,2)
         df_mn = PowerModelsDataFrame(data_mn)
-        @test true # these functions didn't error
+        @test typeof(df_mn) <:PowerModelsDataFrame # these functions didn't error
+        @test size(df_mn.branch) == (14,21)
+
+        comp_df = comp_dict_to_dataframe(data["branch"])
+        @test size(comp_df) == (7,19)
     end
+
+    @testset "PowerModelsGraph and Layouts" begin
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        PMG = PowerModelsGraph(case)
+        # positions = layout_graph_kamada_kawai!(PMG)
+        # @test size(positions) == (10,)
+        # @test typeof(positions) == Vector{Vector{Float64}}
+
+        layout_network(case, layout_algorithm=Shell)
+        layout_network(case, layout_algorithm=SFDP)
+        # layout_network(case, layout_algorithm=Buchheim) # requires a tree-network
+        layout_network(case, layout_algorithm=Spring)
+        layout_network(case, layout_algorithm=Stress)
+        layout_network(case, layout_algorithm=SquareGrid)
+        layout_network(case, layout_algorithm=Spectral)
+        layout_network(case, layout_algorithm=kamada_kawai)
+
+
+        case["bus"]["1"]["xcoord_1"] = 1.0
+        case["bus"]["1"]["ycoord_1"] = 2.0
+        case = layout_network(case, fixed=true)
+        @test case["bus"]["1"]["xcoord_1"] == 1.0
+        @test case["bus"]["1"]["ycoord_1"] == 2.0
+
+        # check functionality when nodes exceeds branches
+        case["gen"]["6"] = deepcopy(case["gen"]["1"])
+        case["gen"]["7"] = deepcopy(case["gen"]["1"])
+        case["gen"]["8"] = deepcopy(case["gen"]["1"])
+        case["gen"]["9"] = deepcopy(case["gen"]["1"])
+        case["gen"]["11"] = deepcopy(case["gen"]["1"])
+        case["gen"]["12"] = deepcopy(case["gen"]["1"])
+        case["gen"]["13"] = deepcopy(case["gen"]["1"])
+        case["gen"]["14"] = deepcopy(case["gen"]["1"])
+        case["gen"]["15"] = deepcopy(case["gen"]["1"])
+        PMG = PowerModelsGraph(case)
+
+    end
+
+    @testset "Multinetwork plots" begin
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        case_mn = replicate(case, 2)
+
+        @testset "Basic multinetwork plot" begin
+            p = powerplot(case_mn)
+            @test true # above line does not error
+        end
+
+        @testset "Layered multinetwork plot" begin
+            p = powerplot(case_mn)
+            pp = powerplot!(p, case_mn)
+            @test length(keys(pp.layer))==5 # 1 layer first plot, 4 component layers from second plot
+        end
+    end
+
 
     @testset "Experimental" begin
         using PowerPlots.Experimental
@@ -98,6 +158,29 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
     end
 
+    @testset "Distribution Grids" begin
+        using PowerModelsDistribution
+        PowerModelsDistribution.silence!()
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+        math = transform_data_model(eng)
+        p = powerplot(math)
+        @test true # what do I test here?
+        p = powerplot!(p,math)
+        @test true
+
+        @testset "Multinetwork Distribution Grids" begin
+            eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+            eng_mn = PowerModelsDistribution.make_multinetwork(eng)
+            math_mn = transform_data_model(eng_mn)
+            p = powerplot(math_mn)
+            @test true
+            pp = powerplot!(p,math_mn)
+            @test true
+        end
+
+    end
+
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
+

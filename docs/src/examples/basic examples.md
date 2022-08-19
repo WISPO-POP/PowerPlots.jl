@@ -28,7 +28,7 @@ powerplot(data; bus_color="orange",
                 width=300, height=300)
 ```
 
-The aliases `node_color` and `edge_color` can overwrite all nodes and edges respectively. (does this apply in the order the keywords are placed?)
+The aliases `node_color` and `edge_color` can overwrite all nodes and edges respectively.
 
 ```@example power_data
 powerplot(data; node_color="red", edge_color="purple", width=300, height=300)
@@ -83,4 +83,14 @@ powerplot(data;
             width=300, height=300
 )
 ```
+## Distribution Grids
+Open a three-phase distribution system case using [PowerModelsDistribution.jl](https://github.com/lanl-ansi/PowerModelsDistribution.jl) and run the command `powerplot` on the data.
 
+```
+using PowerModelsDistribution
+using PowerPlots
+eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+math = transform_data_model(eng)
+powerplot(math)
+# example works, but fails to run in documentation
+```
