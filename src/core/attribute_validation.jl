@@ -47,6 +47,14 @@ function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
         Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
       end
     end
+
+    # validate boolean attributes
+    for attr in _boolean_attributes
+      value = plot_attributes[attr]
+      if !(typeof(value) <: Bool)
+        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a Bool")
+      end
+    end
 end
 
 

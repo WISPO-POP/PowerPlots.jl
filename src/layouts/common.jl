@@ -1,4 +1,3 @@
-
 # re-export NetworkLayout algorithms
 function Shell(; Ptype=Float64, nlist=Vector{Int}[], kwargs...)
     NetworkLayout.Shell(; Ptype=Ptype, nlist=nlist)
@@ -38,13 +37,41 @@ components is returned.
 function layout_network(case::Dict{String,<:Any};
     fixed = false,
     layout_algorithm = kamada_kawai,
-    node_types::Array{String,1}=["bus","gen","storage"],
+    node_types::Array{String,1}=["bus","gen","storage","load"],
     edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
+    connector_weight=0.5,
+    edge_weight=1.0,
     kwargs...
     )
 
     data = deepcopy(case)
     PMG = PowerModelsGraph(data,node_types,edge_types)
+
+    # calculate weights
+    weights = zeros(size(PMG.graph))
+    for ((s,d),(comp_type,comp_id)) in PMG.edge_comp_map
+
+        if haskey(case[comp_type][comp_id],"weight")
+            w = compcase[comp_type][comp_id]["weight"]
+        else
+            w=edge_weight
+        end
+        if w>weights[s,d]
+            weights[s,d]= w
+            weights[d,s]= w
+        end
+    end
+    for ((s,d),(comp_type,comp_id)) in PMG.edge_connector_map
+        if haskey(case[comp_type][comp_id],"weight")
+            w = compcase[comp_type][comp_id]["weight"]
+        else
+            w=connector_weight
+        end
+        if w>weights[s,d]
+            weights[s,d]= w
+            weights[d,s]= w
+        end
+    end
 
     if fixed==true # use fixed-position SFDP layout
         rng = MersenneTwister(1)
@@ -61,22 +88,25 @@ function layout_network(case::Dict{String,<:Any};
 
         # Create SFDP layout with fixed nodes
         a = Graphs.adjacency_matrix(PMG.graph)
+        a = a.*weights
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(SFDP_fixed(; fixed = fixed_pos, initialpos=initialpos, kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
     elseif layout_algorithm ∈ [Shell, SFDP, Buchheim, Spring, Stress, SquareGrid, Spectral]  # Create layout from NetworkLayouts algorithms
         a = Graphs.adjacency_matrix(PMG.graph)
+        a = a.*weights
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(layout_algorithm(;kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
     elseif layout_algorithm==kamada_kawai
         # create layout using Kamada Kawai algorithm
-        positions = layout_algorithm(PMG; kwargs...)
+        positions = layout_algorithm(PMG; weights=weights, kwargs...)
     else
         Memento.error(_LOGGER, "layout_algorithm `$(layout_algorithm)` not supported.")
     end
 
     apply_node_positions!(data,positions, PMG)
+    extract_layout_extent!(data, positions)
 
     return data
 end
@@ -113,6 +143,33 @@ function apply_node_positions!(data,positions, PMG)
         )
         id+=1
     end
+
+    return data
+end
+
+"Extract layout coordinate extent for scaling purposes"
+function extract_layout_extent!(data::Dict{String,<:Any}, positions)
+    # find the extremes
+    min_x = min_y = Inf
+    max_x = max_y = -Inf
+    for pos in positions
+        x, y = pos
+        min_x, min_y = min(min_x, x), min(min_y, y)
+        max_x, max_y = max(max_x, x), max(max_y, y)
+    end
+
+    width, height = (max_x - min_x), (max_y - min_y)
+    padding = min(50, 0.2 * (width + height) / 2) # set padding to be minimum of 50 px or 20% the average of the width and height
+
+    # add to data
+    data["layout_extent"] = Dict{String, Any}()
+    data["layout_extent"]["min_x"] = min_x
+    data["layout_extent"]["min_y"] = min_y
+    data["layout_extent"]["max_x"] = max_x
+    data["layout_extent"]["max_y"] = max_y
+    data["layout_extent"]["width"] = width
+    data["layout_extent"]["height"] = height
+    data["layout_extent"]["padding"] = padding
 
     return data
 end

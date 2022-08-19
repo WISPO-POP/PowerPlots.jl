@@ -1,3 +1,52 @@
+
+"return a Dict indexed by bus pairs, with a value of an array of tuples of edge types and edge ids of parallel edges"
+ function get_parallel_edges(data)
+    edge_pairs = Dict()
+    for edge_type in ["branch","dcline"] # supported edge_types
+        for (id,edge) in get(data, edge_type, Dict())
+            bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
+            if !haskey(edge_pairs, bus_pair)
+                edge_pairs[bus_pair] = []
+            end
+            push!(edge_pairs[bus_pair], (edge_type, id))
+        end
+    end
+
+    for (bus_pair, edges) in edge_pairs
+        if length(edges)==1
+            delete!(edge_pairs,bus_pair)
+        end
+    end
+    return edge_pairs
+end
+
+"Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
+function offset_parallel_edges!(data,offset)
+    for (bus_pair, edges) in get_parallel_edges(data)
+        n_edges = length(edges)
+        xcoord_1 = data["bus"]["$(bus_pair[1])"]["xcoord_1"]
+        ycoord_1 = data["bus"]["$(bus_pair[1])"]["ycoord_1"]
+        xcoord_2 = data["bus"]["$(bus_pair[2])"]["xcoord_1"]
+        ycoord_2 = data["bus"]["$(bus_pair[2])"]["ycoord_1"]
+
+        dx = xcoord_2 - xcoord_1
+        dy = ycoord_2 - ycoord_1
+        normal_direction = (-dy, dx)./(sqrt(dx^2+dy^2))
+
+        offset_range = range(-offset, offset, length=n_edges)
+
+        for i in eachindex(edges)
+            (edge_type, edge_id) = edges[i]
+            data[edge_type][edge_id]["ycoord_1"] = ycoord_1 + offset_range[i]*normal_direction[2]
+            data[edge_type][edge_id]["ycoord_2"] = ycoord_2 + offset_range[i]*normal_direction[2]
+            data[edge_type][edge_id]["xcoord_1"] = xcoord_1 + offset_range[i]*normal_direction[1]
+            data[edge_type][edge_id]["xcoord_2"] = xcoord_2 + offset_range[i]*normal_direction[1]
+        end
+    end
+    return data
+end
+
+
 # "converts nan values to 0.0"
 # _convert_nan(x) = isnan(x) ? 0.0 : x
 # _replace_nan(v) = map(x -> isnan(x) ? zero(x) : x, v)

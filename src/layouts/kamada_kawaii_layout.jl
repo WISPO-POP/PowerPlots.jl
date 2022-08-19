@@ -12,7 +12,7 @@
     `
     calculate node positions use Kamada Kawai layout algorithm
 """
-function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing, pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing, weight="weight", scale=1, center=nothing, dim=2; kwargs...)
+function kamada_kawai(G::PowerModelsGraph; dist::Union{Nothing,AbstractMatrix{<:Real}}=nothing, pos::Union{Nothing,AbstractMatrix{<:Real}}=nothing, weights=nothing, scale=1, center=nothing, dim=2, kwargs...)
     graph = G.graph # convert to undirected graph
     nNodes = Graphs.nv(graph)
     if nNodes == 0
@@ -22,7 +22,7 @@ function kamada_kawai(G::PowerModelsGraph, dist::Union{Nothing,AbstractMatrix{<:
     if dist===nothing
         dist=Dict()
         for i in 1:nNodes
-            dist[i]=Graphs.dijkstra_shortest_paths(graph, i).dists
+            dist[i]=Graphs.dijkstra_shortest_paths(graph, i, weights).dists
         end
     end
     dist_mtx = 1e6 * ones(nNodes, nNodes)

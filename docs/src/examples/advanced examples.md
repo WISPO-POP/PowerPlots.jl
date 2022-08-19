@@ -11,8 +11,8 @@ using ColorSchemes
 using Setfield
 using JuMP, Ipopt
 case = parse_file("case14.m")
-sol = run_ac_opf(case, optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0))
-update_data!(case,sol["solution"])
+result = solve_ac_opf(case, optimizer_with_attributes(Ipopt.Optimizer, "print_level"=>0))
+update_data!(case,result["solution"])
 
 plot1 = powerplot(case,
                 # bus_data=:vm,
@@ -21,18 +21,18 @@ plot1 = powerplot(case,
                 gen_data_type=:quantitative,
                 branch_data=:pt,
                 branch_data_type=:quantitative,
-                branch_color=["black","black","red"],
-                gen_color=["black","black","red"]
+                branch_color=["DimGray","red"],
+                gen_color=["DimGray","red"]
 )
 
 plot1.layer[1]["transform"] = Dict{String, Any}[
     Dict("calculate"=>"abs(datum.pt)/datum.rate_a*100", "as"=>"branch_Percent_Loading"),
     Dict("calculate"=>"abs(datum.pt)", "as"=>"BranchPower")
 ]
-plot1.layer[1]["encoding"]["color"]["field"]="branch_Percent_Loading"
-plot1.layer[1]["encoding"]["color"]["title"]="Branch Utilization %"
-plot1.layer[1]["encoding"]["color"]["scale"]["domain"]=[0,100]
-plot1.layer[1]["encoding"]["size"]=Dict("field"=>"BranchPower", "title"=>"Branch BaseMW", "type"=>"quantitative", "scale"=>Dict("range"=>[3,10]))
+plot1.layer[1]["layer"][1]["encoding"]["color"]["field"]="branch_Percent_Loading"
+plot1.layer[1]["layer"][1]["encoding"]["color"]["title"]="Branch Utilization %"
+plot1.layer[1]["layer"][1]["encoding"]["color"]["scale"]["domain"]=[0,100]
+#plot1.layer[1]["layer"][1]["encoding"]["size"]=Dict("field"=>"BranchPower", "title"=>"Branch BaseMW", "type"=>"quantitative", "scale"=>Dict("range"=>[3,10]))
 
 
 plot1.layer[4]["transform"] = Dict{String, Any}[
@@ -44,7 +44,7 @@ plot1.layer[4]["encoding"]["color"]["scale"]["domain"]=[0,100]
 plot1.layer[4]["encoding"]["color"]["title"]="Gen Utilization %"
 plot1.layer[4]["encoding"]["size"]=Dict("field"=>"GenPower", "title"=>"Gen BaseMW", "type"=>"quantitative", "scale"=>Dict("range"=>[300,1000]))
 
-plot1.layer[1]["encoding"]["color"]["legend"]=Dict("orient"=>"bottom-right", "offset"=>-30)
+plot1.layer[1]["layer"][1]["encoding"]["color"]["legend"]=Dict("orient"=>"bottom-right", "offset"=>-30)
 plot1.layer[4]["encoding"]["color"]["legend"]=Dict("orient"=>"bottom-right")
 
 @set! plot1.resolve.scale.size=:independent
@@ -87,12 +87,14 @@ end
 
 color_range = colorscheme2array(ColorSchemes.colorschemes[:tableau_10])
 color_range = [color_range[i] for i in[1,2,4,3]]
-plot1 = powerplot(case; bus_data=:block, gen_data=:block, branch_data=:block, node_color=color_range, branch_color=color_range)
+plot1 = powerplot(case; bus_data=:block, gen_data=:block, branch_data=:block, node_color=color_range, branch_color=color_range, show_flow=false)
 
 @set! plot1.resolve.scale.color=:shared # share color scale for all components
-for l in plot1.layer #set all layer titles to "Load Blocks"
-    l["encoding"]["color"]["title"]="Load Blocks"
-end
+plot1.layer[1]["layer"][1]["encoding"]["color"]["title"]="Load Blocks"
+plot1.layer[2]["encoding"]["color"]["title"]="Load Blocks"
+plot1.layer[3]["encoding"]["color"]["title"]="Load Blocks"
+plot1.layer[4]["encoding"]["color"]["title"]="Load Blocks"
+
 
 plot1
 ```

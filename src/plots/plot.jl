@@ -29,10 +29,13 @@ function powerplot(
         case = distr_data(case)
     end
 
-    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+    # fix parallel branch coordinates
+    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
@@ -48,7 +51,7 @@ function powerplot(
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = plot_base(plot_attributes)
+    p = plot_base(data, plot_attributes)
     if !(isempty(PMD.branch))
         p = p+plot_branch(PMD, plot_attributes)
     end
@@ -63,6 +66,9 @@ function powerplot(
     end
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
     end
     return p
 end
@@ -97,10 +103,13 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
         case = distr_data(case)
     end
 
-    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+    # fix parallel branch coordinates
+    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
@@ -116,7 +125,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
-    p = plot_base(plot_attributes)
+    p = plot_base(data, plot_attributes)
 
     # add layer
     p = p+plt_layer
@@ -136,6 +145,9 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
     end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
+    end
     return p
 end
 
@@ -149,15 +161,20 @@ function _powerplot_mn(case::Dict{String,<:Any};
     kwargs... )
 
     data = deepcopy(case)
+
+    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
     for (nwid,net) in data["nw"]
         if haskey(first(case["nw"])[2],"is_kron_reduced")
             net = distr_data(net)
         end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+        # fix parallel branch coordinates
+        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
 
-    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
     for (nwid,nw) in data["nw"]
       remove_information!(nw, invalid_keys)
     end
@@ -192,6 +209,9 @@ function _powerplot_mn(case::Dict{String,<:Any};
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
     end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
+    end
 
     for i in keys(p.layer)  # add filter for nwid on each layer
         p.layer[i]["transform"] = OrderedCollections.OrderedDict{String, Any}[OrderedCollections.OrderedDict("filter"=>"datum.nw_id == nwid")]
@@ -209,16 +229,20 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
     kwargs... )
 
+    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
         if haskey(first(case["nw"])[2],"is_kron_reduced")
             net = distr_data(net)
         end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+
+        # fix parallel branch coordinates
+        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
     end
 
-    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
     for (nwid,nw) in data["nw"]
       remove_information!(nw, invalid_keys)
     end
@@ -240,7 +264,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # add layers
     old_layer_count = 1 # used to only reference new powerplot layers in logic below
-    if haskey(plt_layer.params,"layer")
+    if hasproperty(plt_layer,:layer)
         old_layer_count=length(keys(plt_layer.layer))
     end
     p = p+plt_layer
@@ -260,6 +284,9 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     if !(isempty(PMD.gen))
         p = p+plot_gen(PMD, plot_attributes)
     end
+    if !(isempty(PMD.load))
+        p = p+plot_load(PMD, plot_attributes)
+    end
 
     for i in keys(p.layer)  # add filter for nwid on each powerplot layer
         if i > old_layer_count
@@ -271,13 +298,22 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 end
 
 
-function plot_base(plot_attributes::Dict{Symbol,Any})
+function plot_base(data::Dict{String, <:Any}, plot_attributes::Dict{Symbol,Any})
+    min_x = data["layout_extent"]["min_x"]
+    max_x = data["layout_extent"]["max_x"]
+    min_y = data["layout_extent"]["min_y"]
+    max_y = data["layout_extent"]["max_y"]
+
+    # Set axes to same size to match a uniform Cartesian space
+    min_coord = min(min_x, min_y)
+    max_coord = max(max_x, max_y)
+
     return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
         config={view={stroke=nothing}},
-        x={axis=nothing},
-        y={axis=nothing},
+        x={axis=nothing,scale={domain=[min_coord,max_coord]}},
+        y={axis=nothing,scale={domain=[min_coord,max_coord]}},
         resolve={
             scale={
                 color=:independent
@@ -314,27 +350,74 @@ end
 
 
 function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    flow_legend = true
+    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+        flow_legend = nothing
+    end
+    flow_opacity = 1.0
+    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+        flow_opacity = 0.0
+    end
+
     return VegaLite.@vlplot(
-        mark ={
-            :rule,
-            tooltip=("content" => "data"),
-            opacity =  1.0,
-        },
         data=PMD.branch,
-        x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:branch_size]},
-        color={
-            field=plot_attributes[:branch_data],
-            type=plot_attributes[:branch_data_type],
-            title="Branch",
-            scale={
-                range=plot_attributes[:branch_color]
+        layer=[
+            {
+                mark ={
+                    :rule,
+                    tooltip=("content" => "data"),
+                    opacity =  1.0,
+                },
+                x={:xcoord_1,type="quantitative"},
+                x2={:xcoord_2,type="quantitative"},
+                y={:ycoord_1,type="quantitative"},
+                y2={:ycoord_2,type="quantitative"},
+                size={value=plot_attributes[:branch_size]},
+                color={
+                    field=plot_attributes[:branch_data],
+                    type=plot_attributes[:branch_data_type],
+                    title="Branch",
+                    scale={
+                        range=plot_attributes[:branch_color]
+                    },
+                    # legend={orient="bottom-right"}
+                },
             },
-            # legend={orient="bottom-right"}
-        },
+            {
+                transform=[
+                    {
+                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+                        as="mid_x"
+                    },
+                    {
+                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+                        as="mid_y"
+                    },
+                    {
+                        calculate="180*(if(datum.pf >= 0,
+                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+                        ))/PI",
+                        as="angle"
+                    },
+                    {
+                        calculate="abs(datum.pt)",
+                        as="power"
+                    }
+                ],
+                mark={
+                    :point,
+                    shape=:wedge,
+                    filled=true,
+                    opacity=flow_opacity,
+                    color=plot_attributes[:flow_color],
+                },
+                x={:mid_x,type="quantitative"},
+                y={:mid_y,type="quantitative"},
+                size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
+                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+            }
+        ]
     )
 end
 
@@ -376,7 +459,7 @@ function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,
         y={:ycoord_1,type="quantitative"},
         y2={:ycoord_2,type="quantitative"},
         size={value=plot_attributes[:connector_size]},
-        strokeDash={value=[4,4]},
+        strokeDash={value=plot_attributes[:connector_dash]},
         color={
             field="ComponentType",
             type="nominal",
@@ -436,13 +519,38 @@ function plot_gen(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
 end
 
 
+function plot_load(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    return VegaLite.@vlplot(
+        data = PMD.load,
+        mark ={
+            :circle,
+            "tooltip" =("content" => "data"),
+            opacity =  1.0,
+        },
+        x={:xcoord_1,type="quantitative"},
+        y={:ycoord_1,type="quantitative"},
+        size={value=plot_attributes[:load_size]},
+        color={
+            field=plot_attributes[:load_data],
+            type=plot_attributes[:load_data_type],
+            title="Load",
+            scale={
+                range=plot_attributes[:load_color]
+            }
+            # legend={orient="bottom-right"}
+        },
+    )
+end
+
 "Remove keys from componet dictionaries based on input invalid keys"
 function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})
     for comp_type in ["bus","branch","gen"]
-        for (id, comp) in data[comp_type]
-            for key in keys(comp)
-                if (key in invalid_keys[comp_type])
-                    delete!(comp,key)
+        if haskey(data, comp_type)
+            for (id, comp) in data[comp_type]
+                for key in keys(comp)
+                    if (key in invalid_keys[comp_type])
+                        delete!(comp,key)
+                    end
                 end
             end
         end

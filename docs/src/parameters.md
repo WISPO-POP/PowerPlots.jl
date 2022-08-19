@@ -5,20 +5,32 @@ These paramters modify the entire plot.
 
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
-| `width`     | width of the plot in pixels | 500 |
-| `height`    | height of the plot in pixels | 500 |
+| `width`     | width of the plot in pixels | `500` |
+| `height`    | height of the plot in pixels | `500` |
+| `layout_algorithim` | algorithm for generating network layout (see [Layouts](@ref)) | `kamada_kawai` |
+| `fixed` | use fixed coordinates from network model | `false` |
+| `parallel_edge_offset` | offset distance between parallel edges | `0.05` |
+
 
 
 
 ## Component Parameters
 These parameters modify a specific component.
+### Toggles
+There are several component 'toggle' parameters that control whether certain display properties of components are on or off. These accept boolean values.
+
+| Keyword | Description | Default |
+| ------- | ----------- | ------- |
+| `show_flow` | whether flow arrows are displayed | `true` |
+| `show_flow_legend` | whether the legend for the flow arrows is shown | `false` |
+
 ### Color
 The color arguments can accept several inputs.  A single color can be specified using a color name as a symbol or a string.  [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) names are supported.  In addition, hex color values in a string are supported.
 
 ```julia
 powerplot(case; branch_color=:yellow)
 powerplot(case; branch_color="yellow")
-powerplot(case; branch_color="#FFA71A)
+powerplot(case; branch_color="#FFA71A")
 ```
 
 A color range can be created by using several colors in an array. The range is used when component data is specified.
@@ -41,8 +53,10 @@ powerplot(case; branch_color=colorscheme2array(ColorSchemes.colorschemes[:tablea
 | `connector_color`    | set the color of a connector | `[:gray]` |
 | `gen_color`    |  set the color of a generator | `["#E6550D", "#EB7433", "#F19358", "#F8B17C", "#FDD0A2"]` |
 | `bus_color`    |  set the color of a bus | `["#31A354", "#57B46F", "#7CC68A", "#A1D8A5", "#C7E9C0"]` |
+| `load_color`    |  set the color of a load | `["#843C39", "#9D5352", "#B5696B", "#CE7F83", "#E7969C"]` |
 | `node_color`    |  set the color of all buses and generators | N/A |
 | `edge_color`    |  set the color of all branches, DC lines, and connectors | N/A|
+| `flow_color`  | set the color of flow arrows | `:black`
 
 
 ### Size
@@ -55,8 +69,10 @@ The size argument sets the size of a component.  The size does not vary with dat
 | `connector_size`    | set the size of a connector | `3` |
 | `gen_size`    |  set the size of a generator | `500` |
 | `bus_size`    |  set the size of a bus | `500` |
+| `load_size`    |  set the size of a load | `500` |
 | `node_size`    |  set the size of all buses and generators | N/A |
 | `edge_size`    |  set the size of all branches, DC lines, and connectors | N/A |
+| `flow_arrow_size_range` | set size range for power flow arrows | `[500,3000]` |
 
 ### Data
 The data argument selects the data from the component dictionary to use in the visualization.  The data argument can be a string or a symbol.  The data value modifes the color of a component based on the color range.
@@ -73,6 +89,7 @@ powerplot(case; gen_data=:pmin)
 | `connector_data`    | set the data of a connector | `"ComponentType"` |
 | `gen_data`    |  set the data of a generator | `"ComponentType"` |
 | `bus_data`    |  set the data of a bus | `"ComponentType"` |
+| `load_data`    |  set the data of a load | `"ComponentType"` |
 
 
 ### Data Type
@@ -90,3 +107,11 @@ powerplot(case; gen_data=:index, gen_data_type=:nominal) # the index is a discre
 | `connector_data_type`    | set the data type of a connector | `:nominal` |
 | `gen_data_type`    |  set the data type of a generator | `:nominal` |
 | `bus_data_type`    |  set the data type of a bus | `:nominal` |
+| `load_data_type`    |  set the data type of a load | `:nominal` |
+
+
+### Other Parameters
+
+| Keyword     | Description | Default |
+| ----------- | ----------- | ------- |
+| `:connector_dash`     | set dash size for connectors | `[4,4]` |

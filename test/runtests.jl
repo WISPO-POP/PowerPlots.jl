@@ -46,6 +46,11 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test_warn(logger, r"Invalid number (.*) given for (.*)$", powerplot(case; width="abcd")) # test invalid numeric string given for numeric attribute
         @test_warn(logger, r"Value for (.*) should be given as a number or numeric String$", powerplot(case; width=:zero)) # test invalid datatype given for numeric attribute
 
+        # Boolean attribute tests
+        @test_nolog(logger, "error", r".+", powerplot(case; show_flow_legend=false)) # valid function call should not cause any error messages
+        @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case; show_flow_legend=true)) # test valid boolean attribute
+        @test_warn(logger, r"Value for (.*) should be given as a Bool$", powerplot(case; show_flow_legend="true")) # test invalid datatype
+
         # Data label tests
         @test_nolog(logger, "error", r".+", powerplot(case; bus_data=:ComponentType, gen_data="ComponentType",
             bus_data_type=:ordinal, gen_data_type="nominal")) # valid function call should not cause any error messages
@@ -138,7 +143,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @testset "Layered multinetwork plot" begin
             p = powerplot(case_mn)
             pp = powerplot!(p, case_mn)
-            @test length(keys(pp.layer))==5 # 1 layer first plot, 4 component layers from second plot
+            @test length(keys(pp.layer))==6 # 1 layer first plot, 5 component layers from second plot
         end
     end
 
@@ -179,6 +184,25 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
 
     end
+
+    @testset "Parameter Settings" begin
+        @testset "parallel_edge_offset" begin
+            data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+            data["dcline"]["1"]=Dict{String,Any}("index"=>1, "f_bus"=>1, "t_bus"=>2)
+
+            data = layout_network(data)
+            offset_parallel_edges!(data,0.0) # no offset, ensures coordinates values are set for both edges
+            @test data["dcline"]["1"]["xcoord_1"] == data["branch"]["1"]["xcoord_1"]
+            @test data["dcline"]["1"]["xcoord_2"] == data["branch"]["1"]["xcoord_2"]
+
+            offset_parallel_edges!(data,0.05) # offset, ensures coordinates values are different
+            dist = sqrt((data["dcline"]["1"]["xcoord_1"] - data["branch"]["1"]["xcoord_1"])^2+
+                (data["dcline"]["1"]["ycoord_1"] - data["branch"]["1"]["ycoord_1"])^2
+            )
+            @test isapprox(dist, 0.05*2; atol=1e-8)
+        end
+    end
+
 
 end
 
