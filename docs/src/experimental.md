@@ -17,9 +17,14 @@ using PowerPlots.Experimental
 using PowerModels
 using Setfield
 
-#TODO use a case with actual geo coordinates to show the difference.
-case = parse_file("case14.m")
-p1 = powerplot(case; width=300, height=300)
+case = parse_file("WI_grid.m")
+for (loadid,load_d) in case["load_data"] # append load coordinates
+    for (k,v) in load_d
+        case["load"][loadid][k]=v
+    end
+end
+p1 = powerplot(case; width=300, height=300, fixed=true, flow=false, node_size=100, edge_size=3, parallel_edge_offset=.03) 
+
 p2 = deepcopy(p1)
 PowerPlots.Experimental.cartesian2geo!(p2)
 

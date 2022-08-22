@@ -83,8 +83,19 @@ function layout_network(case::Dict{String,<:Any};
         for i in 1:length(fixed_pos)
             (comp_type, comp_id) = PMG.node_comp_map[i]
             fixed_pos[i] = haskey(data[comp_type][comp_id], "xcoord_1") && haskey(data[comp_type][comp_id], "ycoord_1")
-            initialpos[i] = GeometryBasics.Point(get(data[comp_type][comp_id], "xcoord_1", 2*rand(rng)-1), get(data[comp_type][comp_id], "ycoord_1", 2*rand(rng)-1))
+            initialpos[i] = GeometryBasics.Point(get(data[comp_type][comp_id], "xcoord_1", NaN), get(data[comp_type][comp_id], "ycoord_1", NaN))
         end
+        fixed_initial_pos = [j for j in initialpos if !isnan(j)]
+        center = sum(fixed_initial_pos)/length(fixed_initial_pos)
+        maxextent = (maximum([j[1] for j in initialpos if !isnan(j)]), maximum([j[2] for j in initialpos if !isnan(j)]))
+        minextent = (minimum([j[1] for j in initialpos if !isnan(j)]), minimum([j[2] for j in initialpos if !isnan(j)]))
+        range = GeometryBasics.Point(maxextent.-minextent)
+        for i in 1:length(initialpos)
+            if isnan(initialpos[i])
+                initialpos[i] = center+GeometryBasics.Point(rand()-0.5,rand()-0.5)*range
+            end
+        end
+
 
         # Create SFDP layout with fixed nodes
         a = Graphs.adjacency_matrix(PMG.graph)
