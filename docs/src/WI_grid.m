@@ -121,7 +121,7 @@ mpc.bus_name = {
 	'World SE'
 };
 
-%column_names% xcoord_1 ycoord_1 
+%column_names% ycoord_1 xcoord_1 
 mpc.bus_data = {
 	43.48	-89.417
 	43.491	-89.418
@@ -146,21 +146,37 @@ mpc.bus_data = {
 	42.493	-87.867
 };
 
-%column_names% xcoord_1 ycoord_1 Fuel_Types 
-mpc.gen_data = {
-	43.48	-89.417	'coal'
-	43.491	-89.418	'coal'
-	43.079	-89.374	'wind'
-	43.075	-89.425	'ng'
-	44.281	-87.536	'nuclear'
-	44.281	-87.536	'nuclear'
-	42.845	-87.838	'coal'
-	42.845	-87.838	'coal'
-	45.026	-92.763	'unknown'
-	42.493	-87.867	'unknown'
+%column_names% ycoord_1 xcoord_1 
+mpc.load_data = {
+	43.623	-89.594
+	43.279	-89.274
+	42.713	-88.244
+	43.24	-87.702
+	44.354	-88.61
+	44.731	-88.014
+	44.636	-91.516
+	43.755	-87.517
+	43.179	-88.264
+	44.946	-89.337
+	44.095	-87.87
+	43.98	-88.452
 };
 
-%column_names% xcoord_1 ycoord_2 xcoord_2 ycoord_1 
+%column_names% ycoord_1 xcoord_1 Fuel_Types 
+mpc.gen_data = {
+	43.58	-89.917	'coal'
+	43.38	-89.918	'coal'
+	43.279	-89.074	'wind'
+	43.075	-89.725	'ng'
+	44.381	-87.336	'nuclear'
+	44.181	-87.336	'nuclear'
+	42.745	-87.538	'coal'
+	42.645	-87.738	'coal'
+	44.726	-92.763	'unknown'
+	42.293	-87.867	'unknown'
+};
+
+%column_names% ycoord_1 xcoord_2 ycoord_2 xcoord_1 
 mpc.branch_data = {
 	43.52269174866547	-89.41725400447733	43.48029174287569	-89.39435121024943
 	43.523357785917696	-89.41773123304226	43.49065887004639	-89.39417869923601
