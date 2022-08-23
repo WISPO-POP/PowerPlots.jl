@@ -1,5 +1,8 @@
 
-const supported_component_types = ["bus","gen","branch","dcline","load", "connector", "nw"]
+const supported_component_types = ["bus","gen","branch","dcline","load", "connector"]
+const node_types = ["bus","gen","load"]
+const edge_types = ["branch","dcline","connector"]
+
 
 """
     PowerModelsGraph
