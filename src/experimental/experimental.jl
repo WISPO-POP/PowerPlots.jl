@@ -83,7 +83,6 @@ module Experimental
     end
 
     function _set_geo_coords!(plot_layer::AbstractDict{<:Any,<:Any})
-        println("running_branch")
         # create lat/lon channels from x/y channels
         for i in keys(plot_layer["layer"])
             if haskey(plot_layer["layer"][i],"layer")
