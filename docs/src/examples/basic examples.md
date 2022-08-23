@@ -87,6 +87,18 @@ powerplot(data;
 )
 ```
 
+# Specify components for plotting
+Supported components for plotting are specified as:
+```@example power_data
+supported_component_types
+```
+
+By default, all of these components found in the data dictionary will be plotted.  However, it is possible to plot a subset of the components using the `components` keyword.
+
+```@example power_data
+powerplot(data; components=["bus","branch"], width=300, height=300)
+```
+
 # Power Flow
 If the variables `pf` (power from) and `pt` (power to) exist in the data, power flow directions can be visualized using the `show_flow` boolean toggle (true by default).
 
