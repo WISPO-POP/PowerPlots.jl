@@ -42,7 +42,7 @@ function powerplot(
 
     # validate data-related attributes
     _validate_data_type(plot_attributes, :gen_data_type)
-    _validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     _validate_data_type(plot_attributes, :bus_data_type)
     _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     _validate_data_type(plot_attributes, :branch_data_type)
@@ -116,7 +116,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # validate data-related attributes
     _validate_data_type(plot_attributes, :gen_data_type)
-    _validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     _validate_data_type(plot_attributes, :bus_data_type)
     _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     _validate_data_type(plot_attributes, :branch_data_type)
@@ -184,7 +184,7 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     # validate data-related attributes
     PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
-    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
     PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
@@ -251,7 +251,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # validate data-related attributes
     PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
-    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
     PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
