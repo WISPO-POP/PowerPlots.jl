@@ -147,6 +147,12 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
     end
 
+    @testset "filter plot components" begin
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        p=powerplot(case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
+        
+    end
 
     @testset "Experimental" begin
         using PowerPlots.Experimental
