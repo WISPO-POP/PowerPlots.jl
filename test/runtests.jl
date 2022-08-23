@@ -210,6 +210,28 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     end
 
 
+    @testset "Verify new components are fully supported" begin
+    
+        # set of nodes and edges is equivalent to all supported components
+        @test Set(union(supported_node_types,supported_edge_types))==Set(supported_component_types)
+        
+        for comp_type in supported_component_types
+            @info "checking support for: $comp_type"
+            
+            # check that all components have a plot function
+            @test isdefined(PowerPlots, Symbol("plot_$comp_type"))
+
+            # check that all components have kwargs 
+            @test haskey(default_plot_attributes, Symbol("$(comp_type)_size"))
+            @test haskey(default_plot_attributes, Symbol("$(comp_type)_color"))
+            # skip connector
+            if comp_type != "connector"
+                @test haskey(default_plot_attributes, Symbol("$(comp_type)_data"))
+                @test haskey(default_plot_attributes, Symbol("$(comp_type)_data_type"))
+            end
+        end
+    end
+
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
