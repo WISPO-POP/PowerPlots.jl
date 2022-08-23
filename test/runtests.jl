@@ -216,7 +216,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test Set(union(supported_node_types,supported_edge_types))==Set(supported_component_types)
         
         for comp_type in supported_component_types
-            @info "checking support for: $comp_type"
+            Memento.info(PowerPlots._LOGGER, "checking support for: $comp_type")
             
             # check that all components have a plot function
             @test isdefined(PowerPlots, Symbol("plot_$comp_type"))
