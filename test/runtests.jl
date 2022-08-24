@@ -147,6 +147,12 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
     end
 
+    @testset "filter plot components" begin
+        case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+        p=powerplot(case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
+        
+    end
 
     @testset "Experimental" begin
         using PowerPlots.Experimental
@@ -203,6 +209,28 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
     end
 
+
+    @testset "Verify new components are fully supported" begin
+    
+        # set of nodes and edges is equivalent to all supported components
+        @test Set(union(supported_node_types,supported_edge_types))==Set(supported_component_types)
+        
+        for comp_type in supported_component_types
+            Memento.info(PowerPlots._LOGGER, "checking support for: $comp_type")
+            
+            # check that all components have a plot function
+            @test isdefined(PowerPlots, Symbol("plot_$comp_type"))
+
+            # check that all components have kwargs 
+            @test haskey(default_plot_attributes, Symbol("$(comp_type)_size"))
+            @test haskey(default_plot_attributes, Symbol("$(comp_type)_color"))
+            # skip connector
+            if comp_type != "connector"
+                @test haskey(default_plot_attributes, Symbol("$(comp_type)_data"))
+                @test haskey(default_plot_attributes, Symbol("$(comp_type)_data_type"))
+            end
+        end
+    end
 
 end
 

@@ -37,8 +37,8 @@ components is returned.
 function layout_network(case::Dict{String,<:Any};
     fixed = false,
     layout_algorithm = kamada_kawai,
-    node_types::Array{String,1}=["bus","gen","storage","load"],
-    edge_types::Array{String,1}=["switch","branch","dcline","transformer"],
+    node_types::Array{String,1}=supported_node_types,
+    edge_types::Array{String,1}=supported_edge_types,
     connector_weight=0.5,
     edge_weight=1.0,
     kwargs...
