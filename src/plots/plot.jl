@@ -14,6 +14,7 @@ Create a plower plot. Check github repo for documentation on kwarg options.
 function powerplot(
     case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
+    components=supported_component_types,
     fixed=false,
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
     "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
@@ -24,15 +25,26 @@ function powerplot(
         return _powerplot_mn(case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
 
+    # copy data for modification by plots
+    data = deepcopy(case)
+
+    # remove components that are not to be plotted
+    for component_type in supported_component_types
+        if !(component_type in components) && haskey(data, component_type)
+            delete!(data, component_type)
+        end
+    end
+
+
     # modify case dictionary for distribution grid data
-    if haskey(case, "is_kron_reduced")
-        case = distr_data(case)
+    if haskey(data, "is_kron_reduced")
+        data = distr_data(data)
     end
 
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
-    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+    data = layout_network(data; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
     offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
@@ -42,7 +54,7 @@ function powerplot(
 
     # validate data-related attributes
     _validate_data_type(plot_attributes, :gen_data_type)
-    _validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     _validate_data_type(plot_attributes, :bus_data_type)
     _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     _validate_data_type(plot_attributes, :branch_data_type)
@@ -116,7 +128,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # validate data-related attributes
     _validate_data_type(plot_attributes, :gen_data_type)
-    _validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     _validate_data_type(plot_attributes, :bus_data_type)
     _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     _validate_data_type(plot_attributes, :branch_data_type)
@@ -184,7 +196,7 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     # validate data-related attributes
     PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
-    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
     PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
@@ -251,7 +263,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # validate data-related attributes
     PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
-    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "generator")
+    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
     PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
     PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     PowerPlots._validate_data_type(plot_attributes, :branch_data_type)

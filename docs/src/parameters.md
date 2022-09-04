@@ -10,6 +10,7 @@ These paramters modify the entire plot.
 | `layout_algorithim` | algorithm for generating network layout (see [Layouts](@ref)) | `kamada_kawai` |
 | `fixed` | use fixed coordinates from network model | `false` |
 | `parallel_edge_offset` | offset distance between parallel edges | `0.05` |
+| `components` | string array of components to plot | `supported_component_types`|
 
 
 
