@@ -1,6 +1,6 @@
 # PowerPlots.jl
 
-<img src="https://wispo-pop.github.io/PowerPlots.jl/dev/assets/logo.svg" align="left" width="150" alt="PowerPlots logo">
+<img src="https://wispo-pop.github.io/PowerPlots.jl/dev/assets/logo.svg" align="left" width="100" alt="PowerPlots logo">
 
 
 ![CI](https://github.com/WISPO-POP/PowerPlots.jl/workflows/CI/badge.svg)
