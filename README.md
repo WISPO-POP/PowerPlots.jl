@@ -1,5 +1,8 @@
 # PowerPlots.jl
 
+<img src="https://wispo.github.io/PowerPlots.jl/dev/assets/logo.svg" align="left" width="200" alt="PowerPlots logo">
+
+
 ![CI](https://github.com/WISPO-POP/PowerPlots.jl/workflows/CI/badge.svg)
 [![Codecov](https://codecov.io/gh/WISPO-POP/PowerPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/WISPO-POP/PowerPlots.jl)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://wispo-pop.github.io/PowerPlots.jl/dev/)
