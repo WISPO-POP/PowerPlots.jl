@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   class="marks"
+   width="610"
+   height="610"
+   viewBox="0 0 610 610"
+   id="svg40"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <metadata
+     id="metadata46">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs44" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2066"
+     id="namedview42"
+     showgrid="false"
+     inkscape:zoom="1.6819672"
+     inkscape:cx="305"
+     inkscape:cy="305"
+     inkscape:window-x="1609"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg40" />
+  <g
+     fill="none"
+     stroke-miterlimit="10"
+     transform="translate(55,55)"
+     id="g38">
+    <g
+       class="mark-group role-frame root"
+       role="graphics-object"
+       aria-roledescription="group mark container"
+       id="g36">
+      <g
+         transform="translate(0,0)"
+         id="g34">
+        <path
+           class="background"
+           aria-hidden="true"
+           d="M0,0h500v500h-500Z"
+           id="path4" />
+        <g
+           id="g30">
+          <g
+             class="mark-rule role-mark layer_0_layer_0_marks"
+             role="graphics-object"
+             aria-roledescription="rule mark container"
+             id="g12">
+            <line
+               aria-label="xcoord_1: 0; ycoord_1: 0; xcoord_2: 1; ycoord_2: 0; Branch: branch"
+               role="graphics-symbol"
+               aria-roledescription="rule mark"
+               transform="translate(0,500)"
+               x2="500"
+               y2="0"
+               stroke="gray"
+               stroke-width="20"
+               opacity="1"
+               id="line6" />
+            <line
+               aria-label="xcoord_1: 1; ycoord_1: 0; xcoord_2: 0.5; ycoord_2: 1; Branch: branch"
+               role="graphics-symbol"
+               aria-roledescription="rule mark"
+               transform="translate(500,500)"
+               x2="-250"
+               y2="-500"
+               stroke="gray"
+               stroke-width="20"
+               opacity="1"
+               id="line8" />
+            <line
+               aria-label="xcoord_1: 0; ycoord_1: 0; xcoord_2: 0.5; ycoord_2: 1; Branch: branch"
+               role="graphics-symbol"
+               aria-roledescription="rule mark"
+               transform="translate(0,500)"
+               x2="250"
+               y2="-500"
+               stroke="gray"
+               stroke-width="20"
+               opacity="1"
+               id="line10" />
+          </g>
+          <g
+             class="mark-symbol role-mark layer_0_layer_1_marks"
+             role="graphics-object"
+             aria-roledescription="symbol mark container"
+             id="g20">
+            <path
+               aria-label="mid_x: 0.5; mid_y: 0; power: 0.491455681687; angle: 90"
+               role="graphics-symbol"
+               aria-roledescription="point"
+               transform="translate(250,500) rotate(90)"
+               d="M0,-129.09944487358058L-27.95084971874737,64.54972243679028L27.95084971874737,64.54972243679028Z"
+               fill="black"
+               stroke-width="2"
+               opacity="1"
+               id="path14" />
+            <path
+               aria-label="mid_x: 0.75; mid_y: 0.5; power: 0.46525251316; angle: 153.434948823"
+               role="graphics-symbol"
+               aria-roledescription="point"
+               transform="translate(375,250) rotate(153.43494882292202)"
+               d="M0,-125.6106776413193L-27.19550945599013,62.80533882065966L27.19550945599013,62.80533882065966Z"
+               fill="black"
+               stroke-width="2"
+               opacity="1"
+               id="path16" />
+            <path
+               aria-label="mid_x: 0.25; mid_y: 0.5; power: 0.134810427885; angle: −153.434948823"
+               role="graphics-symbol"
+               aria-roledescription="point"
+               transform="translate(125,250) rotate(-153.43494882292202)"
+               d="M0,-67.61513791993639L-14.639106779763358,33.8075689599682L14.639106779763358,33.8075689599682Z"
+               fill="black"
+               stroke-width="2"
+               opacity="1"
+               id="path18" />
+          </g>
+          <g
+             class="mark-symbol role-mark layer_1_marks"
+             role="graphics-object"
+             aria-roledescription="symbol mark container"
+             id="g28">
+            <path
+               aria-label="xcoord_1: 0; ycoord_1: 0; Bus: 1"
+               role="graphics-symbol"
+               aria-roledescription="circle"
+               transform="translate(0,500)"
+               d="M50,0A50,50,0,1,1,-50,0A50,50,0,1,1,50,0"
+               fill="#9558B2"
+               stroke-width="2"
+               opacity="1"
+               id="path22" />
+            <path
+               aria-label="xcoord_1: 0.5; ycoord_1: 1; Bus: 2"
+               role="graphics-symbol"
+               aria-roledescription="circle"
+               transform="translate(250,0)"
+               d="M50,0A50,50,0,1,1,-50,0A50,50,0,1,1,50,0"
+               fill="#389826"
+               stroke-width="2"
+               opacity="1"
+               id="path24" />
+            <path
+               aria-label="xcoord_1: 1; ycoord_1: 0; Bus: 3"
+               role="graphics-symbol"
+               aria-roledescription="circle"
+               transform="translate(500,500)"
+               d="M50,0A50,50,0,1,1,-50,0A50,50,0,1,1,50,0"
+               fill="#CB3C33"
+               stroke-width="2"
+               opacity="1"
+               id="path26" />
+          </g>
+        </g>
+        <path
+           class="foreground"
+           aria-hidden="true"
+           d=""
+           display="none"
+           id="path32" />
+      </g>
+    </g>
+  </g>
+</svg>
