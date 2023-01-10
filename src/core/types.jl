@@ -1,7 +1,7 @@
 
-const supported_component_types = ["bus","gen","branch","dcline","load"]
+const supported_component_types = ["bus","gen","branch","dcline","load", "switch"]
 const supported_node_types = ["bus","gen","load"]
-const supported_edge_types = ["branch","dcline"]
+const supported_edge_types = ["branch","dcline", "switch"]
 
 
 """
@@ -111,10 +111,11 @@ mutable struct PowerModelsDataFrame
     dcline::DataFrames.DataFrame
     load::DataFrames.DataFrame
     connector::DataFrames.DataFrame
+    switch::DataFrames.DataFrame
 
     function PowerModelsDataFrame(case::Dict{String,<:Any})
         data = deepcopy(case)
-        comp_dataframes = tuple((DataFrames.DataFrame() for i in 1:7)...)
+        comp_dataframes = tuple((DataFrames.DataFrame() for i in 1:length(supported_component_types)+2)...) # +2 is for metadata and connector
         if InfrastructureModels.ismultinetwork(data)
             for (nw_id, net) in data["nw"]
 
@@ -125,7 +126,7 @@ mutable struct PowerModelsDataFrame
                     end
                 end
 
-                comp_dataframes_new= _PowerModelsDataFrame(net::Dict{String,<:Any}, comp_dataframes...)
+                comp_dataframes_new = _PowerModelsDataFrame(net::Dict{String,<:Any}, comp_dataframes...)
             end
 
             #combine toplevel and network metadata
@@ -142,7 +143,7 @@ end
 
 
 ""
-function _PowerModelsDataFrame(sn_net::Dict{String,<:Any}, metadata, bus, gen, branch, dcline, load, connector)
+function _PowerModelsDataFrame(sn_net::Dict{String,<:Any}, metadata, bus, gen, branch, dcline, load, connector, switch)
 
         data = deepcopy(sn_net) # prevent overwriting input data
 
@@ -162,8 +163,9 @@ function _PowerModelsDataFrame(sn_net::Dict{String,<:Any}, metadata, bus, gen, b
         _comp_dict_to_dataframe(get(data,"dcline", Dict{String,Any}()), dcline)
         _comp_dict_to_dataframe(get(data,"load", Dict{String,Any}()), load)
         _comp_dict_to_dataframe(get(data,"connector",Dict{String,Any}()), connector)
+        _comp_dict_to_dataframe(get(data,"switch",Dict{String,Any}()), switch)
 
-    return (metadata,bus,gen,branch,dcline,load,connector)
+    return (metadata,bus,gen,branch,dcline,load,connector,switch)
 end
 
 
