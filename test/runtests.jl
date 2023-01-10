@@ -26,7 +26,9 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
         # case5.m should not cause any warning messages besides this one
         function is_unexpected_warning(output::String)
-            output != nothing && output != """Data column "ComponentType" does not exist for DC line"""
+            output != nothing && output != """Data column "ComponentType" does not exist for DC line""" &&  
+            output != """Data column "ComponentType" does not exist for switch""" && 
+            output != """Data column "ComponentType" does not exist for transformer"""
         end
 
         @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case)) # vanilla function call should not cause any unexpected error messages
@@ -183,6 +185,12 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test true # what do I test here?
         p = powerplot!(p,math)
         @test true
+
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/trans_3w_center_tap.dss")
+        math = transform_data_model(eng)
+        p = powerplot(math)
+        @test length(p.layer)==7 # branch, switch, transformer, connector bus, gen, load in figure
+
 
         @testset "Multinetwork Distribution Grids" begin
             eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
