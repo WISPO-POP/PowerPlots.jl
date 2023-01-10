@@ -186,7 +186,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         p = powerplot!(p,math)
         @test true
 
-        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/trans_3w_center_tap.dss")
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/test2_master.dss")
         math = transform_data_model(eng)
         p = powerplot(math)
         @test length(p.layer)==7 # branch, switch, transformer, connector bus, gen, load in figure
