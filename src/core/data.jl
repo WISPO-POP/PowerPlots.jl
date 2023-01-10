@@ -1,8 +1,8 @@
 
 "return a Dict indexed by bus pairs, with a value of an array of tuples of edge types and edge ids of parallel edges"
- function get_parallel_edges(data)
+ function get_parallel_edges(data, edge_types=supported_edge_types)
     edge_pairs = Dict()
-    for edge_type in ["branch","dcline"] # supported edge_types
+    for edge_type in edge_types # supported edge_types
         for (id,edge) in get(data, edge_type, Dict())
             bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
             if !haskey(edge_pairs, bus_pair)
