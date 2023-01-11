@@ -35,12 +35,6 @@ function powerplot(
         end
     end
 
-
-    # modify case dictionary for distribution grid data
-    if haskey(data, "is_kron_reduced")
-        data = distr_data(data)
-    end
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
@@ -122,11 +116,6 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
         return _powerplot_mn!(plt_layer, case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
 
-    # modify case dictionary for distribution grid data
-    if haskey(case, "is_kron_reduced")
-        case = distr_data(case)
-    end
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
@@ -202,9 +191,6 @@ function _powerplot_mn(case::Dict{String,<:Any};
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     for (nwid,net) in data["nw"]
-        if haskey(first(case["nw"])[2],"is_kron_reduced")
-            net = distr_data(net)
-        end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
@@ -282,9 +268,6 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
-        if haskey(first(case["nw"])[2],"is_kron_reduced")
-            net = distr_data(net)
-        end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
