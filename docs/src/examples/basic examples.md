@@ -131,11 +131,13 @@ powerplot(data_mn, branch_data=:value, branch_data_type=:quantitative)
 # Distribution Grids
 Open a three-phase distribution system case using [PowerModelsDistribution.jl](https://github.com/lanl-ansi/PowerModelsDistribution.jl) and run the command `powerplot` on the data.
 
-```
+This dataset includes switches and transformers, which are then visualized in the powerplot.
+
+```@example power_data
+# example works, but fails to run in documentation
 using PowerModelsDistribution
 using PowerPlots
-eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/trans_3w_center_tap.dss")
 math = transform_data_model(eng)
 powerplot(math)
-# example works, but fails to run in documentation
 ```
