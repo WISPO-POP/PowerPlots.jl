@@ -41,7 +41,10 @@ function powerplot(
     data = layout_network(data; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
+    offset_parallel_edges!(data, 
+        plot_attributes[:parallel_edge_offset], 
+        edge_types=intersect(components, supported_edge_types)
+    )
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)

@@ -159,6 +159,14 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         p=powerplot(case, components=["bus","branch"])
         @test length(keys(p.layer))==2
 
+        # check if all plot functions support this feature
+        powerplot!(p, case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
+        case_mn = PowerModels.replicate(case, 2)
+        p=powerplot(case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
+        powerplot!(p, case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
     end
 
     @testset "Experimental" begin
@@ -219,6 +227,15 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
                 (data["dcline"]["1"]["ycoord_1"] - data["branch"]["1"]["ycoord_1"])^2
             )
             @test isapprox(dist, 0.05*2; atol=1e-8)
+
+            # test edge types in offest 
+            data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+            data["dcline"]["1"]=Dict{String,Any}("index"=>1, "f_bus"=>1, "t_bus"=>2)
+            data = layout_network(data)
+            offset_parallel_edges!(data,0.0, edge_types=["branch"]) # do not offset dc lines
+            @test haskey(data["branch"]["1"], "xcoord_1")==false
+            @test haskey(data["branch"]["1"], "xcoord_2")==false
+
         end
     end
 

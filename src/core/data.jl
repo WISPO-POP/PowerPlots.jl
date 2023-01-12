@@ -21,8 +21,8 @@
 end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
-function offset_parallel_edges!(data,offset)
-    for (bus_pair, edges) in get_parallel_edges(data)
+function offset_parallel_edges!(data,offset; edge_types=supported_edge_types)
+    for (bus_pair, edges) in get_parallel_edges(data, edge_types)
         n_edges = length(edges)
         xcoord_1 = data["bus"]["$(bus_pair[1])"]["xcoord_1"]
         ycoord_1 = data["bus"]["$(bus_pair[1])"]["ycoord_1"]
