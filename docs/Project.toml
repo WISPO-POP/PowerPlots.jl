@@ -15,3 +15,4 @@ VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
 
 [compat]
 PowerModels = "^0.19.2"
+PowerModelsDistribution = "^0.14.5"
