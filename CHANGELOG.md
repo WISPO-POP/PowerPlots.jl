@@ -1,6 +1,12 @@
 PowerPlots.jl Change Log
 ========================
 ### Staged
+- Add support for plotting transformers an switches
+
+### v0.4.7
+
+
+### v0.4.6
 - set stroke dash for connector
 - Add parameter for selecting components to plot
 
