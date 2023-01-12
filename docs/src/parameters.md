@@ -49,15 +49,17 @@ powerplot(case; branch_color=colorscheme2array(ColorSchemes.colorschemes[:tablea
 
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
-| `branch_color`     | set the color of a branch | `["#3182BD", "#5798CA", "#7CAED6", "#A0C5E2", "#C6DBEF"]` |
+| `branch_color`    | set the color of a branch | `["#3182BD", "#5798CA", "#7CAED6", "#A0C5E2", "#C6DBEF"]` |
 | `dcline_color`    | set the color of a DC line | `["#756BB1", "#8F87C0", "#A8A3CE", "#C0BEDC", "#DADAEB"]` |
+| `switch_color`    | set the color of a switch | `["#555555", "#808080", "#AAAAAA", "#D4D4D4", "#FFFFFF"]` |
+| `transformer_color`    | set the color of a transformer | `["#8C6D31", "#A3854A", "#B99C63", "#D0B37B", "#E7CB94"]` |
 | `connector_color`    | set the color of a connector | `[:gray]` |
-| `gen_color`    |  set the color of a generator | `["#E6550D", "#EB7433", "#F19358", "#F8B17C", "#FDD0A2"]` |
-| `bus_color`    |  set the color of a bus | `["#31A354", "#57B46F", "#7CC68A", "#A1D8A5", "#C7E9C0"]` |
-| `load_color`    |  set the color of a load | `["#843C39", "#9D5352", "#B5696B", "#CE7F83", "#E7969C"]` |
-| `node_color`    |  set the color of all buses and generators | N/A |
-| `edge_color`    |  set the color of all branches, DC lines, and connectors | N/A|
-| `flow_color`  | set the color of flow arrows | `:black`
+| `gen_color`       |  set the color of a generator | `["#E6550D", "#EB7433", "#F19358", "#F8B17C", "#FDD0A2"]` |
+| `bus_color`       |  set the color of a bus | `["#31A354", "#57B46F", "#7CC68A", "#A1D8A5", "#C7E9C0"]` |
+| `load_color`      |  set the color of a load | `["#843C39", "#9D5352", "#B5696B", "#CE7F83", "#E7969C"]` |
+| `node_color`      |  set the color of all buses and generators | N/A |
+| `edge_color`      |  set the color of all branches, DC lines, and connectors | N/A|
+| `flow_color`      | set the color of flow arrows | `:black`
 
 
 ### Size
@@ -67,6 +69,8 @@ The size argument sets the size of a component.  The size does not vary with dat
 | ----------- | ----------- | ------- |
 | `branch_size`     | set the size of a branch | `5` |
 | `dcline_size`    | set the size of a DC line | `5` |
+| `transformer_size`    | set the size of a transformer | `5` |
+| `switch_size`    | set the size of a switch | `5` |
 | `connector_size`    | set the size of a connector | `3` |
 | `gen_size`    |  set the size of a generator | `500` |
 | `bus_size`    |  set the size of a bus | `500` |
@@ -86,11 +90,13 @@ powerplot(case; gen_data=:pmin)
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
 | `branch_data`     | set the data of a branch | `"ComponentType"` |
-| `dcline_data`    | set the data of a DC line | `"ComponentType"` |
+| `dcline_data`     | set the data of a DC line | `"ComponentType"` |
+| `switch_data`     | set the data of a switch | `"ComponentType"` |
+| `transformer_data`    | set the data of a transformer | `"ComponentType"` |
 | `connector_data`    | set the data of a connector | `"ComponentType"` |
-| `gen_data`    |  set the data of a generator | `"ComponentType"` |
-| `bus_data`    |  set the data of a bus | `"ComponentType"` |
-| `load_data`    |  set the data of a load | `"ComponentType"` |
+| `gen_data`        |  set the data of a generator | `"ComponentType"` |
+| `bus_data`        |  set the data of a bus | `"ComponentType"` |
+| `load_data`       |  set the data of a load | `"ComponentType"` |
 
 
 ### Data Type
@@ -105,6 +111,8 @@ powerplot(case; gen_data=:index, gen_data_type=:nominal) # the index is a discre
 | ----------- | ----------- | ------- |
 | `branch_data_type`     | set the data type of a branch | `:nominal` |
 | `dcline_data_type`    | set the data type of a DC line | `:nominal` |
+| `switch_data_type`    | set the data type of a switch | `:nominal` |
+| `transformer_data_type`    | set the data type of a transformer | `:nominal` |
 | `connector_data_type`    | set the data type of a connector | `:nominal` |
 | `gen_data_type`    |  set the data type of a generator | `:nominal` |
 | `bus_data_type`    |  set the data type of a bus | `:nominal` |

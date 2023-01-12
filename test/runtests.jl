@@ -26,7 +26,9 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
         # case5.m should not cause any warning messages besides this one
         function is_unexpected_warning(output::String)
-            output != nothing && output != """Data column "ComponentType" does not exist for DC line"""
+            output != nothing && output != """Data column "ComponentType" does not exist for DC line""" &&  
+            output != """Data column "ComponentType" does not exist for switch""" && 
+            output != """Data column "ComponentType" does not exist for transformer"""
         end
 
         @test_nolog(logger, "warn", is_unexpected_warning, powerplot(case)) # vanilla function call should not cause any unexpected error messages
@@ -157,6 +159,14 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         p=powerplot(case, components=["bus","branch"])
         @test length(keys(p.layer))==2
 
+        # check if all plot functions support this feature
+        powerplot!(p, case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
+        case_mn = PowerModels.replicate(case, 2)
+        p=powerplot(case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
+        powerplot!(p, case, components=["bus","branch"])
+        @test length(keys(p.layer))==2
     end
 
     @testset "Experimental" begin
@@ -183,6 +193,12 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test true # what do I test here?
         p = powerplot!(p,math)
         @test true
+
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/test2_master.dss")
+        math = transform_data_model(eng)
+        p = powerplot(math)
+        @test length(p.layer)==7 # branch, switch, transformer, connector bus, gen, load in figure
+
 
         @testset "Multinetwork Distribution Grids" begin
             eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
@@ -211,6 +227,15 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
                 (data["dcline"]["1"]["ycoord_1"] - data["branch"]["1"]["ycoord_1"])^2
             )
             @test isapprox(dist, 0.05*2; atol=1e-8)
+
+            # test edge types in offest 
+            data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+            data["dcline"]["1"]=Dict{String,Any}("index"=>1, "f_bus"=>1, "t_bus"=>2)
+            data = layout_network(data)
+            offset_parallel_edges!(data,0.0, edge_types=["branch"]) # do not offset dc lines
+            @test haskey(data["branch"]["1"], "xcoord_1")==false
+            @test haskey(data["branch"]["1"], "xcoord_2")==false
+
         end
     end
 

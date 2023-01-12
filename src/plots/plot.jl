@@ -35,51 +35,58 @@ function powerplot(
         end
     end
 
-
-    # modify case dictionary for distribution grid data
-    if haskey(data, "is_kron_reduced")
-        data = distr_data(data)
-    end
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_network(data; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
+    offset_parallel_edges!(data, 
+        plot_attributes[:parallel_edge_offset], 
+        edge_types=intersect(components, supported_edge_types)
+    )
 
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 
-    # validate data-related attributes
-    _validate_data_type(plot_attributes, :gen_data_type)
-    _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
-    _validate_data_type(plot_attributes, :bus_data_type)
-    _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
-    _validate_data_type(plot_attributes, :branch_data_type)
-    _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
-    _validate_data_type(plot_attributes, :dcline_data_type)
-    _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
-
     # make the plots
     p = plot_base(data, plot_attributes)
     if !(isempty(PMD.branch))
+        _validate_data_type(plot_attributes, :branch_data_type)
+        _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
         p = p+plot_branch(PMD, plot_attributes)
     end
     if !(isempty(PMD.dcline))
+        _validate_data_type(plot_attributes, :dcline_data_type)
+        _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
         p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.switch))
+        p = p+plot_switch(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :switch_data_type)
+        _validate_data(PMD.switch, plot_attributes[:switch_data], "switch")
+    end
+    if !(isempty(PMD.transformer))
+        p = p+plot_transformer(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :transformer_data_type)
+        _validate_data(PMD.transformer, plot_attributes[:transformer_data], "transformer")
     end
     if !(isempty(PMD.connector))
         p = p+plot_connector(PMD, plot_attributes)
     end
     if !(isempty(PMD.bus))
         p = p+plot_bus(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :bus_data_type)
+        _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     end
     if !(isempty(PMD.gen))
+        _validate_data_type(plot_attributes, :gen_data_type)
+        _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
         p = p+plot_gen(PMD, plot_attributes)
     end
     if !(isempty(PMD.load))
+        _validate_data_type(plot_attributes, :load_data_type)
+        _validate_data(PMD.load, plot_attributes[:load_data], "load")
         p = p+plot_load(PMD, plot_attributes)
     end
     return p
@@ -101,6 +108,7 @@ used to plot geographic map data underneath a power grid.
 function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
     fixed=false,
+    components=supported_component_types,
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
     "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
@@ -110,31 +118,18 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
         return _powerplot_mn!(plt_layer, case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
 
-    # modify case dictionary for distribution grid data
-    if haskey(case, "is_kron_reduced")
-        case = distr_data(case)
-    end
-
     @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data,plot_attributes[:parallel_edge_offset])
-
+    offset_parallel_edges!(data, 
+        plot_attributes[:parallel_edge_offset], 
+        edge_types=intersect(components, supported_edge_types)
+    )
     remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
-
-    # validate data-related attributes
-    _validate_data_type(plot_attributes, :gen_data_type)
-    _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
-    _validate_data_type(plot_attributes, :bus_data_type)
-    _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
-    _validate_data_type(plot_attributes, :branch_data_type)
-    _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
-    _validate_data_type(plot_attributes, :dcline_data_type)
-    _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
     p = plot_base(data, plot_attributes)
@@ -143,21 +138,41 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     p = p+plt_layer
 
     if !(isempty(PMD.branch))
+        _validate_data_type(plot_attributes, :branch_data_type)
+        _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
         p = p+plot_branch(PMD, plot_attributes)
     end
     if !(isempty(PMD.dcline))
+        _validate_data_type(plot_attributes, :dcline_data_type)
+        _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
         p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.switch))
+        p = p+plot_switch(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :switch_data_type)
+        _validate_data(PMD.switch, plot_attributes[:switch_data], "switch")
+    end
+    if !(isempty(PMD.transformer))
+        p = p+plot_transformer(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :transformer_data_type)
+        _validate_data(PMD.transformer, plot_attributes[:transformer_data], "transformer")
     end
     if !(isempty(PMD.connector))
         p = p+plot_connector(PMD, plot_attributes)
     end
     if !(isempty(PMD.bus))
         p = p+plot_bus(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :bus_data_type)
+        _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     end
     if !(isempty(PMD.gen))
+        _validate_data_type(plot_attributes, :gen_data_type)
+        _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
         p = p+plot_gen(PMD, plot_attributes)
     end
     if !(isempty(PMD.load))
+        _validate_data_type(plot_attributes, :load_data_type)
+        _validate_data(PMD.load, plot_attributes[:load_data], "load")
         p = p+plot_load(PMD, plot_attributes)
     end
     return p
@@ -167,6 +182,7 @@ end
 function _powerplot_mn(case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
     fixed=false,
+    components=supported_component_types,
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
     "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
@@ -174,17 +190,17 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     data = deepcopy(case)
 
-    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     for (nwid,net) in data["nw"]
-        if haskey(first(case["nw"])[2],"is_kron_reduced")
-            net = distr_data(net)
-        end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
-        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
+        offset_parallel_edges!(data, 
+            plot_attributes[:parallel_edge_offset], 
+            edge_types=intersect(components, supported_edge_types)
+        )
     end
 
     for (nwid,nw) in data["nw"]
@@ -193,35 +209,44 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     PMD = PowerModelsDataFrame(data)
 
-
-    # validate data-related attributes
-    PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
-    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
-    PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
-    PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
-    PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
-    PowerPlots._validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
-    PowerPlots._validate_data_type(plot_attributes, :dcline_data_type)
-    PowerPlots._validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
-
     # make the plots
     p = plot_base_mn(data,plot_attributes)
     if !(isempty(PMD.branch))
+        _validate_data_type(plot_attributes, :branch_data_type)
+        _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
         p = p+plot_branch(PMD, plot_attributes)
     end
     if !(isempty(PMD.dcline))
+        _validate_data_type(plot_attributes, :dcline_data_type)
+        _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
         p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.switch))
+        p = p+plot_switch(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :switch_data_type)
+        _validate_data(PMD.switch, plot_attributes[:switch_data], "switch")
+    end
+    if !(isempty(PMD.transformer))
+        p = p+plot_transformer(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :transformer_data_type)
+        _validate_data(PMD.transformer, plot_attributes[:transformer_data], "transformer")
     end
     if !(isempty(PMD.connector))
         p = p+plot_connector(PMD, plot_attributes)
     end
     if !(isempty(PMD.bus))
         p = p+plot_bus(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :bus_data_type)
+        _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     end
     if !(isempty(PMD.gen))
+        _validate_data_type(plot_attributes, :gen_data_type)
+        _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
         p = p+plot_gen(PMD, plot_attributes)
     end
     if !(isempty(PMD.load))
+        _validate_data_type(plot_attributes, :load_data_type)
+        _validate_data(PMD.load, plot_attributes[:load_data], "load")
         p = p+plot_load(PMD, plot_attributes)
     end
 
@@ -236,23 +261,24 @@ end
 function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
     fixed=false,
+    components=supported_component_types,
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
     "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
     kwargs... )
 
-    PowerPlots.@prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
-    PowerPlots._validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = deepcopy(case)
     for (nwid,net) in data["nw"]
-        if haskey(first(case["nw"])[2],"is_kron_reduced")
-            net = distr_data(net)
-        end
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
-        offset_parallel_edges!(data["nw"][nwid],plot_attributes[:parallel_edge_offset])
+        offset_parallel_edges!(data, 
+            plot_attributes[:parallel_edge_offset], 
+            edge_types=intersect(components, supported_edge_types)
+        )    
     end
 
     for (nwid,nw) in data["nw"]
@@ -260,16 +286,6 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     end
 
     PMD = PowerModelsDataFrame(data)
-
-    # validate data-related attributes
-    PowerPlots._validate_data_type(plot_attributes, :gen_data_type)
-    PowerPlots._validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
-    PowerPlots._validate_data_type(plot_attributes, :bus_data_type)
-    PowerPlots._validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
-    PowerPlots._validate_data_type(plot_attributes, :branch_data_type)
-    PowerPlots._validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
-    PowerPlots._validate_data_type(plot_attributes, :dcline_data_type)
-    PowerPlots._validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
 
     # make the plots
     p = plot_base_mn(data,plot_attributes)
@@ -282,21 +298,41 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     p = p+plt_layer
 
     if !(isempty(PMD.branch))
+        _validate_data_type(plot_attributes, :branch_data_type)
+        _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
         p = p+plot_branch(PMD, plot_attributes)
     end
     if !(isempty(PMD.dcline))
+        _validate_data_type(plot_attributes, :dcline_data_type)
+        _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
         p = p+plot_dcline(PMD, plot_attributes)
+    end
+    if !(isempty(PMD.switch))
+        p = p+plot_switch(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :switch_data_type)
+        _validate_data(PMD.switch, plot_attributes[:switch_data], "switch")
+    end
+    if !(isempty(PMD.transformer))
+        p = p+plot_transformer(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :transformer_data_type)
+        _validate_data(PMD.transformer, plot_attributes[:transformer_data], "transformer")
     end
     if !(isempty(PMD.connector))
         p = p+plot_connector(PMD, plot_attributes)
     end
     if !(isempty(PMD.bus))
         p = p+plot_bus(PMD, plot_attributes)
+        _validate_data_type(plot_attributes, :bus_data_type)
+        _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
     end
     if !(isempty(PMD.gen))
+        _validate_data_type(plot_attributes, :gen_data_type)
+        _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
         p = p+plot_gen(PMD, plot_attributes)
     end
     if !(isempty(PMD.load))
+        _validate_data_type(plot_attributes, :load_data_type)
+        _validate_data(PMD.load, plot_attributes[:load_data], "load")
         p = p+plot_load(PMD, plot_attributes)
     end
 
@@ -428,6 +464,154 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
         ]
     )
 end
+
+
+function plot_switch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    flow_legend = true
+    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+        flow_legend = nothing
+    end
+    flow_opacity = 1.0
+    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+        flow_opacity = 0.0
+    end
+
+    return VegaLite.@vlplot(
+        data=PMD.switch,
+        layer=[
+            {
+                mark ={
+                    :rule,
+                    tooltip=("content" => "data"),
+                    opacity =  1.0,
+                },
+                x={:xcoord_1,type="quantitative"},
+                x2={:xcoord_2,type="quantitative"},
+                y={:ycoord_1,type="quantitative"},
+                y2={:ycoord_2,type="quantitative"},
+                size={value=plot_attributes[:switch_size]},
+                color={
+                    field=plot_attributes[:switch_data],
+                    type=plot_attributes[:switch_data_type],
+                    title="Switch",
+                    scale={
+                        range=plot_attributes[:switch_color]
+                    },
+                    # legend={orient="bottom-right"}
+                },
+            },
+            {
+                transform=[
+                    {
+                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+                        as="mid_x"
+                    },
+                    {
+                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+                        as="mid_y"
+                    },
+                    {
+                        calculate="180*(if(datum.pf >= 0,
+                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+                        ))/PI",
+                        as="angle"
+                    },
+                    {
+                        calculate="abs(datum.pt)",
+                        as="power"
+                    }
+                ],
+                mark={
+                    :point,
+                    shape=:wedge,
+                    filled=true,
+                    opacity=flow_opacity,
+                    color=plot_attributes[:flow_color],
+                },
+                x={:mid_x,type="quantitative"},
+                y={:mid_y,type="quantitative"},
+                size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
+                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+            }
+        ]
+    )
+end
+
+
+
+function plot_transformer(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+    flow_legend = true
+    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+        flow_legend = nothing
+    end
+    flow_opacity = 1.0
+    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+        flow_opacity = 0.0
+    end
+
+    return VegaLite.@vlplot(
+        data=PMD.transformer,
+        layer=[
+            {
+                mark ={
+                    :rule,
+                    tooltip=("content" => "data"),
+                    opacity =  1.0,
+                },
+                x={:xcoord_1,type="quantitative"},
+                x2={:xcoord_2,type="quantitative"},
+                y={:ycoord_1,type="quantitative"},
+                y2={:ycoord_2,type="quantitative"},
+                size={value=plot_attributes[:transformer_size]},
+                color={
+                    field=plot_attributes[:transformer_data],
+                    type=plot_attributes[:transformer_data_type],
+                    title="Transformer",
+                    scale={
+                        range=plot_attributes[:transformer_color]
+                    },
+                    # legend={orient="bottom-right"}
+                },
+            },
+            {
+                transform=[
+                    {
+                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+                        as="mid_x"
+                    },
+                    {
+                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+                        as="mid_y"
+                    },
+                    {
+                        calculate="180*(if(datum.pf >= 0,
+                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+                        ))/PI",
+                        as="angle"
+                    },
+                    {
+                        calculate="abs(datum.pt)",
+                        as="power"
+                    }
+                ],
+                mark={
+                    :point,
+                    shape=:wedge,
+                    filled=true,
+                    opacity=flow_opacity,
+                    color=plot_attributes[:flow_color],
+                },
+                x={:mid_x,type="quantitative"},
+                y={:mid_y,type="quantitative"},
+                size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
+                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+            }
+        ]
+    )
+end
+
 
 function plot_dcline(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
     return VegaLite.@vlplot(
