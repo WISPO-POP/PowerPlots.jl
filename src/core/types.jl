@@ -93,7 +93,7 @@ end
 
 
 ""
-function PowerModelsGraph(data::Dict{String,<:Any}; 
+function PowerModelsGraph(data::Dict{String,<:Any};
     node_types=supported_node_types::Array{String,1},
     edge_types=supported_edge_types::Array{String,1})
     return PowerModelsGraph(data, node_types, edge_types)
@@ -123,7 +123,7 @@ mutable struct PowerModelsDataFrame
             for (nw_id, net) in data["nw"]
 
                 net["nw_id"]=nw_id # give each network, component its parent nw_id
-                for comp_type in supported_component_types
+                for comp_type in [supported_component_types..., "connector"]
                     for (comp_id, comp) in get(net,comp_type,Dict())
                         comp["nw_id"] = nw_id
                     end
