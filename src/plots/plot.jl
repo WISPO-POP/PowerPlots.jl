@@ -41,8 +41,8 @@ function powerplot(
     data = layout_network(data; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data, 
-        plot_attributes[:parallel_edge_offset], 
+    offset_parallel_edges!(data,
+        plot_attributes[:parallel_edge_offset],
         edge_types=intersect(components, supported_edge_types)
     )
 
@@ -124,8 +124,8 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data, 
-        plot_attributes[:parallel_edge_offset], 
+    offset_parallel_edges!(data,
+        plot_attributes[:parallel_edge_offset],
         edge_types=intersect(components, supported_edge_types)
     )
     remove_information!(data, invalid_keys)
@@ -197,8 +197,8 @@ function _powerplot_mn(case::Dict{String,<:Any};
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
-        offset_parallel_edges!(data, 
-            plot_attributes[:parallel_edge_offset], 
+        offset_parallel_edges!(data,
+            plot_attributes[:parallel_edge_offset],
             edge_types=intersect(components, supported_edge_types)
         )
     end
@@ -275,10 +275,10 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
 
         # fix parallel branch coordinates
-        offset_parallel_edges!(data, 
-            plot_attributes[:parallel_edge_offset], 
+        offset_parallel_edges!(data,
+            plot_attributes[:parallel_edge_offset],
             edge_types=intersect(components, supported_edge_types)
-        )    
+        )
     end
 
     for (nwid,nw) in data["nw"]

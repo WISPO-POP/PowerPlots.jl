@@ -26,8 +26,8 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
         # case5.m should not cause any warning messages besides this one
         function is_unexpected_warning(output::String)
-            output != nothing && output != """Data column "ComponentType" does not exist for DC line""" &&  
-            output != """Data column "ComponentType" does not exist for switch""" && 
+            output != nothing && output != """Data column "ComponentType" does not exist for DC line""" &&
+            output != """Data column "ComponentType" does not exist for switch""" &&
             output != """Data column "ComponentType" does not exist for transformer"""
         end
 
@@ -228,7 +228,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
             )
             @test isapprox(dist, 0.05*2; atol=1e-8)
 
-            # test edge types in offest 
+            # test edge types in offest
             data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
             data["dcline"]["1"]=Dict{String,Any}("index"=>1, "f_bus"=>1, "t_bus"=>2)
             data = layout_network(data)
