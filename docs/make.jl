@@ -1,4 +1,4 @@
-using Documenter, PowerPlots, VegaLite, UUIDs
+using Documenter, PowerPlots, VegaLite, UUIDs, PowerModels, PowerModelsDistribution
 
 function Base.show(io::IO, m::MIME"text/html", v::VegaLite.VLSpec)
     divid = string("vl", replace(string(uuid4()), "-"=>""))
@@ -7,18 +7,6 @@ function Base.show(io::IO, m::MIME"text/html", v::VegaLite.VLSpec)
     VegaLite.our_json_print(io, v)
     print(io, ",{mode:'vega-lite'}).catch(console.warn);})</script>")
 end
-
-# makedocs(
-#     modules = [PowerPlots],
-#     format = Documenter.HTML(mathengine = Documenter.MathJax()),
-#     sitename = "PowerPlots",
-#     authors = "Noah Rhodes",
-#     pages = [
-#         "Home" => "index.md",
-#         "Examples" => "examples.md",
-#         "Plot Attributes" => "plot_attributes.md",
-#     ]
-# )
 
 makedocs(
     modules = [PowerPlots],
