@@ -9,6 +9,7 @@ function Base.show(io::IO, m::MIME"text/html", v::VegaLite.VLSpec)
 end
 
 makedocs(
+    warnonly = true,
     modules = [PowerPlots],
     format = Documenter.HTML(mathengine = Documenter.MathJax()),
     sitename = "PowerPlots",

@@ -381,7 +381,6 @@ function plot_base_mn(case::Dict{String,Any},plot_attributes::Dict{Symbol,Any})
     },
     params=[{
         name="nwid",
-        select={type="point"},
         value=minimum(parse.(Int,collect(keys(case["nw"])))),
         bind={
             input="range",
@@ -445,7 +444,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                         as="angle"
                     },
                     {
-                        calculate="abs(datum.pt)",
+                        calculate="if(isValid(datum.pt), abs(datum.pt), 0.0)",
                         as="power"
                     }
                 ],
@@ -453,6 +452,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                     :point,
                     shape=:wedge,
                     filled=true,
+                    tooltip=("content" => "data"),
                     opacity=flow_opacity,
                     color=plot_attributes[:flow_color],
                 },

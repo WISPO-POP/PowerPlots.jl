@@ -102,10 +102,10 @@ powerplot(data; components=["bus","branch"], width=300, height=300)
 # Power Flow
 If the variables `pf` (power from) and `pt` (power to) exist in the data, power flow directions can be visualized using the `show_flow` boolean toggle (true by default).
 
-```@example
+```@example power_flow
 # Solve AC power flow and add values to data dictionary
-using Ipopt, PowerModels, PowerPlots
-data = parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
+using Ipopt, PowerModels, PowerPlots, PGLib
+data = pglib("case5_pjm")
 result = solve_ac_opf(data, Ipopt.Optimizer)
 update_data!(data, result["solution"])
 
@@ -133,7 +133,7 @@ Open a three-phase distribution system case using [PowerModelsDistribution.jl](h
 
 This dataset includes switches and transformers, which are then visualized in the powerplot.
 
-```@example power_data
+```@example distribution
 # example works, but fails to run in documentation
 using PowerModelsDistribution
 using PowerPlots

@@ -22,7 +22,7 @@ There are several component 'toggle' parameters that control whether certain dis
 
 | Keyword | Description | Default |
 | ------- | ----------- | ------- |
-| `show_flow` | whether flow arrows are displayed | `true` |
+| `show_flow` | whether flow arrows are displayed | `false` |
 | `show_flow_legend` | whether the legend for the flow arrows is shown | `false` |
 
 ### Color

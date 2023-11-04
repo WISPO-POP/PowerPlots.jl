@@ -1,5 +1,5 @@
 
-using PowerModels, PowerPlots, Ipopt
+using PowerModels, PGLib, PowerPlots, Ipopt
 using Colors:  @colorant_str
 
 
@@ -14,7 +14,7 @@ mp = Dict{String,Any}(
     "inactive_gen" => Dict(:color => :red, :size => 15),
     "connector" => Dict(:color => colorant"lightgrey", :size => 2, :style => :dash)
 )
-case = PowerModels.parse_file("pglib_opf_case14_ieee.m")
+case = pglib("case14_ieee")
 
 inactive_devices = Dict("bus" =>  1:5, "gen" => 1:3, "branch" => 1:9)
 for (item_type, ids) in inactive_devices
@@ -36,7 +36,7 @@ mp=Dict{String,Any}(
             "label" => Dict(:color => colorant"black", :size => 16, :fontfamily=>"Arial", :textalign=>:center, :offset => 0.1)
             )
 
-case = PowerModels.parse_file("pglib_opf_case5_pjm.m")
+case = pglib("case5_pjm")
 result = run_opf(case, DCPPowerModel, Ipopt.Optimizer)
 PowerModels.update_data!(case, result["solution"])
 
@@ -49,7 +49,7 @@ mp = Dict{String, Any}(
     "base_kv" => Dict(:palette => :Accent, :size=>[1,3]),
 )
 
-case = PowerModels.parse_file("pglib_opf_case118_ieee.m")
+case = pglib("case118_ieee")
 plot_system_voltage(case; filename="system_voltage.png", plot_size=(800,800), exclude_sources=true, membership_properties=mp)
 
 
@@ -58,7 +58,7 @@ mp = Dict{String, Any}(
     "base_kv" => Dict(:palette => :Accent, :size=>[1,3]),
 )
 
-case = PowerModels.parse_file("pglib_opf_case1354_pegase.m")
+case = pglib("case1354_pegase")
 plot_system_voltage(case; filename="pegase_1354.png", plot_size=(800,800), exclude_sources=true, membership_properties=mp)
 
 
@@ -67,5 +67,5 @@ mp = Dict{String, Any}(
     "base_kv" => Dict(:palette => :Accent, :size=>[1,3]),
 )
 
-case = PowerModels.parse_file("pglib_opf_case1888_rte.m")
+case = pglib("case1888_rte")
 plot_system_voltage(case; filename="rte_1888.png", plot_size=(800,800), exclude_sources=true, membership_properties=mp)

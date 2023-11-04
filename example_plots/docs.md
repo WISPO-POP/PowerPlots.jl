@@ -28,9 +28,9 @@ Sets the color of network devices based on the status code of device.
 `plot_power_flow()`
 Plot the power flow along branches in a network, coloring branches acorrding to the % load. Requires a solved power flow.
 ```julia
-Using PowerModels, PowerPlots, Ipopt
+Using PowerModels, PGlib, PowerPlots, Ipopt
 
-case = PowerModels.parse_file("matpower/case5.m")
+case = pglib("case5_pjm")
 result = run_opf(case, DCPPowerModel, Ipopt.Optimizer)
 PowerModels.update_data!(case, result["solution"])
 
