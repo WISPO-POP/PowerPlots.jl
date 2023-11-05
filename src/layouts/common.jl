@@ -80,7 +80,7 @@ function layout_network(case::Dict{String,<:Any};
         N = Graphs.nv(PMG.graph)
         fixed_pos = BitVector(undef,N)
         initialpos = Vector{GeometryBasics.Point{2,Float64}}(undef, N)
-        for i in 1:eachindex(fixed_pos)
+        for i in 1:length(fixed_pos)
             (comp_type, comp_id) = PMG.node_comp_map[i]
             fixed_pos[i] = haskey(data[comp_type][comp_id], "xcoord_1") && haskey(data[comp_type][comp_id], "ycoord_1")
             initialpos[i] = GeometryBasics.Point(get(data[comp_type][comp_id], "xcoord_1", NaN), get(data[comp_type][comp_id], "ycoord_1", NaN))
