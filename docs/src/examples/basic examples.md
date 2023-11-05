@@ -41,13 +41,13 @@ The size of components can be set similarly.  A good size for node devices is ty
 powerplot(data, bus_size=1000, gen_size=100, load_size=200, branch_size=2, connector_size=10)
 ```
 
-Aliases to overide all node and edge sizes.
+Aliases to override all node and edge sizes.
 ```@example power_data
 powerplot(data, node_size=1000, edge_size=10, width=300, height=300)
 ```
 
 # Visualizing System Data
-Component data values from the PowerModels dictionary can be plotted by specfying the dictionary key. The key can be either a string or a symbol.  The data type can be `:ordinal`, `:nominal`, or `:quantitative`.
+Component data values from the PowerModels dictionary can be plotted by specifying the dictionary key. The key can be either a string or a symbol.  The data type can be `:ordinal`, `:nominal`, or `:quantitative`.
 
 ```@example power_data
 p = powerplot(data, bus_data="bus_type",

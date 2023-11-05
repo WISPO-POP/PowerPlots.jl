@@ -20,7 +20,7 @@ height=250, width=250, bus_size=100, gen_size=50, load_size=50,
 )
 ```
 
-PowerPlot.jl using Vegalite.jl to construct the figures. As an example of the structure of a VegaLite plot, here is julia syntax to create a plot with the [VegaLite](https://github.com/queryverse/VegaLite.jl) package:
+PowerPlots.jl using Vegalite.jl to construct the figures. As an example of the structure of a VegaLite plot, here is julia syntax to create a plot with the [VegaLite](https://github.com/queryverse/VegaLite.jl) package:
 ```julia
 using VegaLite, VegaDatasets
 
@@ -51,7 +51,7 @@ And here is the JSON syntax from the [Vegalite](https://vega.github.io/vega-lite
 }
 ```
 
-It is possible to inspect the internal structure of out plot `p` in json format which is as follows:
+It is possible to inspect the internal structure of out plot `p` in JSON format which is as follows:
 
 ```json
 p={
@@ -142,7 +142,7 @@ p.layer[3]["encoding"]["color"]["legend"]=false
 p
 ```
 
-We can remove the legend for branch as well, however the structure is slightly different.  The branch layer contains 2 layers, the first is the powerlines themselves, and the second is for plotting arrows that indicate power flow when the `pf` value exists in `data["branch"]["1"]["pf"]`.  The power line legend can be removed as follows:
+We can remove the legend for branch as well, however the structure is slightly different.  The branch layer contains 2 layers, the first is the power lines themselves, and the second is for plotting arrows that indicate power flow when the `pf` value exists in `data["branch"]["1"]["pf"]`.  The power line legend can be removed as follows:
 
 ```@example internal
 p.layer[1]["layer"][1]["encoding"]["color"]["legend"]=false
