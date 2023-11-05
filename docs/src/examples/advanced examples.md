@@ -20,7 +20,7 @@ height=250, width=250, bus_size=100, gen_size=50, load_size=50,
 )
 ```
 
-PowerPlot.jl using Vegalite.jl to construct the figures. As an example of the structure of a VegaLite plot, here is julia syntax to create a plot with the [VegaLite](https://github.com/queryverse/VegaLite.jl) package:
+PowerPlots.jl using Vegalite.jl to construct the figures. As an example of the structure of a VegaLite plot, here is julia syntax to create a plot with the [VegaLite](https://github.com/queryverse/VegaLite.jl) package:
 ```julia
 using VegaLite, VegaDatasets
 
@@ -51,7 +51,7 @@ And here is the JSON syntax from the [Vegalite](https://vega.github.io/vega-lite
 }
 ```
 
-It is possible to inspect the internal structure of out plot `p` in json format which is as follows:
+It is possible to inspect the internal structure of out plot `p` in JSON format which is as follows:
 
 ```json
 p={
@@ -142,7 +142,7 @@ p.layer[3]["encoding"]["color"]["legend"]=false
 p
 ```
 
-We can remove the legend for branch as well, however the structure is slightly different.  The branch layer contains 2 layers, the first is the powerlines themselves, and the second is for plotting arrows that indicate power flow when the `pf` value exists in `data["branch"]["1"]["pf"]`.  The power line legend can be removed as follows:
+We can remove the legend for branch as well, however the structure is slightly different.  The branch layer contains 2 layers, the first is the power lines themselves, and the second is for plotting arrows that indicate power flow when the `pf` value exists in `data["branch"]["1"]["pf"]`.  The power line legend can be removed as follows:
 
 ```@example internal
 p.layer[1]["layer"][1]["encoding"]["color"]["legend"]=false
@@ -152,7 +152,7 @@ p
 While modifying the layers of a powerplot is as simple as editing a dictionary, modifying the top level parameters of a powerplot cannot be done without the package `SetField` to modify the struct.
 
 For example:
-```@example internal
+```julia internal
 p.width = 250
 # ERROR it is not possible to modify the immutable struct of a VLSpec (which are all of the top level parameters)
 ```
@@ -381,73 +381,5 @@ p.layer[4]["encoding"]["color"]["legend"]=Dict("orient"=>"bottom-right")
 p
 ```
 
-### Load Blocks
-This example externally computes and sets component information before visualizing it.
 
-```@example
-
-using PowerModels
-using PowerModelsAnalytics
-using PowerPlots
-using ColorSchemes
-using Setfield
-using PGLib
-
-case = pglib("case14")
-
-# disable lines
-case["branch"]["10"]["br_status"] = 0
-case["branch"]["16"]["br_status"] = 0
-case["branch"]["17"]["br_status"] = 0
-
-# Identify load blocks for all components
-for (block_id, bus_ids) in identify_blocks(case)
-    for bus_id in bus_ids
-        case["bus"][bus_id]["block"]="Block $block_id"
-    end
-end
-for (gen_id,gen) in case["gen"]
-    gen["block"] = case["bus"][string(gen["gen_bus"])]["block"]
-end
-for (load_id,load) in case["load"]
-    load["block"] = case["bus"][string(load["load_bus"])]["block"]
-end
-for (branch_id,branch) in case["branch"]
-    f_bus = branch["f_bus"]
-    t_bus = branch["t_bus"]
-    if case["bus"]["$(f_bus)"]["block"] == case["bus"]["$(t_bus)"]["block"]
-        branch["block"] =  case["bus"]["$(f_bus)"]["block"]
-    else
-        branch["block"] = "Damaged Line"
-    end
-end
-
-color_range = colorscheme2array(ColorSchemes.colorschemes[:tableau_10])
-color_range = [color_range[i] for i in[1,2,4,3]]
-p = powerplot(case;
- bus_data=:block, gen_data=:block, branch_data=:block, load_data=:block,
- node_color=color_range, branch_color=color_range, show_flow=false
-)
-
-# set common legend for color
-@set! p.resolve.scale.color=:shared # share color scale for all components
-p.layer[1]["layer"][1]["encoding"]["color"]["title"]="Load Blocks"
-p.layer[2]["encoding"]["color"]["title"]="Load Blocks"
-p.layer[3]["encoding"]["color"]["title"]="Load Blocks"
-p.layer[4]["encoding"]["color"]["title"]="Load Blocks"
-p.layer[5]["encoding"]["color"]["title"]="Load Blocks"
-
-# set color for 'connector'
-p.layer[2]["encoding"]["color"]=Dict("value"=>color_range[3])
-
-# set legend domain, and color order, and move legend to inside top-right corner
-p.layer[1]["layer"][1]["encoding"]["color"]["scale"]["domain"]=["Block 1", "Block 2","Damaged Line"]
-p.layer[1]["layer"][1]["encoding"]["color"]["scale"]["range"]=[color_range[1],color_range[2],color_range[4]]
-p.layer[1]["layer"][1]["encoding"]["color"]["legend"]=Dict("orient"=>"top-right")
-
-@set! p.title=Dict("text"=>"Load Blocks After Damage to Lines 10, 16, and 17", "fontSize"=>20)
-p
-```
-
-<!-- ### Restoration Sequence -->
 

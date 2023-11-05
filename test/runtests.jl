@@ -26,7 +26,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
         # case5.m should not cause any warning messages besides this one
         function is_unexpected_warning(output::String)
-            output != nothing && output != """Data column "ComponentType" does not exist for DC line""" &&
+            !isnothing(output) && output != """Data column "ComponentType" does not exist for DC line""" &&
             output != """Data column "ComponentType" does not exist for switch""" &&
             output != """Data column "ComponentType" does not exist for transformer"""
         end

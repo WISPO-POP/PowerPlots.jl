@@ -7,7 +7,6 @@ JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 PGLib = "07a8691f-3d11-4330-951b-3c50f98338be"
 PowerModels = "c36e90e8-916a-50a6-bd94-075b64ef4655"
-PowerModelsAnalytics = "7425d11c-6b70-11e9-2bc6-9bcd3191d4b9"
 PowerModelsDistribution = "d7431456-977f-11e9-2de3-97ff7677985e"
 PowerPlots = "229d1e32-5c67-4c9a-a884-d6a3a7f23cfa"
 Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
@@ -16,4 +15,4 @@ VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
 
 [compat]
 PowerModels = "^0.19.2"
-PowerModelsDistribution = "^0.14.5"
+PowerModelsDistribution = "^0.14.5, ^0.15"

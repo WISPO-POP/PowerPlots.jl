@@ -1,7 +1,7 @@
 # Parameter Arguments
 The following parameters can be used to as keyword arguments to modify a plot
 ## Plot parameters
-These paramters modify the entire plot.
+These parameters modify the entire plot.
 
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
@@ -22,7 +22,7 @@ There are several component 'toggle' parameters that control whether certain dis
 
 | Keyword | Description | Default |
 | ------- | ----------- | ------- |
-| `show_flow` | whether flow arrows are displayed | `true` |
+| `show_flow` | whether flow arrows are displayed | `false` |
 | `show_flow_legend` | whether the legend for the flow arrows is shown | `false` |
 
 ### Color
@@ -80,7 +80,7 @@ The size argument sets the size of a component.  The size does not vary with dat
 | `flow_arrow_size_range` | set size range for power flow arrows | `[500,3000]` |
 
 ### Data
-The data argument selects the data from the component dictionary to use in the visualization.  The data argument can be a string or a symbol.  The data value modifes the color of a component based on the color range.
+The data argument selects the data from the component dictionary to use in the visualization.  The data argument can be a string or a symbol.  The data value modifies the color of a component based on the color range.
 
 ```julia
 powerplot(case; gen_data=:pmax)
@@ -99,8 +99,8 @@ powerplot(case; gen_data=:pmin)
 | `load_data`       |  set the data of a load | `"ComponentType"` |
 
 
-### Data Type
-The Data Type in [VegaLite](https://vega.github.io/vega-lite/docs/type.html) can be `:nominal`, `:ordinal`, or `:quantintative`.  `:nominal` and `:ordinal` are both discrete values, and `:quantitative` is continuous.  In the context of the simple `powerplot`, there is no distinction  between `:nominal` and `:ordinal`.
+### Datatype
+The datatypes in [VegaLite](https://vega.github.io/vega-lite/docs/type.html) can be `:nominal`, `:ordinal`, or `:quantintative`.  `:nominal` and `:ordinal` are both discrete values, and `:quantitative` is continuous.  In the context of the simple `powerplot`, there is no distinction between `:nominal` and `:ordinal`.
 
 ```julia
 powerplot(case; gen_data=:pg, gen_data_type=:quantitative) # the pg is continous, so use a continous scale
@@ -109,14 +109,14 @@ powerplot(case; gen_data=:index, gen_data_type=:nominal) # the index is a discre
 
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
-| `branch_data_type`     | set the data type of a branch | `:nominal` |
-| `dcline_data_type`    | set the data type of a DC line | `:nominal` |
-| `switch_data_type`    | set the data type of a switch | `:nominal` |
-| `transformer_data_type`    | set the data type of a transformer | `:nominal` |
-| `connector_data_type`    | set the data type of a connector | `:nominal` |
-| `gen_data_type`    |  set the data type of a generator | `:nominal` |
-| `bus_data_type`    |  set the data type of a bus | `:nominal` |
-| `load_data_type`    |  set the data type of a load | `:nominal` |
+| `branch_data_type`     | set the datatype of a branch | `:nominal` |
+| `dcline_data_type`    | set the datatype of a DC line | `:nominal` |
+| `switch_data_type`    | set the datatype of a switch | `:nominal` |
+| `transformer_data_type`    | set the datatype of a transformer | `:nominal` |
+| `connector_data_type`    | set the datatype of a connector | `:nominal` |
+| `gen_data_type`    |  set the datatype of a generator | `:nominal` |
+| `bus_data_type`    |  set the datatype of a bus | `:nominal` |
+| `load_data_type`    |  set the datatype of a load | `:nominal` |
 
 
 ### Other Parameters

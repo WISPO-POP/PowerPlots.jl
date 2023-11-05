@@ -1,6 +1,6 @@
 # Experimental
 
-The following are experimental features in PowerPlots.  They may change or dissapear. To use the experimental features, the experimental module must be imported.
+The following are experimental features in PowerPlots.  They may change or disappear. To use the experimental features, the experimental module must be imported.
 
 ```julia
 julia> using PowerPlots
@@ -8,7 +8,7 @@ julia> using PowerPlots.Experimental
 ```
 
 ## Apply geographic coordinates
-Change the coordinates from cartesian to a geographic projection. This is experimental because it is not well tested.
+Change the coordinates from Cartesian to a geographic projection. This is experimental because it is not well tested.
 VegaLite does not support geographic projections and zooming/panning yet, so combining with `add_zoom!` will not work.
 
 ```@example
@@ -23,7 +23,7 @@ for (loadid,load_d) in case["load_data"] # append load coordinates
         case["load"][loadid][k]=v
     end
 end
-p1 = powerplot(case; width=300, height=300, fixed=true, flow=false, node_size=100, edge_size=3, parallel_edge_offset=.03) 
+p1 = powerplot(case; width=300, height=300, fixed=true, flow=false, node_size=100, edge_size=3, parallel_edge_offset=.03)
 
 p2 = deepcopy(p1)
 PowerPlots.Experimental.cartesian2geo!(p2)

@@ -1,6 +1,6 @@
 ## Using PowerPlots
 
-The basic plot function for `PowerPlots` is `plot_network()` which plots a  PowerModels network case.
+The basic plot function for `PowerPlots` is `plot_network()` which plots a PowerModels network case.
 
 ```julia
 using PowerPlots
@@ -11,7 +11,7 @@ The function `plot_network!()` will plot the network on the active plot.
 
 ## Specialized Plotting Functions
 
-There are additional plotting functions to format the network plots. These function are equivalent to calling `plot_network` with the approriate arguments, e.g.
+There are additional plotting functions to format the network plots. These functions are equivalent to calling `plot_network` with the appropriate arguments, e.g.
 ```julia
 plot_network(network; set_network_properties=set_properties_power_flow!)
 ```
@@ -26,11 +26,11 @@ Sets the color of network devices based on the status code of device.
 
 ### Power Flow
 `plot_power_flow()`
-Plot the power flow along branches in a network, coloring branches acorrding to the % load. Requires a solved power flow.
+Plot the power flow along branches in a network, coloring branches according to the % load. Requires a solved power flow.
 ```julia
-Using PowerModels, PowerPlots, Ipopt
+using PowerModels, PGlib, PowerPlots, Ipopt
 
-case = PowerModels.parse_file("matpower/case5.m")
+case = pglib("case5_pjm")
 result = run_opf(case, DCPPowerModel, Ipopt.Optimizer)
 PowerModels.update_data!(case, result["solution"])
 
@@ -53,14 +53,12 @@ Plot the network with each voltage level in a unique color.
 The internal workflow for PowerPlots takes a network case, creates a `LightsGraphs` graph of the network, applies color, size, and other properties to nodes and edges, then generates a plot.
 
 ```julia
-  plot_network()
   build_graph()
   apply_membership_properties()
   plot_graph()
-end
 ```
 
-Additonal custom plots can be create by creating a new membership function that assigns a properties to a node. For example:
+Additional custom plots can be created by creating a new membership function that assigns properties to a node. For example:
 
 ```julia
 const default_bus_odd_even_properties = Dict(
@@ -94,7 +92,7 @@ function set_properties_bus_odd_even!(graph::PowerModelsGraph{T};
 end
 ```
 
-Would set make odd numbered buses blue and twice as large as as even numbered buses.
+Would set make odd numbered buses blue and twice as large as even numbered buses.
 
 ```julia
   plot_network(network; set_network_properties=set_properties_bus_odd_even!)
@@ -119,7 +117,7 @@ Would set make odd numbered buses blue and twice as large as as even numbered bu
 )
 ```
 
- A user can overide these defults by creating a dictionary of values to override the default.
+ A user can override these defaults by creating a dictionary of values to override the default.
 
  ```julia
  mp = Dict{String, Any}(
