@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Advanced Examples · PowerPlots</title><meta name="title" content="Advanced Examples · PowerPlots"/><meta property="og:title" content="Advanced Examples · PowerPlots"/><meta property="twitter:title" content="Advanced Examples · PowerPlots"/><meta name="description" content="Documentation for PowerPlots."/><meta property="og:description" content="Documentation for PowerPlots."/><meta property="twitter:description" content="Documentation for PowerPlots."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.svg" alt="PowerPlots logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">PowerPlots</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../basic examples/">Basic Examples</a></li><li class="is-active"><a class="tocitem" href>Advanced Examples</a><ul class="internal"><li><a class="tocitem" href="#Internal-Structure"><span>Internal Structure</span></a></li><li><a class="tocitem" href="#Example-Modifications"><span>Example Modifications</span></a></li><li><a class="tocitem" href="#Code-Examples"><span>Code Examples</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../parameters/">Parameters</a></li><li><span class="tocitem">Data Transformations</span><ul><li><a class="tocitem" href="../../data_transformations/powermodelsdataframes/">PowerModels Dictionary to DataFrame Conversion</a></li><li><a class="tocitem" href="../../data_transformations/powermodelsgraphs/">PowerModelsGraph</a></li><li><a class="tocitem" href="../../data_transformations/layouts/">Layouts</a></li></ul></li><li><a class="tocitem" href="../../experimental/">Experimental Features</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Advanced Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Advanced Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/WISPO-POP/PowerPlots.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/WISPO-POP/PowerPlots.jl/blob/master/docs/src/examples/advanced examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Advanced-Examples"><a class="docs-heading-anchor" href="#Advanced-Examples">Advanced Examples</a><a id="Advanced-Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Examples" title="Permalink"></a></h1><p>The following information can be used as a basis for creating more complicated visualizations. Description of the internals is followed by examples of modifying the plots.</p><h2 id="Internal-Structure"><a class="docs-heading-anchor" href="#Internal-Structure">Internal Structure</a><a id="Internal-Structure-1"></a><a class="docs-heading-anchor-permalink" href="#Internal-Structure" title="Permalink"></a></h2><p>The following plot is not well-structured.  The legend is too tall, and it messes with the layout of the figure.  There is currently not a way to give arguments to <code>powerplot()</code> to modify this output, but instead you can alter the struct of the <code>powerplot</code> <code>p</code>.</p><pre><code class="language-julia hljs"># Read in data
+using PowerPlots;
+using PGLib;
+case=pglib(&quot;case39_epri&quot;);
+
+# Create PowerPlot
+p = powerplot(case,
+bus_data=:index, bus_data_type=:quantitative,
+branch_data=:index, branch_data_type=:quantitative,
+gen_data=:index, gen_data_type=:quantitative,
+height=250, width=250, bus_size=100, gen_size=50, load_size=50,
+)</code></pre><img src="7e036d8c.svg" alt="Example block output"/><p>PowerPlots.jl using Vegalite.jl to construct the figures. As an example of the structure of a VegaLite plot, here is julia syntax to create a plot with the <a href="https://github.com/queryverse/VegaLite.jl">VegaLite</a> package:</p><pre><code class="language-julia hljs">using VegaLite, VegaDatasets
+
+dataset(&quot;cars&quot;) |&gt;
+@vlplot(
+    :point,
+    x=:Horsepower,
+    y=:Miles_per_Gallon,
+    color=:Origin,
+    width=400,
+    height=400
+)</code></pre><p>And here is the JSON syntax from the <a href="https://vega.github.io/vega-lite/examples/point_href.html">Vegalite</a> library:</p><pre><code class="language-json hljs">{
+  &quot;$schema&quot;: &quot;https://vega.github.io/schema/vega-lite/v5.json&quot;,
+  &quot;description&quot;: &quot;A scatterplot showing horsepower and miles per gallons that opens a Google search for the car that you click on.&quot;,
+  &quot;data&quot;: {&quot;url&quot;: &quot;data/cars.json&quot;},
+  &quot;mark&quot;: &quot;point&quot;,
+  &quot;encoding&quot;: {
+    &quot;x&quot;: {&quot;field&quot;: &quot;Horsepower&quot;, &quot;type&quot;: &quot;quantitative&quot;},
+    &quot;y&quot;: {&quot;field&quot;: &quot;Miles_per_Gallon&quot;, &quot;type&quot;: &quot;quantitative&quot;},
+    &quot;color&quot;: {&quot;field&quot;: &quot;Origin&quot;, &quot;type&quot;: &quot;nominal&quot;},
+  }
+}</code></pre><p>It is possible to inspect the internal structure of out plot <code>p</code> in JSON format which is as follows:</p><pre><code class="language-json hljs">p={
+    &quot;width&quot;: 250,
+    &quot;height&quot;: 250,
+    &quot;config&quot;: {&quot;view&quot;: {&quot;stroke&quot;: null}},
+    &quot;resolve&quot;: {&quot;scale&quot;: {&quot;color&quot;: &quot;independent&quot;}},
+    &quot;encoding&quot;: {
+      &quot;x&quot;: {
+        &quot;axis&quot;: null,
+        &quot;scale&quot;: {&quot;domain&quot;: [-5.988417823876669, 5.662858327789515]}
+      },
+      &quot;y&quot;: {
+        &quot;axis&quot;: null,
+        &quot;scale&quot;: {&quot;domain&quot;: [-4.888872782545868, 5.89355161792763]}
+      }
+    },
+    &quot;layer&quot;: [
+      # each layer goes here
+    ]
+  }</code></pre><p>At the top level are fields that determine the default structure for every layer of our plot. Then, inside of layers is the structure for each component layer in PowerPlots. The order of the layers determines the order in which they are drawn, and is shown in the order of the legends.  Here is the layer for the generators, the fourth layer:</p><pre><code class="language-json hljs">&quot;layer&quot;: [
+      {
+       # branch layer
+      },
+      {
+        # connector layer
+      },
+      {
+        # bus layer
+      },
+      {
+        &quot;data&quot;: { # case[&quot;gen&quot;] data here},
+        &quot;mark&quot;: {&quot;tooltip&quot;: {&quot;content&quot;: &quot;data&quot;}, &quot;opacity&quot;: 1, &quot;type&quot;: &quot;circle&quot;},
+        &quot;encoding&quot;: {
+          &quot;x&quot;: {&quot;type&quot;: &quot;quantitative&quot;, &quot;field&quot;: &quot;xcoord_1&quot;},
+          &quot;y&quot;: {&quot;type&quot;: &quot;quantitative&quot;, &quot;field&quot;: &quot;ycoord_1&quot;},
+          &quot;size&quot;: {&quot;value&quot;: 200},
+          &quot;color&quot;: {
+            &quot;field&quot;: &quot;index&quot;,
+            &quot;type&quot;: &quot;quantitative&quot;,
+            &quot;title&quot;: &quot;Gen&quot;,
+            &quot;scale&quot;: {
+              &quot;range&quot;: [&quot;#E6550D&quot;, &quot;#EB7433&quot;, &quot;#F19358&quot;, &quot;#F8B17C&quot;, &quot;#FDD0A2&quot;]
+            }
+          }
+        }
+      },
+      {
+        # load layer
+      }
+    ]</code></pre><p>You can see that <code>gen[&quot;encoding&#39;][&quot;color&quot;][&quot;field&quot;]</code> has the value <code>&quot;index&quot;</code>, which is what we set the value to when creating power plot.  We could change this value to <code>pmin</code> by running</p><pre><code class="language-julia hljs">p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;field&quot;]=&quot;pmin&quot;</code></pre><p>Then when displaying the plot again, the figure would show the <code>pmin</code> value (0 for all generators) instead of <code>index</code> for the generators.</p><pre><code class="language-julia hljs">p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;field&quot;]=&quot;pmin&quot;
+p</code></pre><img src="5ce2d87d.svg" alt="Example block output"/><p>You can also modify the powerplot to include values that are not present. The parameters you can use are listed in the documentation for VegaLite. For example, we can modify the legend title for the generator by setting the title.</p><p>The legend parameters are available <a href="https://vega.github.io/vega-lite/docs/legend.html">here</a></p><pre><code class="language-julia hljs">p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(&quot;title&quot;=&gt;&quot;Minimum Power&quot;)
+p</code></pre><img src="79e9aafa.svg" alt="Example block output"/><p>We can also remove the legend of a component type.  The following removes the legend for <code>bus</code>.</p><pre><code class="language-julia hljs">p.layer[3][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false
+p</code></pre><img src="d2c86454.svg" alt="Example block output"/><p>We can remove the legend for branch as well, however the structure is slightly different.  The branch layer contains 2 layers, the first is the power lines themselves, and the second is for plotting arrows that indicate power flow when the <code>pf</code> value exists in <code>data[&quot;branch&quot;][&quot;1&quot;][&quot;pf&quot;]</code>.  The power line legend can be removed as follows:</p><pre><code class="language-julia hljs">p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false
+p</code></pre><img src="9db1f62c.svg" alt="Example block output"/><p>While modifying the layers of a powerplot is as simple as editing a dictionary, modifying the top level parameters of a powerplot cannot be done without the package <code>SetField</code> to modify the struct.</p><p>For example:</p><pre><code class="language-julia hljs">p.width = 250
+# ERROR it is not possible to modify the immutable struct of a VLSpec (which are all of the top level parameters)</code></pre><p>Using <code>Setfield</code> we can modify the top level parameters of the plot.</p><pre><code class="language-julia hljs">using Setfield
+@set! p.width=500  # overide the current value in p.width
+@set! p.encoding.color=Dict(&quot;legend&quot;=&gt;Dict(&quot;orient&quot;=&gt;&quot;bottom&quot;))
+    # encoding field exists, but color field does not exist at the top level.  Add parameters for the color field as a dictionary.
+    # The generator legend is not affected by the top level encoding[&quot;color&quot;][&quot;legend&quot;] setting because it has its own legend field</code></pre><img src="8d9ff2d7.svg" alt="Example block output"/><p>Here is a summary code sample to modify a power plot. For further information about the possible parameters you can use, look at the VegaLite <a href="https://vega.github.io/vega-lite/docs/">documentation</a> and look at the nested structure for settings parameters.</p><pre><code class="language-julia hljs"># Create PowerPlot
+p = powerplot(case,
+bus_data=:index, bus_data_type=:quantitative,
+branch_data=:index, branch_data_type=:quantitative,
+gen_data=:index, gen_data_type=:quantitative,
+load_data=:index, load_data_type=:quantitative,
+height=250, width=250
+)
+
+# get maximum index value to use for maximum legend scale
+max_index = maximum([maximum([v[&quot;index&quot;] for (k,v) in case[comp_type]]) for comp_type in [&quot;bus&quot;,&quot;gen&quot;,&quot;branch&quot;]])
+# set legend title to Index ID
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(&quot;title&quot;=&gt;&quot;Index ID&quot;, &quot;gradientLength&quot;=&gt;100)  # branch
+
+# remove all but one legends but layer 1
+p.layer[2][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false # connector
+p.layer[3][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false # bus
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false # gen
+p.layer[5][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false # load
+
+# set all components to the same color scheme
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;range&quot;]=[&quot;purple&quot;,&quot;#FFFF00&quot;]
+p.layer[2][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;range&quot;]=[&quot;purple&quot;,&quot;#FFFF00&quot;]
+p.layer[3][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;range&quot;]=[&quot;purple&quot;,&quot;#FFFF00&quot;]
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;range&quot;]=[&quot;purple&quot;,&quot;#FFFF00&quot;]
+p.layer[5][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;range&quot;]=[&quot;purple&quot;,&quot;#FFFF00&quot;]
+
+# set the color scale from 0 to the maximum index of all components
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,max_index]
+p.layer[2][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,max_index]
+p.layer[3][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,max_index]
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,max_index]
+p.layer[5][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,max_index]
+
+# set the title of the figure
+@set! p.title=&quot;Plot Title&quot;</code></pre><img src="a6fcb9d3.svg" alt="Example block output"/><h2 id="Example-Modifications"><a class="docs-heading-anchor" href="#Example-Modifications">Example Modifications</a><a id="Example-Modifications-1"></a><a class="docs-heading-anchor-permalink" href="#Example-Modifications" title="Permalink"></a></h2><p>The following are examples for altering various aspects of a <code>powerplot</code>.</p><h3 id="Basic-alterations"><a class="docs-heading-anchor" href="#Basic-alterations">Basic alterations</a><a id="Basic-alterations-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-alterations" title="Permalink"></a></h3><pre><code class="language-julia hljs">@set! p.title=&quot;Title&quot;
+@set! p.title=Dict(&quot;text&quot;=&gt;[&quot;Title&quot;, &quot;Newline&quot;],&quot;fontSize&quot;=&gt;20)
+@set! p.width=100
+@set! p.height=100</code></pre><h3 id="Alter-data-scales"><a class="docs-heading-anchor" href="#Alter-data-scales">Alter data scales</a><a id="Alter-data-scales-1"></a><a class="docs-heading-anchor-permalink" href="#Alter-data-scales" title="Permalink"></a></h3><pre><code class="language-julia hljs"># set the domain for the color (set to min/max of data by default)
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domainMax&quot;]=200
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domainMin&quot;]=20
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0, var]
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0, 1]
+p.layer[5][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;] = [&quot;Total&quot;,&quot;Partial&quot;,&quot;No Shed&quot;]
+
+# set the range
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;range&quot;]=[&quot;#0000FF&quot; &quot;#FFFF00&quot;]
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;size&quot;][&quot;scale&quot;][&quot;range&quot;]=[20 100]
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;size&quot;][&quot;scale&quot;][&quot;rangeMin&quot;]=20
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;size&quot;][&quot;scale&quot;][&quot;rangeMax&quot;]=100</code></pre><h3 id="Alter-legend"><a class="docs-heading-anchor" href="#Alter-legend">Alter legend</a><a id="Alter-legend-1"></a><a class="docs-heading-anchor-permalink" href="#Alter-legend" title="Permalink"></a></h3><pre><code class="language-julia hljs"># modify the legend of the color data (size, shape can be used as well)
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(
+    &quot;title&quot;=&gt;&quot;Line&quot;,
+    &quot;gradientLength&quot;=&gt;100,
+    &quot;labelExpr&quot;=&gt;&quot;datum.label==&#39;true&#39; ? &#39;Contingency Set&#39;: &#39;Radial Lines&#39;&quot;,
+    &quot;labelFontSize&quot;=&gt;13,
+    &quot;offset&quot;=&gt;5,
+    &quot;orient&quot;=&gt;&quot;none&quot;,
+    &quot;legendX&quot;=&gt;260,
+    &quot;legendY&quot;=&gt;100,
+)
+p.layer[2][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(&quot;labelExpr&quot;=&gt;&quot;&quot;)
+p.layer[3][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(&quot;labelExpr&quot;=&gt;&quot;datum.label==1 ? &#39;True&#39;: &#39;False&#39;&quot;)
+p.layer[2][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=false</code></pre><h3 id="Alter-component-size-from-data"><a class="docs-heading-anchor" href="#Alter-component-size-from-data">Alter component size from data</a><a id="Alter-component-size-from-data-1"></a><a class="docs-heading-anchor-permalink" href="#Alter-component-size-from-data" title="Permalink"></a></h3><p>Alter the &#39;size&#39; field (all previous <code>color</code> domain/scale/legend changes can be made to <code>size</code> as well)</p><pre><code class="language-julia hljs"># default set to specific size
+p.layer[4][&quot;encoding&quot;][&quot;size&quot;][&quot;value&quot;]=50
+
+# override size[&quot;value&quot;] by  creating a new &#39;size&#39; dictionary
+p.layer[4][&quot;encoding&quot;][&quot;size&quot;]  = Dict(&quot;field&quot;=&gt;&quot;pmax&quot;, &quot;type&quot;=&gt;&quot;quantitative&quot;)
+p.layer[5][&quot;encoding&quot;][&quot;size&quot;]  = Dict(&quot;field&quot;=&gt;&quot;pd&quot;, &quot;type&quot;=&gt;&quot;quantitative&quot;)
+
+# update the size dictionary with additional information
+@set! p.layer[4][&quot;encoding&quot;][&quot;size&quot;][&quot;scale&quot;]=Dict(&quot;range&quot;=&gt; [20,100])
+
+# set resolve to allow components to have independent legends for &#39;size&#39;
+# :shared set all components to have same legends for &#39;size&#39; field
+@set! p.resolve.scale.size = :independent</code></pre><h3 id="Alter-component-shapes"><a class="docs-heading-anchor" href="#Alter-component-shapes">Alter component shapes</a><a id="Alter-component-shapes-1"></a><a class="docs-heading-anchor-permalink" href="#Alter-component-shapes" title="Permalink"></a></h3><pre><code class="language-julia hljs">p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;strokeDash&quot;]=Dict(&quot;value&quot;=&gt;[4,4]) # make a line dashed
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;strokeDash&quot;]=Dict(&quot;field&quot;=&gt;&quot;rate_a&quot;) # dash length from data
+p.layer[3][&quot;mark&quot;][&quot;type&quot;]=:square # :circle :square :point
+p.layer[3][&quot;mark&quot;][&quot;opacity&quot;]=0.7
+
+# with a point mark, several shapes can be used
+p.layer[4][&quot;mark&quot;][&quot;type&quot;]=&quot;point&quot;
+p.layer[4][&quot;mark&quot;][&quot;shape&quot;]=&quot;triangle-up&quot;
+# &quot;circle&quot;, &quot;square&quot;, &quot;cross&quot;, &quot;diamond&quot;, &quot;triangle-up&quot;,
+# &quot;triangle-down&quot;, &quot;triangle-right&quot;, or &quot;triangle-left&quot;
+
+# shape can also be determined by data
+p.layer[4][&quot;mark&quot;][&quot;type&quot;]=&quot;point&quot;
+p.layer[4][&quot;encoding&quot;][&quot;shape&quot;]=Dict(&quot;field&quot;=&gt;&quot;ComponentType&quot;)
+p.layer[5][&quot;mark&quot;][&quot;type&quot;]=&quot;point&quot;
+p.layer[5][&quot;encoding&quot;][&quot;shape&quot;]=Dict(&quot;field&quot;=&gt;&quot;ComponentType&quot;)
+
+# set resolve to allow components to have independent legends for &#39;shape&#39;
+# :shared set all components to have same legends for &#39;shape&#39; field
+@set! p.resolve.scale.shape = :independent</code></pre><h2 id="Code-Examples"><a class="docs-heading-anchor" href="#Code-Examples">Code Examples</a><a id="Code-Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Code-Examples" title="Permalink"></a></h2><p>The following are code examples that utilize some of the above modifications and more.</p><h3 id="Arrange-powerplots-in-a-grid"><a class="docs-heading-anchor" href="#Arrange-powerplots-in-a-grid">Arrange powerplots in a grid</a><a id="Arrange-powerplots-in-a-grid-1"></a><a class="docs-heading-anchor-permalink" href="#Arrange-powerplots-in-a-grid" title="Permalink"></a></h3><pre><code class="language-julia hljs">p4 = [] # create series of 4 plots
+for i in 1:4
+    p_temp = @set p.title=&quot;$i&quot;
+    push!(p4, p_temp)
+end
+p4=[p4... ; ] # vegalite concats these into a single plot
+@set! p4.concat = p4.vconcat
+@set! p4.columns = 2 # arrange in 2 columns
+p4</code></pre><img src="5ef2419c.svg" alt="Example block output"/><h3 id="Power-Flow"><a class="docs-heading-anchor" href="#Power-Flow">Power Flow</a><a id="Power-Flow-1"></a><a class="docs-heading-anchor-permalink" href="#Power-Flow" title="Permalink"></a></h3><p>This example uses transforms to calculate the loading of the transmission lines and the generators.</p><pre><code class="language-julia hljs">using PowerModels
+using PowerPlots
+using ColorSchemes
+using Setfield
+using JuMP, Ipopt
+case = parse_file(&quot;case14.m&quot;)
+result = solve_ac_opf(case, optimizer_with_attributes(Ipopt.Optimizer, &quot;print_level&quot;=&gt;0))
+update_data!(case,result[&quot;solution&quot;])
+
+p = powerplot(case,
+    gen_data=:pg,
+    gen_data_type=:quantitative,
+    branch_data=:pt,
+    branch_data_type=:quantitative,
+    branch_color=[&quot;black&quot;, &quot;purple&quot;,&quot;red&quot;],
+    gen_color=[&quot;black&quot;, &quot;purple&quot;,&quot;red&quot;],
+    flow_arrow_size_range=[0, 4000],
+    load_color=&quot;#273D94&quot;,
+    bus_color=&quot;#504F4F&quot;
+)
+
+# set flow arrow color
+p.layer[1][&quot;layer&quot;][2][&quot;mark&quot;][&quot;color&quot;]=:white
+p.layer[1][&quot;layer&quot;][2][&quot;mark&quot;][&quot;stroke&quot;]=:black
+
+# set branch color values
+p.layer[1][&quot;transform&quot;] = Dict{String, Any}[
+    Dict(&quot;calculate&quot;=&gt;&quot;abs(datum.pt)/datum.rate_a*100&quot;, &quot;as&quot;=&gt;&quot;branch_Percent_Loading&quot;),
+    Dict(&quot;calculate&quot;=&gt;&quot;abs(datum.pt)&quot;, &quot;as&quot;=&gt;&quot;BranchPower&quot;)
+]
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;field&quot;]=&quot;branch_Percent_Loading&quot;
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;title&quot;]=&quot;Branch Utilization %&quot;
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,100]
+
+# set generator color/size values
+p.layer[4][&quot;transform&quot;] = Dict{String, Any}[
+    Dict(&quot;calculate&quot;=&gt;&quot;datum.pg/(datum.pmax+1e-9)*100&quot;, &quot;as&quot;=&gt;&quot;gen_Percent_Loading&quot;), #handle 0/0 case
+    Dict(&quot;calculate&quot;=&gt;&quot;datum.pmax&quot;, &quot;as&quot;=&gt;&quot;GenPower&quot;)
+]
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;field&quot;]=&quot;gen_Percent_Loading&quot;
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;scale&quot;][&quot;domain&quot;]=[0,100]
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;title&quot;]=&quot;Gen Utilization %&quot;
+p.layer[4][&quot;encoding&quot;][&quot;size&quot;]=Dict(
+    &quot;field&quot;=&gt;&quot;GenPower&quot;, &quot;title&quot;=&gt;&quot;Gen Capacity [p.u.]&quot;,
+    &quot;type&quot;=&gt;&quot;quantitative&quot;, &quot;scale&quot;=&gt;Dict(&quot;range&quot;=&gt;[50,1000])
+)
+
+# set load size/shape
+p.layer[5][&quot;encoding&quot;][&quot;size&quot;]=Dict(
+    &quot;field&quot;=&gt;&quot;pd&quot;, &quot;title&quot;=&gt;&quot;Load Demand [p.u]&quot;,
+    &quot;type&quot;=&gt;&quot;quantitative&quot;, &quot;scale&quot;=&gt;Dict(&quot;range&quot;=&gt;[50,1000])
+)
+p.layer[5][&quot;mark&quot;][&quot;type&quot;]=:square
+
+# set legend position for % utilization
+p.layer[1][&quot;layer&quot;][1][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(&quot;orient&quot;=&gt;&quot;bottom-right&quot;, &quot;offset&quot;=&gt;-30)
+p.layer[4][&quot;encoding&quot;][&quot;color&quot;][&quot;legend&quot;]=Dict(&quot;orient&quot;=&gt;&quot;bottom-right&quot;)
+
+@set! p.resolve.scale.size=:independent
+@set! p.resolve.scale.color=:shared
+
+p</code></pre><img src="514a206b.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../basic examples/">« Basic Examples</a><a class="docs-footer-nextpage" href="../../parameters/">Parameters »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Monday 1 April 2024 15:42">Monday 1 April 2024</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
