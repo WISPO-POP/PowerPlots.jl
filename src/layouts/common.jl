@@ -34,25 +34,34 @@ Create a layout for a powermodels data dictionary.  This function creates a grap
 and `edge_types`.  A layout function is then applied, by default `layout_graph_kamada_kawai!`.  A new case dictionary with the positions of the
 components is returned.
 """
-function layout_network(case::Dict{String,<:Any};
+function layout_network(case::Dict{String,<:Any}; kwargs...)
+    layout_network!(deepcopy(case); kwargs...)
+end
+
+"""
+Create a layout for a powermodels data dictionary.  This function creates a graph according to the specified keyword arguments `node_types`
+and `edge_types`.  A layout function is then applied, by default `layout_graph_kamada_kawai!`.  A new case dictionary with the positions of the
+components is returned.
+"""
+function layout_network!(data::Dict{String,<:Any};
     fixed = false,
     layout_algorithm = kamada_kawai,
-    node_types::Array{String,1}=supported_node_types,
-    edge_types::Array{String,1}=supported_edge_types,
+    node_components::Array{Symbol,1}=supported_node_types,
+    edge_components::Array{Symbol,1}=supported_edge_types,
+    connected_components::Array{Symbol,1}=supported_connected_types,
     connector_weight=0.5,
     edge_weight=1.0,
     kwargs...
     )
 
-    data = deepcopy(case)
-    PMG = PowerModelsGraph(data,node_types,edge_types)
+    PMG = PowerModelsGraph(data,node_components,edge_components,connected_components)
 
     # calculate weights
     weights = zeros(size(PMG.graph))
     for ((s,d),(comp_type,comp_id)) in PMG.edge_comp_map
 
-        if haskey(case[comp_type][comp_id],"weight")
-            w = compcase[comp_type][comp_id]["weight"]
+        if haskey(data[string(comp_type)][string(comp_id)],"weight")
+            w = data[string(comp_type)][string(comp_id)]["weight"]
         else
             w=edge_weight
         end
@@ -62,8 +71,8 @@ function layout_network(case::Dict{String,<:Any};
         end
     end
     for ((s,d),(comp_type,comp_id)) in PMG.edge_connector_map
-        if haskey(case[comp_type][comp_id],"weight")
-            w = compcase[comp_type][comp_id]["weight"]
+        if haskey(data[string(comp_type)][string(comp_id)],"weight")
+            w = data[string(comp_type)][string(comp_id)]["weight"]
         else
             w=connector_weight
         end
@@ -82,8 +91,8 @@ function layout_network(case::Dict{String,<:Any};
         initialpos = Vector{GeometryBasics.Point{2,Float64}}(undef, N)
         for i in 1:length(fixed_pos)
             (comp_type, comp_id) = PMG.node_comp_map[i]
-            fixed_pos[i] = haskey(data[comp_type][comp_id], "xcoord_1") && haskey(data[comp_type][comp_id], "ycoord_1")
-            initialpos[i] = GeometryBasics.Point(get(data[comp_type][comp_id], "xcoord_1", NaN), get(data[comp_type][comp_id], "ycoord_1", NaN))
+            fixed_pos[i] = haskey(data[string(comp_type)][string(comp_id)], "xcoord_1") && haskey(data[string(comp_type)][string(comp_id)], "ycoord_1")
+            initialpos[i] = GeometryBasics.Point(get(data[string(comp_type)][string(comp_id)], "xcoord_1", NaN), get(data[string(comp_type)][string(comp_id)], "ycoord_1", NaN))
         end
         fixed_initial_pos = [j for j in initialpos if !isnan(j)]
         center = sum(fixed_initial_pos)/length(fixed_initial_pos)
@@ -127,15 +136,15 @@ end
 function apply_node_positions!(data,positions, PMG)
     # Set Node Positions
     for (node,(comp_type,comp_id)) in PMG.node_comp_map
-        data[comp_type][comp_id]["xcoord_1"] = positions[node][1]
-        data[comp_type][comp_id]["ycoord_1"] = positions[node][2]
+        data[string(comp_type)][string(comp_id)]["xcoord_1"] = positions[node][1]
+        data[string(comp_type)][string(comp_id)]["ycoord_1"] = positions[node][2]
     end
     # Set Edge positions
     for ((s,d),(comp_type,comp_id)) in PMG.edge_comp_map
-        data[comp_type][comp_id]["xcoord_1"] = positions[s][1]
-        data[comp_type][comp_id]["ycoord_1"] = positions[s][2]
-        data[comp_type][comp_id]["xcoord_2"] = positions[d][1]
-        data[comp_type][comp_id]["ycoord_2"] = positions[d][2]
+        data[string(comp_type)][string(comp_id)]["xcoord_1"] = positions[s][1]
+        data[string(comp_type)][string(comp_id)]["ycoord_1"] = positions[s][2]
+        data[string(comp_type)][string(comp_id)]["xcoord_2"] = positions[d][1]
+        data[string(comp_type)][string(comp_id)]["ycoord_2"] = positions[d][2]
     end
 
 
@@ -150,7 +159,7 @@ function apply_node_positions!(data,positions, PMG)
             "ycoord_1" => positions[s][2],
             "xcoord_2" => positions[d][1],
             "ycoord_2" => positions[d][2],
-            "source_id"=> (comp_type,comp_id)
+            "source_id"=> (string(comp_type),comp_id)
         )
         id+=1
     end
