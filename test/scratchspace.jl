@@ -1,5 +1,6 @@
 
 # Scratch space for testing development features
+using TestEnv; TestEnv.activate()
 
 using PowerPlots
 using PowerModels

@@ -1,8 +1,11 @@
 
-const supported_component_types = ["bus","gen","branch","dcline","load", "switch", "transformer"]
-const supported_node_types = ["bus","gen","load"]
-const supported_edge_types = ["branch","dcline", "switch", "transformer"]
 
+# const supported_component_types = ["bus","gen","branch","dcline","load", "switch", "transformer"]
+# const supported_node_types = ["bus","gen","load"]
+# const supported_edge_types = ["branch","dcline", "switch", "transformer"]
+const supported_component_types = [:bus,:gen,:branch,:dcline,:load,:switch,:transformer]
+const supported_node_types = [:bus,:gen,:load]
+const supported_edge_types = [:branch,:dcline,:switch,:transformer,:connector]
 
 """
     PowerModelsGraph
@@ -107,82 +110,73 @@ A structure containing a dataframe for each component type.
 """
 mutable struct PowerModelsDataFrame
     metadata::DataFrames.DataFrame
-    bus::DataFrames.DataFrame
-    gen::DataFrames.DataFrame
-    branch::DataFrames.DataFrame
-    dcline::DataFrames.DataFrame
-    load::DataFrames.DataFrame
-    connector::DataFrames.DataFrame
-    switch::DataFrames.DataFrame
-    transformer::DataFrames.DataFrame
+    components::Dict{Symbol,DataFrames.DataFrame}
 
-    function PowerModelsDataFrame(case::Dict{String,<:Any})
+    function PowerModelsDataFrame(case::Dict{String,<:Any}; components=nothing)
         data = deepcopy(case)
-        comp_dataframes = tuple((DataFrames.DataFrame() for i in 1:length(supported_component_types)+2)...) # +2 is for metadata and connector
+
         if InfrastructureModels.ismultinetwork(data)
+            if isnothing(components)
+                components = Symbol[]
+                for (id,nw) in data["nw"]
+                    append!(components, [Symbol(k) for (k,v) in nw if v isa Dict ])
+                end
+                components = unique(components)
+            end
+            comp_dataframes = Dict(comp_type=>DataFrames.DataFrame() for comp_type in components)
+
+
+            data["nw_id"] = "top_level"
+            metadata = DataFrames.DataFrame()
+            _metadata_to_dataframe!(data, metadata)
+
             for (nw_id, net) in data["nw"]
 
                 net["nw_id"]=nw_id # give each network, component its parent nw_id
-                for comp_type in [supported_component_types..., "connector"]
-                    for (comp_id, comp) in get(net,comp_type,Dict())
-                        comp["nw_id"] = nw_id
+                for comp_type in components
+                    for (comp_id, comp) in get(net,String(comp_type),Dict())
+                        comp["nw_id"] = nw_id # give each component its nw_id
+                        comp["ComponentType"] = comp_type # give each component its type name
                     end
+
+                     #combine toplevel and network metadata
+                     _metadata_to_dataframe!(net, metadata)
+                    _comp_dict_to_dataframe!(get(net,String(comp_type), Dict{String,Any}()), comp_dataframes[comp_type])
                 end
-
-                comp_dataframes_new = _PowerModelsDataFrame(net::Dict{String,<:Any}, comp_dataframes...)
             end
+        else # not a multinetwork
+            if isnothing(components)
+                components = [Symbol(k) for (k,v) in data if v isa Dict]
+            end
+            comp_dataframes = Dict(comp_type=>DataFrames.DataFrame() for comp_type in components)
 
-            #combine toplevel and network metadata
-            data["nw_id"] = "top_level"
-            _metadata_to_dataframe(data, comp_dataframes[1])
-        else
-            ## not a multinetwork
-            comp_dataframes = _PowerModelsDataFrame(data::Dict{String,<:Any}, comp_dataframes...)
+            metadata = DataFrames.DataFrame()
+            _metadata_to_dataframe!(data, metadata)
 
+            for comp_type in components
+                for (id,comp) in get(data, String(comp_type), Dict{String,Any}())
+                    comp["ComponentType"] = comp_type
+                end
+                _comp_dict_to_dataframe!(get(data,String(comp_type), Dict{String,Any}()), comp_dataframes[comp_type])
+
+            end
         end
-        new(comp_dataframes...)
+
+        new(metadata, comp_dataframes)
     end
 end
 
 
-""
-function _PowerModelsDataFrame(sn_net::Dict{String,<:Any}, metadata, bus, gen, branch, dcline, load, connector, switch, transformer)
-
-        data = deepcopy(sn_net) # prevent overwriting input data
-
-        ## add comp_type to each component
-        for comp_type in [supported_component_types..., "connector"]
-            for (comp_id, comp) in get(data,comp_type,Dict())
-                comp["ComponentType"] = comp_type
-            end
-        end
-
-
-        ## Assign component DataFrames
-        _metadata_to_dataframe(data, metadata)
-        _comp_dict_to_dataframe(get(data,"bus", Dict{String,Any}()), bus)
-        _comp_dict_to_dataframe(get(data,"gen", Dict{String,Any}()), gen)
-        _comp_dict_to_dataframe(get(data,"branch", Dict{String,Any}()), branch)
-        _comp_dict_to_dataframe(get(data,"dcline", Dict{String,Any}()), dcline)
-        _comp_dict_to_dataframe(get(data,"load", Dict{String,Any}()), load)
-        _comp_dict_to_dataframe(get(data,"connector",Dict{String,Any}()), connector)
-        _comp_dict_to_dataframe(get(data,"switch",Dict{String,Any}()), switch)
-        _comp_dict_to_dataframe(get(data,"transformer",Dict{String,Any}()), transformer)
-
-    return (metadata,bus,gen,branch,dcline,load,connector,switch,transformer)
-end
-
-
 "convert non-component data into a dataframe"
-function _metadata_to_dataframe(data, metadata)
+function _metadata_to_dataframe!(data, metadata)
     ## Seperate componets Dicts from metadata
     metadata_key = Symbol[]
     metadata_val = Any[]
     for (k,v) in sort(collect(data); by=x->x[1])
         if typeof(v) <: Dict && InfrastructureModels._iscomponentdict(v)
-            if ~(k in [supported_component_types..., "connector"])
-                Memento.warn(_PM._LOGGER, "Component type $k is not yet not supported")
-            end
+            # if ~(k in [supported_component_types..., "connector"])
+            #     Memento.warn(_PM._LOGGER, "Component type $k is not yet not supported")
+            # end
         else
             push!(metadata_key,Symbol(k))
             push!(metadata_val,v)
@@ -195,8 +189,8 @@ function _metadata_to_dataframe(data, metadata)
 end
 
 
-"convert a componet dictionary such as `bus` into a dataframe."
-function _comp_dict_to_dataframe(comp_dict::Dict{String,<:Any}, df)
+"convert a component dictionary such as `bus` into a dataframe."
+function _comp_dict_to_dataframe!(comp_dict::Dict{String,<:Any}, df)
     if length(comp_dict) <= 0 ## Should there be an empty dataframe, or a nonexistent dataframe?
         return df
     end
@@ -215,5 +209,5 @@ end
 
 "convert a componet dictionary such as `bus` into a dataframe."
 function comp_dict_to_dataframe(comp_dict::Dict{String,<:Any})
-    return _comp_dict_to_dataframe(comp_dict, DataFrames.DataFrame())
+    return _comp_dict_to_dataframe!(comp_dict, DataFrames.DataFrame())
 end

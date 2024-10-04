@@ -85,12 +85,12 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
         df = PowerModelsDataFrame(data)
         @test typeof(df) <:PowerModelsDataFrame
-        @test size(df.branch) == (7,20)
+        @test size(df.components[:branch]) == (7,20)
 
         data_mn = PowerModels.replicate(data,2)
         df_mn = PowerModelsDataFrame(data_mn)
         @test typeof(df_mn) <:PowerModelsDataFrame # these functions didn't error
-        @test size(df_mn.branch) == (14,21)
+        @test size(df_mn.components[:branch]) == (14,21)
 
         comp_df = comp_dict_to_dataframe(data["branch"])
         @test size(comp_df) == (7,19)
