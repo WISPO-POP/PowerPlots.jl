@@ -1,88 +1,43 @@
-#===
-Below are functions copied from `utils.jl` in GraphRecipes
-See: https://github.com/JuliaPlots/GraphRecipes.jl/blob/master/src/utils.jl
-===#
 
-# gets the alias replacement name to replace the attribute sym in plot_attributes
-function _replacement_kwarg(sym, name, plot_attributes, attribute_aliases)
-  replacement = name
-  for alias in attribute_aliases[sym]
-      if haskey(plot_attributes, alias)
-          replacement = plot_attributes[alias]
-      end
+
+function initialize_default_attributes(edge_components, node_components, connected_components)
+  plot_attributes = deepcopy(default_plot_attributes)
+    for comp_type in edge_components
+        plot_attributes[comp_type] = deepcopy(default_edge_attributes)
+    end
+    for comp_type in [node_components..., connected_components...]
+        plot_attributes[comp_type] = deepcopy(default_node_attributes)
+    end
+    plot_attributes[:connector] = deepcopy(default_connector_attributes)
+    return plot_attributes
+end
+
+function apply_kwarg_attributes!(plot_attributes, kwargs)
+    for (k,v) in kwargs
+      _apply_kwarg_attributes!(plot_attributes, k, v)
+    end
+end
+
+function _apply_kwarg_attributes!(plot_attributes::Dict, k::Symbol, v::Any)
+  if !haskey(plot_attributes, k)
+    Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(k))")
   end
-  replacement
+  plot_attributes[k] = v
 end
 
-# adds the original keyword of all aliases into plot_attributes
-# and sets it to the alias value
-macro process_aliases(plot_attributes, attribute_aliases)
-  ex = Expr(:block)
-  attributes = getfield(__module__, attribute_aliases) |> keys
-  ex.args = [Expr(:(=), :($(esc(plot_attributes))[$(Meta.quot(sym))]),
-                  :($(esc(_replacement_kwarg))($(QuoteNode(sym)), $(esc(sym)),
-                    $(esc(plot_attributes)), $(esc(attribute_aliases))))) for sym in attributes]
-  ex
-end
-push!(_EXCLUDE_SYMBOLS, Symbol("@process_aliases"))
-
-# called after aliases are processed via @process_aliases
-# removes any alias keys from plot_attributes
-function _remove_aliases!(sym, plot_attributes, attribute_aliases)
-  for alias in attribute_aliases[sym]
-      if haskey(plot_attributes, alias)
-          delete!(plot_attributes, alias)
-      end
+function _apply_kwarg_attributes!(plot_attributes::Dict, k::Symbol, v::Vector{Pair{Symbol,Any}})
+  for (k1,v1) in v
+    _apply_kwarg_attributes!(plot_attributes[k], k1, v1)
   end
 end
-
-#===
-New PowerPlots code below
-===#
-
-# Adds the given keyword args as entries into plot_attributes
-function _convert_to_attributes!(plot_attributes, kwargs)
-  for (var, val) in kwargs
-    plot_attributes[var] = val
-  end
-end
-
-function _attributes_as_variables(plot_attributes, kwargs)
-  ex = Expr(:block)
-  ex.args = [(haskey(kwargs, var) ? Expr(:(=), var, Meta.quot(kwargs[var]))
-     : Expr(:(=), var, Meta.quot(val))) for (var, val) in plot_attributes]
-  return ex
-end
-
-macro prepare_plot_attributes(kwargs)
-  ex = quote
-    _kwargs = $(esc(kwargs));
-    plot_attributes = copy_default_attributes(); # get a copy of the default attributes
-    _attributes_as_variables(plot_attributes, _kwargs) |> eval; # create variables from the default attributes
-    _convert_to_attributes!(plot_attributes, _kwargs); # add kwargs into plot_attributes
-    @process_aliases plot_attributes attribute_aliases; # process the aliases and add original attributes
-    # remove alias names from plot_attributes
-    for arg in keys(attribute_aliases)
-      _remove_aliases!(arg, plot_attributes, attribute_aliases)
-    end;
-  end;
-  push!(ex.args, Expr(:(=), esc(:plot_attributes), :plot_attributes)); # create external plot_attributes dict
-  ex
-end
-push!(_EXCLUDE_SYMBOLS, Symbol("@prepare_plot_attributes"))
-
-# #=== Example Usage ===#
-# function powerplot(case; spring_constant=1e-3, kwargs...)
-#   # Copy the line below at the start of the plot method
-#   @prepare_plot_attributes(kwargs); # creates the plot_attributes dictionary
-
-#   println(plot_attributes) # TODO remove this in real code (it's just for debug)
-
-#   # Rest of plotting code...
-# end
 
 
 "Convert a color scheme `cs` into an array of string hex colors, usable by VegaLite"
 function colorscheme2array(cs::ColorSchemes.ColorScheme)
     return a = ["#$(Colors.hex(c))" for c in cs]
+end
+
+
+function ucfirst(s::AbstractString)
+    return uppercase(s[1]) * s[2:end]
 end

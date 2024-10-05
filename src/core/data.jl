@@ -3,7 +3,7 @@
  function get_parallel_edges(data, edge_types=supported_edge_types)
     edge_pairs = Dict()
     for edge_type in edge_types # supported edge_types
-        for (id,edge) in get(data, edge_type, Dict())
+        for (id,edge) in get(data, string(edge_type), Dict())
             bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
             if !haskey(edge_pairs, bus_pair)
                 edge_pairs[bus_pair] = []
@@ -22,6 +22,7 @@ end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
 function offset_parallel_edges!(data,offset; edge_types=supported_edge_types)
+    get_parallel_edges(data, edge_types)
     for (bus_pair, edges) in get_parallel_edges(data, edge_types)
         n_edges = length(edges)
         xcoord_1 = data["bus"]["$(bus_pair[1])"]["xcoord_1"]
@@ -37,10 +38,10 @@ function offset_parallel_edges!(data,offset; edge_types=supported_edge_types)
 
         for i in eachindex(edges)
             (edge_type, edge_id) = edges[i]
-            data[edge_type][edge_id]["ycoord_1"] = ycoord_1 + offset_range[i]*normal_direction[2]
-            data[edge_type][edge_id]["ycoord_2"] = ycoord_2 + offset_range[i]*normal_direction[2]
-            data[edge_type][edge_id]["xcoord_1"] = xcoord_1 + offset_range[i]*normal_direction[1]
-            data[edge_type][edge_id]["xcoord_2"] = xcoord_2 + offset_range[i]*normal_direction[1]
+            data[string(edge_type)][edge_id]["ycoord_1"] = ycoord_1 + offset_range[i]*normal_direction[2]
+            data[string(edge_type)][edge_id]["ycoord_2"] = ycoord_2 + offset_range[i]*normal_direction[2]
+            data[string(edge_type)][edge_id]["xcoord_1"] = xcoord_1 + offset_range[i]*normal_direction[1]
+            data[string(edge_type)][edge_id]["xcoord_2"] = xcoord_2 + offset_range[i]*normal_direction[1]
         end
     end
     return data

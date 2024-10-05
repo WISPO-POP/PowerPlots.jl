@@ -14,11 +14,10 @@ Create a plower plot. Check github repo for documentation on kwarg options.
 function powerplot(
     case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
-    components=supported_component_types,
+    edge_components=[:branch],
+    node_components=[:bus],
+    connected_components=[:gen,:load],
     fixed=false,
-    invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
-    "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
-    "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
     kwargs...)
 
     if InfrastructureModels.ismultinetwork(case)
@@ -28,66 +27,43 @@ function powerplot(
     # copy data for modification by plots
     data = deepcopy(case)
 
-    # remove components that are not to be plotted
-    for component_type in supported_component_types
-        if !(component_type in components) && haskey(data, component_type)
-            delete!(data, component_type)
-        end
-    end
-
-    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
+    plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
+    apply_kwarg_attributes!(plot_attributes, kwargs)
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
-    data = layout_network(data; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
+    data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, node_components=node_components,
+         edge_components=edge_components, connected_components=connected_components, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data,
-        plot_attributes[:parallel_edge_offset],
-        edge_types=intersect(components, supported_edge_types)
-    )
+    offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components)
 
-    remove_information!(data, invalid_keys)
+    # remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 
     # make the plots
     p = plot_base(data, plot_attributes)
-    if !(isempty(PMD.branch))
-        _validate_data_type(plot_attributes, :branch_data_type)
-        _validate_data(PMD.branch, plot_attributes[:branch_data], "branch")
-        p = p+plot_branch(PMD, plot_attributes)
+    for comp_type in edge_components
+        if !(isempty(PMD.components[comp_type]))
+            _validate_data_type(plot_attributes[comp_type], :data_type)
+            _validate_data(PMD.components[comp_type], plot_attributes[comp_type][:data], comp_type)
+            p = p + plot_edge(PMD.components[comp_type], comp_type, plot_attributes[comp_type])
+        end
     end
-    if !(isempty(PMD.dcline))
-        _validate_data_type(plot_attributes, :dcline_data_type)
-        _validate_data(PMD.dcline, plot_attributes[:dcline_data], "DC line")
-        p = p+plot_dcline(PMD, plot_attributes)
+    for comp_type in [:connector]
+        if !(isempty(PMD.components[comp_type]))
+            _validate_data_type(plot_attributes[comp_type], :data_type)
+            _validate_data(PMD.components[comp_type], plot_attributes[comp_type][:data], comp_type)
+            p = p + plot_connector(PMD.components[comp_type], plot_attributes[comp_type])
+        end
     end
-    if !(isempty(PMD.switch))
-        p = p+plot_switch(PMD, plot_attributes)
-        _validate_data_type(plot_attributes, :switch_data_type)
-        _validate_data(PMD.switch, plot_attributes[:switch_data], "switch")
-    end
-    if !(isempty(PMD.transformer))
-        p = p+plot_transformer(PMD, plot_attributes)
-        _validate_data_type(plot_attributes, :transformer_data_type)
-        _validate_data(PMD.transformer, plot_attributes[:transformer_data], "transformer")
-    end
-    if !(isempty(PMD.connector))
-        p = p+plot_connector(PMD, plot_attributes)
-    end
-    if !(isempty(PMD.bus))
-        p = p+plot_bus(PMD, plot_attributes)
-        _validate_data_type(plot_attributes, :bus_data_type)
-        _validate_data(PMD.bus, plot_attributes[:bus_data], "bus")
-    end
-    if !(isempty(PMD.gen))
-        _validate_data_type(plot_attributes, :gen_data_type)
-        _validate_data(PMD.gen, plot_attributes[:gen_data], "gen")
-        p = p+plot_gen(PMD, plot_attributes)
-    end
-    if !(isempty(PMD.load))
-        _validate_data_type(plot_attributes, :load_data_type)
-        _validate_data(PMD.load, plot_attributes[:load_data], "load")
-        p = p+plot_load(PMD, plot_attributes)
+    for comp_type in [node_components..., connected_components...]
+        if !(isempty(PMD.components[comp_type]))
+            plot_attributes[comp_type]
+            _validate_data_type(plot_attributes[comp_type], :data_type)
+            _validate_data(PMD.components[comp_type], plot_attributes[comp_type][:data], comp_type)
+            p = p + plot_node(PMD.components[comp_type], comp_type, plot_attributes[comp_type])
+        end
     end
     return p
 end
@@ -108,7 +84,9 @@ used to plot geographic map data underneath a power grid.
 function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
     fixed=false,
-    components=supported_component_types,
+    node_components=[:bus],
+    edge_components=[:branch],
+    connected_components=[:gen,:load],
     invalid_keys = Dict("branch"  => ["mu_angmin", "mu_angmax", "mu_sf", "shift", "rate_b", "rate_c", "g_to", "g_fr", "mu_st", "source_id", "f_bus", "t_bus",  "qf", "angmin", "angmax", "qt", "tap"],#["b_fr","b_to", "xcoord_1", "xcoord_2", "ycoord_1", "ycoord_2", "pf", "src","dst","rate_a","br_r","br_x","index","br_status"],
     "bus"     => ["mu_vmax", "lam_q", "mu_vmin", "source_id","lam_p"],#["xcoord_1", "ycoord_1", "bus_type", "name", "vmax",  "vmin", "index", "va", "vm", "base_kv"],
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
@@ -118,7 +96,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
         return _powerplot_mn!(plt_layer, case; layout_algorithm=layout_algorithm, fixed=fixed, invalid_keys=invalid_keys, kwargs...)
     end
 
-    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    # @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, kwargs...)
@@ -190,7 +168,7 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     data = deepcopy(case)
 
-    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    # @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     for (nwid,net) in data["nw"]
@@ -267,7 +245,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     "gen"     => ["vg","gen_bus","cost","ncost", "qc1max","qc2max", "ramp_agc", "qc1min", "qc2min", "pc1", "ramp_q", "mu_qmax", "ramp_30", "mu_qmin", "shutdown", "startup","ramp_10","source_id", "mu_pmax", "pc2", "mu_pmin","apf",]),#["xcoord_1", "ycoord_1",  "pg", "qg",  "pmax",   "mbase", "index", "cost", "qmax",  "qmin", "pmin", "gen_status"]),
     kwargs... )
 
-    @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
+    # @prepare_plot_attributes(kwargs) # creates the plot_attributes dictionary
     _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = deepcopy(case)
@@ -347,17 +325,21 @@ end
 
 
 function plot_base(data::Dict{String, <:Any}, plot_attributes::Dict{Symbol,Any})
-    min_x = data["layout_extent"]["min_x"]
-    max_x = data["layout_extent"]["max_x"]
-    min_y = data["layout_extent"]["min_y"]
-    max_y = data["layout_extent"]["max_y"]
+    # min_x = data["layout_min_x"]
+    # max_x = data["layout_max_x"]
+    # min_y = data["layout_min_y"]
+    # max_y = data["layout_max_y"]
 
     return p = VegaLite.@vlplot(
         width=plot_attributes[:width],
         height=plot_attributes[:height],
         config={view={stroke=nothing}},
-        x={axis=nothing,scale={domain=[min_x,max_x]}},
-        y={axis=nothing,scale={domain=[min_y,max_y]}},
+        x={axis=nothing,
+            # scale={domain=[min_x,max_x]}
+        },
+        y={axis=nothing,
+            # scale={domain=[min_y,max_y]}
+        },
         resolve={
             scale={
                 color=:independent
@@ -367,7 +349,7 @@ function plot_base(data::Dict{String, <:Any}, plot_attributes::Dict{Symbol,Any})
 end
 
 
-function plot_base_mn(case::Dict{String,Any},plot_attributes::Dict{Symbol,Any})
+function plot_base_mn(case::Dict{String,Any}, plot_attributes::Dict{Symbol,Any})
     return p = VegaLite.@vlplot(
     width=plot_attributes[:width],
     height=plot_attributes[:height],
@@ -391,8 +373,7 @@ function plot_base_mn(case::Dict{String,Any},plot_attributes::Dict{Symbol,Any})
     )
 end
 
-
-function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attributes::Dict{Symbol,Any})
     flow_legend = true
     if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
         flow_legend = nothing
@@ -403,7 +384,7 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
     end
 
     return VegaLite.@vlplot(
-        data=PMD.branch,
+        data=edge_data,
         layer=[
             {
                 mark ={
@@ -415,13 +396,13 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
                 x2={:xcoord_2,type="quantitative"},
                 y={:ycoord_1,type="quantitative"},
                 y2={:ycoord_2,type="quantitative"},
-                size={value=plot_attributes[:branch_size]},
+                size={value=plot_attributes[:size]},
                 color={
-                    field=plot_attributes[:branch_data],
-                    type=plot_attributes[:branch_data_type],
-                    title="Branch",
+                    field=plot_attributes[:data],
+                    type=plot_attributes[:data_type],
+                    title=comp_type,
                     scale={
-                        range=plot_attributes[:branch_color]
+                        range=plot_attributes[:color]
                     },
                     # legend={orient="bottom-right"}
                 },
@@ -465,286 +446,408 @@ function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any
     )
 end
 
-
-function plot_switch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    flow_legend = true
-    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
-        flow_legend = nothing
-    end
-    flow_opacity = 1.0
-    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
-        flow_opacity = 0.0
-    end
-
+function plot_node(node_data::DataFrames.DataFrame, comp_type::Symbol, plot_attributes::Dict{Symbol,Any})
     return VegaLite.@vlplot(
-        data=PMD.switch,
-        layer=[
-            {
-                mark ={
-                    :rule,
-                    tooltip=("content" => "data"),
-                    opacity =  1.0,
-                },
-                x={:xcoord_1,type="quantitative"},
-                x2={:xcoord_2,type="quantitative"},
-                y={:ycoord_1,type="quantitative"},
-                y2={:ycoord_2,type="quantitative"},
-                size={value=plot_attributes[:switch_size]},
-                color={
-                    field=plot_attributes[:switch_data],
-                    type=plot_attributes[:switch_data_type],
-                    title="Switch",
-                    scale={
-                        range=plot_attributes[:switch_color]
-                    },
-                    # legend={orient="bottom-right"}
-                },
-            },
-            {
-                transform=[
-                    {
-                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
-                        as="mid_x"
-                    },
-                    {
-                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
-                        as="mid_y"
-                    },
-                    {
-                        calculate="180*(if(datum.pf >= 0,
-                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
-                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
-                        ))/PI",
-                        as="angle"
-                    },
-                    {
-                        calculate="abs(datum.pt)",
-                        as="power"
-                    }
-                ],
-                mark={
-                    :point,
-                    shape=:wedge,
-                    filled=true,
-                    opacity=flow_opacity,
-                    color=plot_attributes[:flow_color],
-                },
-                x={:mid_x,type="quantitative"},
-                y={:mid_y,type="quantitative"},
-                size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
-                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
-            }
-        ]
-    )
-end
-
-
-
-function plot_transformer(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    flow_legend = true
-    if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
-        flow_legend = nothing
-    end
-    flow_opacity = 1.0
-    if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
-        flow_opacity = 0.0
-    end
-
-    return VegaLite.@vlplot(
-        data=PMD.transformer,
-        layer=[
-            {
-                mark ={
-                    :rule,
-                    tooltip=("content" => "data"),
-                    opacity =  1.0,
-                },
-                x={:xcoord_1,type="quantitative"},
-                x2={:xcoord_2,type="quantitative"},
-                y={:ycoord_1,type="quantitative"},
-                y2={:ycoord_2,type="quantitative"},
-                size={value=plot_attributes[:transformer_size]},
-                color={
-                    field=plot_attributes[:transformer_data],
-                    type=plot_attributes[:transformer_data_type],
-                    title="Transformer",
-                    scale={
-                        range=plot_attributes[:transformer_color]
-                    },
-                    # legend={orient="bottom-right"}
-                },
-            },
-            {
-                transform=[
-                    {
-                        calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
-                        as="mid_x"
-                    },
-                    {
-                        calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
-                        as="mid_y"
-                    },
-                    {
-                        calculate="180*(if(datum.pf >= 0,
-                            atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
-                            atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
-                        ))/PI",
-                        as="angle"
-                    },
-                    {
-                        calculate="abs(datum.pt)",
-                        as="power"
-                    }
-                ],
-                mark={
-                    :point,
-                    shape=:wedge,
-                    filled=true,
-                    opacity=flow_opacity,
-                    color=plot_attributes[:flow_color],
-                },
-                x={:mid_x,type="quantitative"},
-                y={:mid_y,type="quantitative"},
-                size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
-                angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
-            }
-        ]
-    )
-end
-
-
-function plot_dcline(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    return VegaLite.@vlplot(
+        data = node_data,
         mark ={
-            :rule,
-            tooltip=("content" => "data"),
+            :circle,
+            "tooltip" =("content" => "data"),
             opacity =  1.0,
         },
-        data=PMD.dcline,
         x={:xcoord_1,type="quantitative"},
-        x2={:xcoord_2,type="quantitative"},
         y={:ycoord_1,type="quantitative"},
-        y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:dcline_size]},
+        size={value=plot_attributes[:size]},
         color={
-            field=plot_attributes[:dcline_data],
-            type=plot_attributes[:dcline_data_type],
-            title="DCLine",
+            field=plot_attributes[:data],
+            type=plot_attributes[:data_type],
+            title=ucfirst(string(comp_type)),
             scale={
-                range=plot_attributes[:dcline_color]
+                range=plot_attributes[:color]
             },
             # legend={orient="bottom-right"}
         },
     )
 end
 
-function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+function plot_connector(connector_data::DataFrames.DataFrame, plot_attributes::Dict{Symbol,Any})
     return VegaLite.@vlplot(
         mark ={
             :rule,
             "tooltip" =("content" => "data"),
             opacity =  1.0,
         },
-        data=PMD.connector,
+        data=connector_data,
         x={:xcoord_1,type="quantitative"},
         x2={:xcoord_2,type="quantitative"},
         y={:ycoord_1,type="quantitative"},
         y2={:ycoord_2,type="quantitative"},
-        size={value=plot_attributes[:connector_size]},
-        strokeDash={value=plot_attributes[:connector_dash]},
+        size={value=plot_attributes[:size]},
+        strokeDash={value=plot_attributes[:dash]},
         color={
             field="ComponentType",
             type="nominal",
             title="Connector",
             scale={
-                range=plot_attributes[:connector_color]
+                range=plot_attributes[:color]
             },
             # legend={orient="bottom-right"}
         },
     )
 end
 
-function plot_bus(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    return VegaLite.@vlplot(
-        data = PMD.bus,
-        mark ={
-            :circle,
-            "tooltip" =("content" => "data"),
-            opacity =  1.0,
-        },
-        x={:xcoord_1,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        size={value=plot_attributes[:bus_size]},
-        color={
-            field=plot_attributes[:bus_data],
-            type=plot_attributes[:bus_data_type],
-            title="Bus",
-            scale={
-                range=plot_attributes[:bus_color]
-            },
-            # legend={orient="bottom-right"}
-        },
-    )
-end
+# function plot_branch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     flow_legend = true
+#     if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+#         flow_legend = nothing
+#     end
+#     flow_opacity = 1.0
+#     if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+#         flow_opacity = 0.0
+#     end
 
-function plot_gen(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    return VegaLite.@vlplot(
-        data = PMD.gen,
-        mark ={
-            :circle,
-            "tooltip" =("content" => "data"),
-            opacity =  1.0,
-        },
-        x={:xcoord_1,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        size={value=plot_attributes[:gen_size]},
-        color={
-            field=plot_attributes[:gen_data],
-            type=plot_attributes[:gen_data_type],
-            title="Gen",
-            scale={
-                range=plot_attributes[:gen_color]
-            }
-            # legend={orient="bottom-right"}
-        },
-    )
-end
+#     return VegaLite.@vlplot(
+#         data=PMD.branch,
+#         layer=[
+#             {
+#                 mark ={
+#                     :rule,
+#                     tooltip=("content" => "data"),
+#                     opacity =  1.0,
+#                 },
+#                 x={:xcoord_1,type="quantitative"},
+#                 x2={:xcoord_2,type="quantitative"},
+#                 y={:ycoord_1,type="quantitative"},
+#                 y2={:ycoord_2,type="quantitative"},
+#                 size={value=plot_attributes[:branch_size]},
+#                 color={
+#                     field=plot_attributes[:branch_data],
+#                     type=plot_attributes[:branch_data_type],
+#                     title="Branch",
+#                     scale={
+#                         range=plot_attributes[:branch_color]
+#                     },
+#                     # legend={orient="bottom-right"}
+#                 },
+#             },
+#             {
+#                 transform=[
+#                     {
+#                         calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+#                         as="mid_x"
+#                     },
+#                     {
+#                         calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+#                         as="mid_y"
+#                     },
+#                     {
+#                         calculate="180*(if(datum.pf >= 0,
+#                             atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+#                             atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+#                         ))/PI",
+#                         as="angle"
+#                     },
+#                     {
+#                         calculate="if(isValid(datum.pt), abs(datum.pt), 0.0)",
+#                         as="power"
+#                     }
+#                 ],
+#                 mark={
+#                     :point,
+#                     shape=:wedge,
+#                     filled=true,
+#                     tooltip=("content" => "data"),
+#                     opacity=flow_opacity,
+#                     color=plot_attributes[:flow_color],
+#                 },
+#                 x={:mid_x,type="quantitative"},
+#                 y={:mid_y,type="quantitative"},
+#                 size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
+#                 angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+#             }
+#         ]
+#     )
+# end
 
 
-function plot_load(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
-    return VegaLite.@vlplot(
-        data = PMD.load,
-        mark ={
-            :circle,
-            "tooltip" =("content" => "data"),
-            opacity =  1.0,
-        },
-        x={:xcoord_1,type="quantitative"},
-        y={:ycoord_1,type="quantitative"},
-        size={value=plot_attributes[:load_size]},
-        color={
-            field=plot_attributes[:load_data],
-            type=plot_attributes[:load_data_type],
-            title="Load",
-            scale={
-                range=plot_attributes[:load_color]
-            }
-            # legend={orient="bottom-right"}
-        },
-    )
-end
+# function plot_switch(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     flow_legend = true
+#     if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+#         flow_legend = nothing
+#     end
+#     flow_opacity = 1.0
+#     if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+#         flow_opacity = 0.0
+#     end
 
-"Remove keys from componet dictionaries based on input invalid keys"
-function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})
-    for comp_type in ["bus","branch","gen"]
-        if haskey(data, comp_type)
-            for (id, comp) in data[comp_type]
-                for key in keys(comp)
-                    if (key in invalid_keys[comp_type])
-                        delete!(comp,key)
-                    end
-                end
-            end
-        end
-    end
-end
+#     return VegaLite.@vlplot(
+#         data=PMD.switch,
+#         layer=[
+#             {
+#                 mark ={
+#                     :rule,
+#                     tooltip=("content" => "data"),
+#                     opacity =  1.0,
+#                 },
+#                 x={:xcoord_1,type="quantitative"},
+#                 x2={:xcoord_2,type="quantitative"},
+#                 y={:ycoord_1,type="quantitative"},
+#                 y2={:ycoord_2,type="quantitative"},
+#                 size={value=plot_attributes[:switch_size]},
+#                 color={
+#                     field=plot_attributes[:switch_data],
+#                     type=plot_attributes[:switch_data_type],
+#                     title="Switch",
+#                     scale={
+#                         range=plot_attributes[:switch_color]
+#                     },
+#                     # legend={orient="bottom-right"}
+#                 },
+#             },
+#             {
+#                 transform=[
+#                     {
+#                         calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+#                         as="mid_x"
+#                     },
+#                     {
+#                         calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+#                         as="mid_y"
+#                     },
+#                     {
+#                         calculate="180*(if(datum.pf >= 0,
+#                             atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+#                             atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+#                         ))/PI",
+#                         as="angle"
+#                     },
+#                     {
+#                         calculate="abs(datum.pt)",
+#                         as="power"
+#                     }
+#                 ],
+#                 mark={
+#                     :point,
+#                     shape=:wedge,
+#                     filled=true,
+#                     opacity=flow_opacity,
+#                     color=plot_attributes[:flow_color],
+#                 },
+#                 x={:mid_x,type="quantitative"},
+#                 y={:mid_y,type="quantitative"},
+#                 size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
+#                 angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+#             }
+#         ]
+#     )
+# end
+
+
+
+# function plot_transformer(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     flow_legend = true
+#     if plot_attributes[:show_flow_legend] in [nothing, false, :false, "false", :no, "no"]
+#         flow_legend = nothing
+#     end
+#     flow_opacity = 1.0
+#     if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
+#         flow_opacity = 0.0
+#     end
+
+#     return VegaLite.@vlplot(
+#         data=PMD.transformer,
+#         layer=[
+#             {
+#                 mark ={
+#                     :rule,
+#                     tooltip=("content" => "data"),
+#                     opacity =  1.0,
+#                 },
+#                 x={:xcoord_1,type="quantitative"},
+#                 x2={:xcoord_2,type="quantitative"},
+#                 y={:ycoord_1,type="quantitative"},
+#                 y2={:ycoord_2,type="quantitative"},
+#                 size={value=plot_attributes[:transformer_size]},
+#                 color={
+#                     field=plot_attributes[:transformer_data],
+#                     type=plot_attributes[:transformer_data_type],
+#                     title="Transformer",
+#                     scale={
+#                         range=plot_attributes[:transformer_color]
+#                     },
+#                     # legend={orient="bottom-right"}
+#                 },
+#             },
+#             {
+#                 transform=[
+#                     {
+#                         calculate="(datum.xcoord_1 + datum.xcoord_2)/2",
+#                         as="mid_x"
+#                     },
+#                     {
+#                         calculate="(datum.ycoord_1 + datum.ycoord_2)/2",
+#                         as="mid_y"
+#                     },
+#                     {
+#                         calculate="180*(if(datum.pf >= 0,
+#                             atan2(datum.xcoord_2 - datum.xcoord_1, datum.ycoord_2 - datum.ycoord_1),
+#                             atan2(datum.xcoord_1 - datum.xcoord_2, datum.ycoord_1 - datum.ycoord_2)
+#                         ))/PI",
+#                         as="angle"
+#                     },
+#                     {
+#                         calculate="abs(datum.pt)",
+#                         as="power"
+#                     }
+#                 ],
+#                 mark={
+#                     :point,
+#                     shape=:wedge,
+#                     filled=true,
+#                     opacity=flow_opacity,
+#                     color=plot_attributes[:flow_color],
+#                 },
+#                 x={:mid_x,type="quantitative"},
+#                 y={:mid_y,type="quantitative"},
+#                 size={:power, scale={range=plot_attributes[:flow_arrow_size_range]}, type="quantitative", legend=flow_legend},
+#                 angle={:angle, scale={domain=[0,360], range=[0,360]}, type="quantitative"}
+#             }
+#         ]
+#     )
+# end
+
+
+# function plot_dcline(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     return VegaLite.@vlplot(
+#         mark ={
+#             :rule,
+#             tooltip=("content" => "data"),
+#             opacity =  1.0,
+#         },
+#         data=PMD.dcline,
+#         x={:xcoord_1,type="quantitative"},
+#         x2={:xcoord_2,type="quantitative"},
+#         y={:ycoord_1,type="quantitative"},
+#         y2={:ycoord_2,type="quantitative"},
+#         size={value=plot_attributes[:dcline_size]},
+#         color={
+#             field=plot_attributes[:dcline_data],
+#             type=plot_attributes[:dcline_data_type],
+#             title="DCLine",
+#             scale={
+#                 range=plot_attributes[:dcline_color]
+#             },
+#             # legend={orient="bottom-right"}
+#         },
+#     )
+# end
+
+# function plot_connector(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     return VegaLite.@vlplot(
+#         mark ={
+#             :rule,
+#             "tooltip" =("content" => "data"),
+#             opacity =  1.0,
+#         },
+#         data=PMD.connector,
+#         x={:xcoord_1,type="quantitative"},
+#         x2={:xcoord_2,type="quantitative"},
+#         y={:ycoord_1,type="quantitative"},
+#         y2={:ycoord_2,type="quantitative"},
+#         size={value=plot_attributes[:size]},
+#         strokeDash={value=plot_attributes[:dash]},
+#         color={
+#             field="ComponentType",
+#             type="nominal",
+#             title="Connector",
+#             scale={
+#                 range=plot_attributes[:color]
+#             },
+#             # legend={orient="bottom-right"}
+#         },
+#     )
+# end
+
+# function plot_bus(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     return VegaLite.@vlplot(
+#         data = PMD.bus,
+#         mark ={
+#             :circle,
+#             "tooltip" =("content" => "data"),
+#             opacity =  1.0,
+#         },
+#         x={:xcoord_1,type="quantitative"},
+#         y={:ycoord_1,type="quantitative"},
+#         size={value=plot_attributes[:bus_size]},
+#         color={
+#             field=plot_attributes[:bus_data],
+#             type=plot_attributes[:bus_data_type],
+#             title="Bus",
+#             scale={
+#                 range=plot_attributes[:bus_color]
+#             },
+#             # legend={orient="bottom-right"}
+#         },
+#     )
+# end
+
+# function plot_gen(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     return VegaLite.@vlplot(
+#         data = PMD.gen,
+#         mark ={
+#             :circle,
+#             "tooltip" =("content" => "data"),
+#             opacity =  1.0,
+#         },
+#         x={:xcoord_1,type="quantitative"},
+#         y={:ycoord_1,type="quantitative"},
+#         size={value=plot_attributes[:gen_size]},
+#         color={
+#             field=plot_attributes[:gen_data],
+#             type=plot_attributes[:gen_data_type],
+#             title="Gen",
+#             scale={
+#                 range=plot_attributes[:gen_color]
+#             }
+#             # legend={orient="bottom-right"}
+#         },
+#     )
+# end
+
+
+# function plot_load(PMD::PowerModelsDataFrame, plot_attributes::Dict{Symbol,Any})
+#     return VegaLite.@vlplot(
+#         data = PMD.load,
+#         mark ={
+#             :circle,
+#             "tooltip" =("content" => "data"),
+#             opacity =  1.0,
+#         },
+#         x={:xcoord_1,type="quantitative"},
+#         y={:ycoord_1,type="quantitative"},
+#         size={value=plot_attributes[:load_size]},
+#         color={
+#             field=plot_attributes[:load_data],
+#             type=plot_attributes[:load_data_type],
+#             title="Load",
+#             scale={
+#                 range=plot_attributes[:load_color]
+#             }
+#             # legend={orient="bottom-right"}
+#         },
+#     )
+# end
+
+# "Remove keys from componet dictionaries based on input invalid keys"
+# function remove_information!(data::Dict{String,<:Any}, invalid_keys::Dict{String,<:Any})
+#     for comp_type in ["bus","branch","gen"]
+#         if haskey(data, comp_type)
+#             for (id, comp) in data[comp_type]
+#                 for key in keys(comp)
+#                     if (key in invalid_keys[comp_type])
+#                         delete!(comp,key)
+#                     end
+#                 end
+#             end
+#         end
+#     end
+# end

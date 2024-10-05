@@ -1,67 +1,77 @@
 
 "Validates the given plot_attributes according to their type"
 function _validate_plot_attributes!(plot_attributes::Dict{Symbol, Any})
-    for attr in keys(plot_attributes)
-      if !haskey(default_plot_attributes, attr)
-        Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(attr))")
-      end
-    end
-
-    # validate color attributes
-    for attr in _color_attributes
-        color = plot_attributes[attr]
-        if !(typeof(color) <: Union{String, Symbol, AbstractVector})
-          Memento.warn(_LOGGER, "Color value for $(repr(attr)) should be given as symbol or string")
-        else
-          try
-            if typeof(color) <: AbstractVector
-                parse.(Colors.Colorant, color) # parses all colors as CSS color
-            else
-                parse(Colors.Colorant, color) # try to parse the color as a CSS color
-                plot_attributes[attr] = [color] # package color into an array
-            end
-          catch e
-            Memento.warn(_LOGGER, "Invalid color $(repr(color)) given for $(repr(attr))")
-          end
-        end
-    end
-
-    # validate numeric attributes
-    for attr in _numeric_attributes
-      value = plot_attributes[attr]
-      if !(typeof(value) <: Union{Number, String})
-        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number or numeric String")
-      elseif typeof(value) <: String
-        try
-            parse(Float64, value)
-        catch e
-            Memento.warn(_LOGGER, "Invalid number $(repr(value)) given for $(repr(attr))")
-        end
-      end
-    end
-
-    # validate data label attributes
-    for attr in _label_attributes
-      value = plot_attributes[attr]
-      if !(typeof(value) <: Union{String, Symbol})
-        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
-      end
-    end
-
-    # validate boolean attributes
-    for attr in _boolean_attributes
-      value = plot_attributes[attr]
-      if !(typeof(value) <: Bool)
-        Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a Bool")
-      end
-    end
+  for (k,v) in plot_attributes
+    _validate_plot_attributes!(plot_attributes, k,v)
+  end
 end
 
+"Validates the given plot_attributes according to their type"
+function _validate_plot_attributes!(plot_attributes::Dict{Symbol,Any}, k::Symbol, v::Dict{Symbol,Any})
+  for (k1,v1) in v
+    _validate_plot_attributes!(v, k1,v1)
+  end
+end
+
+"Validates the given plot_attributes according to their type"
+function _validate_plot_attributes!(plot_attributes::Dict{Symbol,Any}, attr::Symbol, v::Any)
+  if attr in _color_attributes
+    _validate_color_attribute!(plot_attributes, attr, v)
+  elseif attr in _numeric_attributes
+    _validate_numeric_attribute!(plot_attributes, attr, v)
+  elseif attr in _label_attributes
+    _validate_label_attribute!(plot_attributes, attr, v)
+  elseif attr in _boolean_attributes
+    _validate_boolean_attribute!(plot_attributes, attr, v)
+  end
+end
+
+function _validate_color_attribute!(plot_attributes::Dict{Symbol,Any}, attr::Symbol, v::Any)
+  if !(typeof(v) <: Union{String, Symbol, AbstractVector})
+    Memento.warn(_LOGGER, "Color value for $(repr(attr)) should be given as symbol or string")
+  else
+    try
+      if typeof(v) <: AbstractVector
+        parse.(Colors.Colorant, v) # parses all colors as CSS color
+      else
+        parse(Colors.Colorant, v) # try to parse the color as a CSS color
+        plot_attributes[attr] = [v] # package color into an array
+      end
+    catch e
+      Memento.warn(_LOGGER, "Invalid color $(repr(v)) given for $(repr(attr))")
+    end
+  end
+end
+
+function _validate_numeric_attribute!(plot_attributes::Dict{Symbol,Any}, attr::Symbol, v::Any)
+  if !(typeof(v) <: Union{Number, String})
+    Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a number or numeric String")
+  elseif typeof(v) <: String
+    try
+      parse(Float64, v)
+    catch e
+      Memento.warn(_LOGGER, "Invalid number $(repr(v)) given for $(repr(attr))")
+    end
+  end
+end
+
+function _validate_label_attribute!(plot_attributes::Dict{Symbol,Any}, attr::Symbol, v::Any)
+  if !(typeof(v) <: Union{String, Symbol})
+    Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
+  end
+end
+
+function _validate_boolean_attribute!(plot_attributes::Dict{Symbol,Any}, attr::Symbol, v::Any)
+  if !(typeof(v) <: Bool)
+    Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a Bool")
+  end
+end
 
 "Checks that the given column plot_attributes[data_attr] exists in the data"
-function _validate_data(data::DataFrames.DataFrame, data_column::Any, data_name::String)
+function _validate_data(data::DataFrames.DataFrame, data_column::Any, data_name::Symbol)
     if !(typeof(data_column) <: Union{String, Symbol})
-        return
+      Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
+      return
     end
     if !(data_column in names(data) || data_column in propertynames(data))
         Memento.warn(_LOGGER, "Data column $(repr(data_column)) does not exist for $(data_name)")
