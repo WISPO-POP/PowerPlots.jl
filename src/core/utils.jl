@@ -12,22 +12,25 @@ function initialize_default_attributes(edge_components, node_components, connect
     return plot_attributes
 end
 
-function apply_kwarg_attributes!(plot_attributes, kwargs)
+function apply_kwarg_attributes!(plot_attributes::Dict; kwargs...)
     for (k,v) in kwargs
       _apply_kwarg_attributes!(plot_attributes, k, v)
     end
 end
 
-function _apply_kwarg_attributes!(plot_attributes::Dict, k::Symbol, v::Any)
+function _apply_kwarg_attributes!(plot_attributes::AbstractDict, k::Symbol, v::Any)
   if !haskey(plot_attributes, k)
     Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(k))")
   end
   plot_attributes[k] = v
 end
 
-function _apply_kwarg_attributes!(plot_attributes::Dict, k::Symbol, v::Vector{Pair{Symbol,Any}})
+function _apply_kwarg_attributes!(plot_attributes::AbstractDict, k::Symbol, v::AbstractVector)
   for (k1,v1) in v
-    _apply_kwarg_attributes!(plot_attributes[k], k1, v1)
+    if !haskey(plot_attributes[k], k1)
+      Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(k1)) for component $(repr(k))")
+    end
+    plot_attributes[k][k1] = v1
   end
 end
 

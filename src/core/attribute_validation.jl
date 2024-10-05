@@ -70,7 +70,7 @@ end
 "Checks that the given column plot_attributes[data_attr] exists in the data"
 function _validate_data(data::DataFrames.DataFrame, data_column::Any, data_name::Symbol)
     if !(typeof(data_column) <: Union{String, Symbol})
-      Memento.warn(_LOGGER, "Value for $(repr(attr)) should be given as a String or Symbol")
+      Memento.warn(_LOGGER, "Value for $(repr(data_column)) should be given as a String or Symbol")
       return
     end
     if !(data_column in names(data) || data_column in propertynames(data))
@@ -86,3 +86,4 @@ function _validate_data_type(plot_attributes::Dict{Symbol, Any}, attr::Symbol)
         Memento.warn(_LOGGER, "Data type $(repr(data_type)) not a valid VegaLite data type")
     end
 end
+
