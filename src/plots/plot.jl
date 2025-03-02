@@ -14,9 +14,9 @@ Create a plower plot. Check github repo for documentation on kwarg options.
 function powerplot(
     case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
-    edge_components=[:branch],
-    node_components=[:bus],
-    connected_components=[:gen,:load],
+    edge_components=supported_edge_types,
+    node_components=supported_node_types,
+    connected_components=supported_connected_types,
     fixed=false,
     kwargs...)
 

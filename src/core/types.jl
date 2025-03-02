@@ -1,8 +1,8 @@
 
 
-const supported_connected_types = [:gen,:load,:storage]
+const supported_connected_types = [:gen,:load,:storage,:generator,:voltage_source,:solar,:shunt]
 const supported_node_types = [:bus]
-const supported_edge_types = [:branch,:dcline,:switch,:transformer]
+const supported_edge_types = [:branch,:dcline,:switch,:transformer,:line]
 
 """
     PowerModelsGraph
@@ -49,8 +49,17 @@ mutable struct PowerModelsGraph
                 for (comp_id,comp) in data[string(comp_type)]
                     edge_comp_array[i_2] = (comp_type,Symbol(comp_id))
                     #TODO  generically identify the node type and keys of source and destination
-                    s = comp_node_map[(:bus,comp["f_bus"])]
-                    d = comp_node_map[(:bus,comp["t_bus"])]
+                    if haskey(comp,"bus")
+                        # some transformers have three buses (but seem to be only two unique ones...)
+                        edge_node_ids = unique(comp["bus"])
+                        @assert length(edge_node_ids) == 2 # one source, one destination
+                        (n1,n2) = edge_node_ids
+                        s = comp_node_map[(:bus,Symbol(n1))]
+                        d = comp_node_map[(:bus,Symbol(n2))]
+                    else
+                        s = comp_node_map[(:bus,Symbol(comp["f_bus"]))]
+                        d = comp_node_map[(:bus,Symbol(comp["t_bus"]))]
+                    end
                     edge_node_array[i_2] = (s,d)
                     Graphs.add_edge!(G, s, d)
                     i_2+=1
@@ -68,7 +77,14 @@ mutable struct PowerModelsGraph
             if haskey(data,string(comp_type))
                 for (comp_id,comp) in data[string(comp_type)]
                     edge_connector_array[i_3] = (comp_type,Symbol(comp_id))
-                    s = comp_node_map[(:bus,comp["$(string(comp_type))_bus"])]
+                    # s = comp_node_map[(:bus,comp["$(string(comp_type))_bus"])]
+                    if haskey(comp,"bus")
+                        s = comp_node_map[(:bus,Symbol(comp["bus"]))]
+                    elseif haskey(comp,"$(string(comp_type))_bus")
+                        s = comp_node_map[(:bus,Symbol(comp["$(string(comp_type))_bus"]))]
+                    else
+                        error("key $(string(comp_type))_bus or bus not found in $(string(comp_type)) component $comp_id")
+                    end
                     d = comp_node_map[(comp_type,Symbol(comp_id))]
                     edge_node_array[i_3] = (s,d)
                     Graphs.add_edge!(G, s, d)
@@ -102,9 +118,9 @@ mutable struct PowerModelsDataFrame
     metadata::DataFrames.DataFrame
     components::Dict{Symbol,DataFrames.DataFrame}
 
-    function PowerModelsDataFrame(case::Dict{String,<:Any}; components=nothing)
+    function PowerModelsDataFrame(case::Dict{String,<:Any}; components=vcat(supported_node_types,supported_edge_types,supported_connected_types))
         data = deepcopy(case)
-
+        push!(components, :connector)
         if InfrastructureModels.ismultinetwork(data)
             if isnothing(components)
                 components = Symbol[]
@@ -145,6 +161,7 @@ mutable struct PowerModelsDataFrame
 
             for comp_type in components
                 for (id,comp) in get(data, string(comp_type), Dict{String,Any}())
+
                     comp["ComponentType"] = comp_type
                 end
                 _comp_dict_to_dataframe!(get(data,string(comp_type), Dict{String,Any}()), comp_dataframes[comp_type])

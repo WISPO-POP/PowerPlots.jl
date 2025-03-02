@@ -4,7 +4,13 @@
     edge_pairs = Dict()
     for edge_type in edge_types # supported edge_types
         for (id,edge) in get(data, string(edge_type), Dict())
-            bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
+            if edge_type == :transformer
+                bus_ids = unique(edge["bus"])
+                @assert length(bus_ids) == 2 # one source, one destination
+                bus_pair = (min(bus_ids[1],bus_ids[2]), max(bus_ids[1],bus_ids[2])) # get unique direction
+            else
+                bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
+            end
             if !haskey(edge_pairs, bus_pair)
                 edge_pairs[bus_pair] = []
             end

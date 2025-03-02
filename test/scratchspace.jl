@@ -57,6 +57,15 @@ using PowerModelsDistribution
 eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/trans_3w_center_tap.dss")
 
 # ERROR parent component is always "bus", not "gen_bus" or "load_bus"
+
+PMD = PowerModelsDataFrame(data);
+powerplot(data)
+PMD.components
 powerplot(eng)
+
+
+#### IS THE SOLUTION TO PROCESS THE FILES INTO A COMMON FORMAT FOR
+# node names, (s,d) names, etc?
+# now the parallel edges doesn't work for transformers...
 
 ################################################
