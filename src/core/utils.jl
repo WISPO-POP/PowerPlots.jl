@@ -21,27 +21,15 @@ function add_color_attributes!(
   connected_components::Array{Symbol,1},
   )
   color_index = 1
-  for comp_type in edge_components
+  for comp_type in [node_components..., edge_components..., connected_components...]
     if !(isempty(PMD.components[comp_type]))
-          if !haskey(plot_attributes[comp_type], :color)
-              plot_attributes[comp_type][:color] = color_schemes[component_color_order[color_index]]
-              color_index += 1
-              println("Applying color scheme $(component_color_order[color_index]) to component")
-          else
-              println("Component has a color")
-          end
+      if isnothing(plot_attributes[comp_type][:color])
+        plot_attributes[comp_type][:color] = color_schemes[component_color_order[color_index]]
+        color_index += 1
       end
-  end
-  for comp_type in [node_components..., connected_components...]
-    if !(isempty(PMD.components[comp_type]))
-          if !haskey(plot_attributes[comp_type], :color)
-              plot_attributes[comp_type][:color] = color_schemes[component_color_order[color_index]]
-              color_index += 1
-              println("Applying color scheme $(component_color_order[color_index]) to component")
-          else
-              println("Component has a color")
-          end
-      end
+    else
+      plot_attributes[comp_type][:color] = "black"
+    end
   end
   return plot_attributes
 end

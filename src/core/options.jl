@@ -45,7 +45,7 @@ default_plot_attributes = Dict{Symbol, Any}(
 )
 
 default_edge_attributes = Dict{Symbol, Any}(
-  # :color => color_schemes[:blues],
+  :color => nothing,
   :size => 5,
   :data => "ComponentType",
   :data_type => "nominal",
@@ -64,7 +64,7 @@ default_connector_attributes = Dict{Symbol, Any}(
 )
 
 default_node_attributes = Dict{Symbol, Any}(
-  # :color => color_schemes[:greens],
+  :color => nothing,
   :size => 5e2,
   :data => "ComponentType",
   :data_type => "nominal",

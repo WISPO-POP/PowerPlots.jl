@@ -30,7 +30,6 @@ function powerplot(
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
     apply_kwarg_attributes!(plot_attributes; kwargs...)
-    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, node_components=node_components,
          edge_components=edge_components, connected_components=connected_components, kwargs...)
@@ -43,6 +42,8 @@ function powerplot(
 
     # Add color if missing from plot attributes
     add_color_attributes!(plot_attributes, PMD, edge_components, node_components, connected_components)
+
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     # make the plots
     p = plot_base(data, plot_attributes)
@@ -101,7 +102,6 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
     apply_kwarg_attributes!(plot_attributes; kwargs...)
-    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, node_components=node_components,
          edge_components=edge_components, connected_components=connected_components, kwargs...)
@@ -111,6 +111,12 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
+
+    # Add color if missing from plot attributes
+    add_color_attributes!(plot_attributes, PMD, edge_components, node_components, connected_components)
+
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
+
 
     # make the plots
     p = plot_base(data, plot_attributes)
@@ -158,7 +164,6 @@ function _powerplot_mn(case::Dict{String,<:Any};
     # Create plot_attributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
     apply_kwarg_attributes!(plot_attributes; kwargs...)
-    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     # fix parallel branch coordinates
     for (nwid,net) in data["nw"]
@@ -170,6 +175,10 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     PMD = PowerModelsDataFrame(data)
 
+    # Add color if missing from plot attributes
+    add_color_attributes!(plot_attributes, PMD, edge_components, node_components, connected_components)
+
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
     # make the plots
     p = plot_base_mn(data,plot_attributes)
     for comp_type in edge_components
@@ -217,7 +226,6 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
     apply_kwarg_attributes!(plot_attributes; kwargs...)
-    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     # fix parallel branch coordinates
     for (nwid,net) in data["nw"]
@@ -229,6 +237,11 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
+
+    # Add color if missing from plot attributes
+    add_color_attributes!(plot_attributes, PMD, edge_components, node_components, connected_components)
+
+    _validate_plot_attributes!(plot_attributes) # check the attributes for valid input types
 
     # make the plots
     p = plot_base_mn(data,plot_attributes)
