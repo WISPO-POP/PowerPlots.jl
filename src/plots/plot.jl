@@ -41,6 +41,9 @@ function powerplot(
     # remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data)
 
+    # Add color if missing from plot attributes
+    add_color_attributes!(plot_attributes, PMD, edge_components, node_components, connected_components)
+
     # make the plots
     p = plot_base(data, plot_attributes)
     for comp_type in edge_components

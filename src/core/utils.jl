@@ -2,14 +2,48 @@
 
 function initialize_default_attributes(edge_components, node_components, connected_components)
   plot_attributes = deepcopy(default_plot_attributes)
-    for comp_type in edge_components
-        plot_attributes[comp_type] = deepcopy(default_edge_attributes)
-    end
-    for comp_type in [node_components..., connected_components...]
-        plot_attributes[comp_type] = deepcopy(default_node_attributes)
-    end
-    plot_attributes[:connector] = deepcopy(default_connector_attributes)
-    return plot_attributes
+  for comp_type in edge_components
+      plot_attributes[comp_type] = deepcopy(default_edge_attributes)
+  end
+  for comp_type in [node_components..., connected_components...]
+      plot_attributes[comp_type] = deepcopy(default_node_attributes)
+  end
+  plot_attributes[:connector] = deepcopy(default_connector_attributes)
+  return plot_attributes
+end
+
+
+function add_color_attributes!(
+  plot_attributes::Dict,
+  PMD::PowerModelsDataFrame,
+  edge_components::Array{Symbol,1},
+  node_components::Array{Symbol,1},
+  connected_components::Array{Symbol,1},
+  )
+  color_index = 1
+  for comp_type in edge_components
+    if !(isempty(PMD.components[comp_type]))
+          if !haskey(plot_attributes[comp_type], :color)
+              plot_attributes[comp_type][:color] = color_schemes[component_color_order[color_index]]
+              color_index += 1
+              println("Applying color scheme $(component_color_order[color_index]) to component")
+          else
+              println("Component has a color")
+          end
+      end
+  end
+  for comp_type in [node_components..., connected_components...]
+    if !(isempty(PMD.components[comp_type]))
+          if !haskey(plot_attributes[comp_type], :color)
+              plot_attributes[comp_type][:color] = color_schemes[component_color_order[color_index]]
+              color_index += 1
+              println("Applying color scheme $(component_color_order[color_index]) to component")
+          else
+              println("Component has a color")
+          end
+      end
+  end
+  return plot_attributes
 end
 
 function apply_kwarg_attributes!(plot_attributes::Dict; kwargs...)
