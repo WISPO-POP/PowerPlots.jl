@@ -16,3 +16,6 @@ VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
 [compat]
 PowerModels = "^0.19.2, ^0.20, ^0.21"
 PowerModelsDistribution = "^0.14.5, ^0.15, ^0.16"
+
+[sources]
+VegaLite = {url = "https://github.com/noahrhodes/VegaLite.jl", rev = "fix_443"}
