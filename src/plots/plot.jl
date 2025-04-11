@@ -353,7 +353,7 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
                 color={
                     field=plot_attributes[:data],
                     type=plot_attributes[:data_type],
-                    title=comp_type,
+                    title=ucfirst(string(comp_type)),
                     scale={
                         range=plot_attributes[:color]
                     },
