@@ -44,11 +44,11 @@ and `edge_types`.  A layout function is then applied, by default `layout_graph_k
 components is returned.
 """
 function layout_network!(data::Dict{String,<:Any};
+    node_components::AbstractArray{Symbol,1} = supported_node_types,
+    edge_components::AbstractArray{Symbol,1} = supported_edge_types,
+    connected_components::AbstractArray{Symbol,1} = supported_connected_types,
     fixed = false,
     layout_algorithm = kamada_kawai,
-    node_components::Array{Symbol,1}=supported_node_types,
-    edge_components::Array{Symbol,1}=supported_edge_types,
-    connected_components::Array{Symbol,1}=supported_connected_types,
     connector_weight=0.5,
     edge_weight=1.0,
     kwargs...
