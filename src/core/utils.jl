@@ -60,21 +60,21 @@ function apply_components_filters!(plot_attributes::AbstractDict,
     return plot_attributes
 end
 
-function apply_kwarg_attributes!(plot_attributes::Dict,;kwargs...)
-    for (var, val) in kwargs
-        if !( var in plot_attributes[:edge_components] ||
-              var in plot_attributes[:node_components] ||
-              var in plot_attributes[:connected_components]
+function apply_kwarg_attributes!(plot_attributes::Dict; kwargs...)
+    for (k, v) in kwargs
+        if !( k in plot_attributes[:edge_components] ||
+              k in plot_attributes[:node_components] ||
+              k in plot_attributes[:connected_components]
             )
-            process_plot_attributes!(plot_attributes, var, val)
+            process_plot_attributes!(plot_attributes, k, v)
         else
-            process_comp_attributes!(plot_attributes, var, val)
+            process_comp_attributes!(plot_attributes, k, v)
         end
     end
     return plot_attributes
 end
 
-function process_plot_attributes!(plot_attributes, k, v)
+function process_plot_attributes!(plot_attributes::AbstractDict, k::Symbol, v::Any)
     if k in keys(default_plot_attributes)
         plot_attributes[k] = v
     else
@@ -83,35 +83,47 @@ function process_plot_attributes!(plot_attributes, k, v)
     return plot_attributes
 end
 
-function process_comp_attributes!(plot_attributes, var, vals)
-    for (k,v) in vals #zip(keys(vals), vals)
-        if var in plot_attributes[:edge_components]
-            if k in keys(default_edge_attributes)
-                plot_attributes[var][k] = v
-            else
-                Memento.warn(_LOGGER, "Ignoring unexpected edge attribute $(repr(k))")
-            end
-        elseif var in plot_attributes[:node_components]
-            if k in keys(default_node_attributes)
-                plot_attributes[var][k] = v
-            else
-                Memento.warn(_LOGGER, "Ignoring unexpected node attribute $(repr(k))")
-            end
-        elseif var in plot_attributes[:connected_components]
-            if k in keys(default_node_attributes)
-                plot_attributes[var][k] = v
-            else
-                Memento.warn(_LOGGER, "Ignoring unexpected connected component attribute $(repr(k))")
-            end
-        elseif var ==:connector
-            if k in keys(default_connector_attributes)
-                plot_attributes[var][k] = v
-            else
-                Memento.warn(_LOGGER, "Ignoring unexpected connector attribute $(repr(k))")
-            end
+function process_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, comp_attributes::Tuple)
+    for (k,v) in comp_attributes
+        _apply_comp_attributes!(plot_attributes, comp_type, k, v)
+        return plot_attributes
+    end
+    return plot_attributes
+end
+
+function process_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, comp_attribute::Pair)
+    (k,v) = comp_attribute
+    _apply_comp_attributes!(plot_attributes, comp_type, k, v)
+    return plot_attributes
+end
+
+function _apply_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, k::Symbol, v::Any)
+    if comp_type in plot_attributes[:edge_components]
+        if k in keys(default_edge_attributes)
+            plot_attributes[comp_type][k] = v
         else
-            Memento.warn(_LOGGER, "Ignoring unexpected component type $(repr(var))")
+            Memento.warn(_LOGGER, "Ignoring unexpected edge attribute $(repr(k))")
         end
+    elseif comp_type in plot_attributes[:node_components]
+        if k in keys(default_node_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected node attribute $(repr(k))")
+        end
+    elseif comp_type in plot_attributes[:connected_components]
+        if k in keys(default_node_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected connected component attribute $(repr(k))")
+        end
+    elseif comp_type ==:connector
+        if k in keys(default_connector_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected connector attribute $(repr(k))")
+        end
+    else
+        Memento.warn(_LOGGER, "Ignoring unexpected component type $(repr(comp_type))")
     end
     return plot_attributes
 end
