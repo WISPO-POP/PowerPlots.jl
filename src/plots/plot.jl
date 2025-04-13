@@ -26,6 +26,9 @@ function powerplot(
 
     # copy data for modification by plots
     data = deepcopy(case)
+    edge_components = [Symbol(i) for i in edge_components]
+    node_components = [Symbol(i) for i in node_components]
+    connected_components = [Symbol(i) for i in connected_components]
 
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
@@ -41,7 +44,7 @@ function powerplot(
     offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components)
 
     # remove_information!(data, invalid_keys)
-    PMD = PowerModelsDataFrame(data)
+    PMD = PowerModelsDataFrame(data; components=vcat(edge_components, node_components, connected_components))
 
     # Add color if missing from plot attributes
     add_color_attributes!(plot_attributes, PMD)
@@ -101,6 +104,9 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # copy data for modification by plots
     data = deepcopy(case)
+    edge_components = [Symbol(i) for i in edge_components]
+    node_components = [Symbol(i) for i in node_components]
+    connected_components = [Symbol(i) for i in connected_components]
 
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
@@ -114,7 +120,7 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components)
 
     # remove_information!(data, invalid_keys)
-    PMD = PowerModelsDataFrame(data)
+    PMD = PowerModelsDataFrame(data; components=vcat(edge_components, node_components, connected_components))
 
     # Add color if missing from plot attributes
     add_color_attributes!(plot_attributes, PMD)
@@ -164,6 +170,9 @@ function _powerplot_mn(case::Dict{String,<:Any};
 
     # copy data for modification by plots
     data = deepcopy(case)
+    edge_components = [Symbol(i) for i in edge_components]
+    node_components = [Symbol(i) for i in node_components]
+    connected_components = [Symbol(i) for i in connected_components]
 
     # Create plot_attributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
@@ -179,7 +188,7 @@ function _powerplot_mn(case::Dict{String,<:Any};
         offset_parallel_edges!(data["nw"][nwid], plot_attributes[:parallel_edge_offset], edge_types=edge_components)
     end
 
-    PMD = PowerModelsDataFrame(data)
+    PMD = PowerModelsDataFrame(data; components=vcat(edge_components, node_components, connected_components))
 
     # Add color if missing from plot attributes
     add_color_attributes!(plot_attributes, PMD)
@@ -228,6 +237,9 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # copy data for modification by plots
     data = deepcopy(case)
+    edge_components = [Symbol(i) for i in edge_components]
+    node_components = [Symbol(i) for i in node_components]
+    connected_components = [Symbol(i) for i in connected_components]
 
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
@@ -244,7 +256,7 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     end
 
     # remove_information!(data, invalid_keys)
-    PMD = PowerModelsDataFrame(data)
+    PMD = PowerModelsDataFrame(data; components=vcat(edge_components, node_components, connected_components))
 
     # Add color if missing from plot attributes
     add_color_attributes!(plot_attributes, PMD)
