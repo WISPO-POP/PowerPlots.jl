@@ -101,10 +101,37 @@ end
 
 ""
 function PowerModelsGraph(data::Dict{String,<:Any};
-    node_components=supported_node_types::Array{Symbol,1},
-    edge_components=supported_edge_types::Array{Symbol,1},
-    connected_components=supported_connected_types::Array{Symbol,1}
+    node_components=supported_node_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
+    edge_components=supported_edge_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
+    connected_components=supported_connected_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
     )
+    if eltype(node_components) == String
+        node_components = Symbol.(node_components)
+    end
+    if eltype(edge_components) == String
+        edge_components = Symbol.(edge_components)
+    end
+    if eltype(connected_components) == String
+        connected_components = Symbol.(connected_components)
+    end
+    return PowerModelsGraph(data, node_components, edge_components, connected_components)
+end
+
+""
+function PowerModelsGraph(data::Dict{String,<:Any},
+    node_components::AbstractVector{<:Any},
+    edge_components::AbstractVector{<:Any},
+    connected_components::AbstractVector{<:Any},
+    )
+    if eltype(node_components) != Symbol
+        node_components = Symbol.(node_components)
+    end
+    if eltype(edge_components) != Symbol
+        edge_components = Symbol.(edge_components)
+    end
+    if eltype(connected_components) != Symbol
+        connected_components = Symbol.(connected_components)
+    end
     return PowerModelsGraph(data, node_components, edge_components, connected_components)
 end
 
