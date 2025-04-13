@@ -51,10 +51,11 @@ function apply_components_filters!(plot_attributes::AbstractDict,
     if eltype(connected_components) != Symbol
         connected_components = Symbol.(connected_components)
     end
+    push!(edge_components, :connector)
 
-    plot_attributes[:edge_components] = Symbol[i for i in node_components]
     plot_attributes[:node_components] = Symbol[i for i in edge_components]
     plot_attributes[:connected_components] = Symbol[i for i in connected_components]
+    plot_attributes[:edge_components] = Symbol[i for i in node_components]
 
     return plot_attributes
 end
