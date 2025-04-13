@@ -145,7 +145,7 @@ mutable struct PowerModelsDataFrame
     metadata::DataFrames.DataFrame
     components::Dict{Symbol,DataFrames.DataFrame}
 
-    function PowerModelsDataFrame(case::Dict{String,<:Any}; components=vcat(supported_node_types,supported_edge_types,supported_connected_types))
+    function PowerModelsDataFrame(case::Dict{String,<:Any}, components::Vector{Symbol})
         data = deepcopy(case)
         push!(components, :connector)
         if InfrastructureModels.ismultinetwork(data)
@@ -200,6 +200,9 @@ mutable struct PowerModelsDataFrame
     end
 end
 
+function PowerModelsDataFrame(case::Dict{String,<:Any}; components::Vector{<:Any}=vcat(supported_node_types,supported_edge_types,supported_connected_types))
+    return PowerModelsDataFrame(case, Symbol[Symbol(i) for i in components])
+end
 
 "convert non-component data into a dataframe"
 function _metadata_to_dataframe!(data, metadata)
