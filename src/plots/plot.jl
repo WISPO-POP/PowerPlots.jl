@@ -104,9 +104,9 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
 
     # copy data for modification by plots
     data = deepcopy(case)
-    edge_components = [Symbol(i) for i in edge_components]
-    node_components = [Symbol(i) for i in node_components]
-    connected_components = [Symbol(i) for i in connected_components]
+    edge_components = Symbol[Symbol(i) for i in edge_components]
+    node_components = Symbol[Symbol(i) for i in node_components]
+    connected_components = Symbol[Symbol(i) for i in connected_components]
 
     # Create plot_atrributes by taking kwargs and updating default values.  If kwarg is doesn't exist in an defaults, give error
     plot_attributes = initialize_default_attributes(edge_components, node_components, connected_components)
