@@ -3,10 +3,10 @@
 function initialize_default_attributes(edge_components, node_components, connected_components)
     plot_attributes = deepcopy(default_plot_attributes)
     for comp_type in edge_components
-        plot_attributes[comp_type] = deepcopy(default_edge_attributes)
+        plot_attributes[Symbol(comp_type)] = deepcopy(default_edge_attributes)
     end
     for comp_type in [node_components..., connected_components...]
-        plot_attributes[comp_type] = deepcopy(default_node_attributes)
+        plot_attributes[Symbol(comp_type)] = deepcopy(default_node_attributes)
     end
     plot_attributes[:connector] = deepcopy(default_connector_attributes)
     return plot_attributes
@@ -38,19 +38,18 @@ end
 
 
 function apply_components_filters!(plot_attributes::AbstractDict,
-    node_components::Union{Symbol, Tuple, AbstractArray{<:Any,1}},
-    edge_components::Union{Symbol, Tuple, AbstractArray{<:Any,1}},
-    connected_components::Union{Symbol, Tuple, AbstractArray{<:Any,1}},
+    node_components::AbstractVector{<:Any},
+    edge_components::AbstractVector{<:Any},
+    connected_components::AbstractVector{<:Any},
     )
-
     if eltype(node_components) != Symbol
-        Memento.error(_LOGGER, "node_components must be a Symbol, Tuple of Symbols, or Array of Symbols")
+        node_components = Symbol.(node_components)
     end
     if eltype(edge_components) != Symbol
-        Memento.error(_LOGGER, "edge_components must be a Symbol, Tuple of Symbols, or Array of Symbols")
+        edge_components = Symbol.(edge_components)
     end
     if eltype(connected_components) != Symbol
-        Memento.error(_LOGGER, "connected_components must be a Symbol, Tuple of Symbols, or Array of Symbols")
+        connected_components = Symbol.(connected_components)
     end
 
     plot_attributes[:edge_components] = Symbol[i for i in node_components]
@@ -86,7 +85,6 @@ end
 function process_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, comp_attributes::Tuple)
     for (k,v) in comp_attributes
         _apply_comp_attributes!(plot_attributes, comp_type, k, v)
-        return plot_attributes
     end
     return plot_attributes
 end
