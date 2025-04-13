@@ -181,33 +181,33 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
 
     end
 
-    # @testset "Distribution Grids" begin
-    #     using PowerModelsDistribution
-    #     PowerModelsDistribution.silence!()
-    #     eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
-    #     math = transform_data_model(eng)
-    #     p = powerplot(math)
-    #     @test true # what do I test here?
-    #     p = powerplot!(p,math)
-    #     @test true
+    @testset "Distribution Grids" begin
+        using PowerModelsDistribution
+        PowerModelsDistribution.silence!()
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+        math = transform_data_model(eng)
+        p = powerplot(math)
+        @test true # what do I test here?
+        p = powerplot!(p,math)
+        @test true
 
-    #     eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/test2_master.dss")
-    #     math = transform_data_model(eng)
-    #     p = powerplot(math)
-    #     @test length(p.layer)==7 # branch, switch, transformer, connector bus, gen, load in figure
+        eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/test2_master.dss")
+        math = transform_data_model(eng)
+        p = powerplot(math)
+        @test length(p.layer)==9 # branch, switch, transformer, connector bus, gen, load in figure
 
 
-    #     @testset "Multinetwork Distribution Grids" begin
-    #         eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
-    #         eng_mn = PowerModelsDistribution.make_multinetwork(eng)
-    #         math_mn = transform_data_model(eng_mn)
-    #         p = powerplot(math_mn)
-    #         @test true
-    #         pp = powerplot!(p,math_mn)
-    #         @test true
-    #     end
+        @testset "Multinetwork Distribution Grids" begin
+            eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
+            eng_mn = PowerModelsDistribution.make_multinetwork(eng)
+            math_mn = transform_data_model(eng_mn)
+            p = powerplot(math_mn)
+            @test true
+            pp = powerplot!(p,math_mn)
+            @test true
+        end
 
-    # end
+    end
 
     @testset "Parameter Settings" begin
         @testset "parallel_edge_offset" begin
