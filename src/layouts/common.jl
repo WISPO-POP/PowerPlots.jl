@@ -95,13 +95,18 @@ function layout_network!(data::Dict{String,<:Any};
             initialpos[i] = GeometryBasics.Point(get(data[string(comp_type)][string(comp_id)], "xcoord_1", NaN), get(data[string(comp_type)][string(comp_id)], "ycoord_1", NaN))
         end
         fixed_initial_pos = [j for j in initialpos if !isnan(j)]
+
+        if isempty(fixed_initial_pos)
+            Memento.error(_LOGGER, "No components have a fixed positions provided for initial layout.")
+        end
+
         center = sum(fixed_initial_pos)/length(fixed_initial_pos)
         maxextent = (maximum([j[1] for j in initialpos if !isnan(j)]), maximum([j[2] for j in initialpos if !isnan(j)]))
         minextent = (minimum([j[1] for j in initialpos if !isnan(j)]), minimum([j[2] for j in initialpos if !isnan(j)]))
         range = GeometryBasics.Point(maxextent.-minextent)
         for i in 1:length(initialpos)
             if isnan(initialpos[i])
-                initialpos[i] = center+GeometryBasics.Point(rand()-0.5,rand()-0.5)*range
+                initialpos[i] = center+GeometryBasics.Point(rand(rng)-0.5,rand(rng)-0.5)*range
             end
         end
 
