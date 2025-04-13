@@ -47,7 +47,7 @@ case["gen"]["5"]["gen_type"] = "Wind"
 using ColorSchemes
 powerplot(case;
     connected_components=[:gen], edge_components=[:branch],
-    :gen=>(:data=>:gen_type, :color=>colorscheme2array(ColorSchemes.:colorschemes[:seaborn_deep])),
+    :gen=>(:data=>:gen_type, :color=>colorscheme2array(ColorSchemes.colorschemes[:seaborn_deep])),
     :bus=>(:color=>:black),
 )
 ```
