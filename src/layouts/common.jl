@@ -130,9 +130,7 @@ function layout_network!(data::Dict{String,<:Any};
         Memento.error(_LOGGER, "layout_algorithm `$(layout_algorithm)` not supported.")
     end
 
-    apply_node_positions!(data,positions, PMG)
-    # extract_layout_extent!(data, positions)
-
+    apply_node_positions!(data, positions, PMG)
     return data
 end
 
@@ -171,30 +169,3 @@ function apply_node_positions!(data,positions, PMG)
 
     return data
 end
-
-# "Extract layout coordinate extent for scaling purposes"
-# function extract_layout_extent!(data::Dict{String,<:Any}, positions)
-#     # find the extremes
-#     min_x = min_y = Inf
-#     max_x = max_y = -Inf
-#     for pos in positions
-#         x, y = pos
-#         min_x, min_y = min(min_x, x), min(min_y, y)
-#         max_x, max_y = max(max_x, x), max(max_y, y)
-#     end
-
-#     width, height = (max_x - min_x), (max_y - min_y)
-#     padding = min(50, 0.2 * (width + height) / 2) # set padding to be minimum of 50 px or 20% the average of the width and height
-
-#     # add to data
-#     # data["layout_extent"] = Dict{String, Any}()
-#     data["layout_min_x"] = min_x
-#     data["layout_min_y"] = min_y
-#     data["layout_max_x"] = max_x
-#     data["layout_max_y"] = max_y
-#     # data["layout_extent"]["layout_width"] = width
-#     # data["layout_extent"]["layout_height"] = height
-#     # data["layout_extent"]["layout_padding"] = padding
-
-#     return data
-# end
