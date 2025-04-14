@@ -1,4 +1,5 @@
 using Documenter, PowerPlots, VegaLite, UUIDs, PowerModels, PowerModelsDistribution
+PowerModels.silence()
 
 function Base.show(io::IO, m::MIME"text/html", v::VegaLite.VLSpec)
     divid = string("vl", replace(string(uuid4()), "-"=>""))

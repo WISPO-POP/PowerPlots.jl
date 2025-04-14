@@ -35,19 +35,21 @@ edge_connector_map = Dict(
 )
 ```
 
-To create a `PowerModelsGraph`, the component types for nodes and edges must be specified.
+To create a `PowerModelsGraph`, the component types for the central nodes, edges, and the connected components must be specified.
 ```julia
 PowerModelsGraph(data::Dict{String,<:Any},
                 node_types::Vector{String},
-                edge_types::Vector{String}
+                edge_types::Vector{String},
+                connected_types::Vector{String},
 )
 ```
 
-There is also a convinient function with default node and edge types as keyword arguments.
+There is also a convenient function with default node and edge types as keyword arguments that include all the default supported components.
 ```julia
-PowerModelsGraph(data::Dict{String,<:Any};
-                node_types=["bus","gen","storage"]::Array{String,1},
-                edge_types=["branch","dcline","switch"]::Array{String,1}
+PowerModelsGraph(data::Dict{String,<:Any},
+                node_components=supported_node_types,
+                edge_components=supported_edge_types,
+                connected_components=supported_connected_types
 )
 ```
 
@@ -59,7 +61,7 @@ using PowerPlots
 case = parse_file("case14.m")
 
 # Specify node and edge types
-case_PMG = PowerModelsGraph(case, ["bus","gen"], ["branch","dcline"])
+case_PMG = PowerModelsGraph(case, node_components=[:bus], edge_components=["branch","dcline"], connected_components=["gen"])
 
 # Use default node and edge types
 case_PMG = PowerModelsGraph(case)
@@ -72,7 +74,7 @@ using Graphs
 case = parse_file("case14.m")
 
 # Create a graph where buses are nodes and branches are edges
-case_PMG = PowerModelsGraph(case, ["bus"], ["branch"]);
+case_PMG = PowerModelsGraph(case, node_components=["bus"], edge_components=["branch"],);
 ```
 
 ```@example PMG

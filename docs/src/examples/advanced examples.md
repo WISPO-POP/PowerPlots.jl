@@ -13,10 +13,11 @@ case=pglib("case39_epri");
 
 # Create PowerPlot
 p = powerplot(case,
-bus_data=:index, bus_data_type=:quantitative,
-branch_data=:index, branch_data_type=:quantitative,
-gen_data=:index, gen_data_type=:quantitative,
-height=250, width=250, bus_size=100, gen_size=50, load_size=50,
+bus    = (:data=>:index, :data_type=>:quantitative, :size=>100),
+branch = (:data=>:index, :data_type=>:quantitative),
+gen    = (:data=>:index, :data_type=>:quantitative, :size=>50),
+load   = (:size=>50),  storage = (:size=>50),
+height = 250, width = 250
 )
 ```
 
@@ -173,11 +174,12 @@ For further information about the possible parameters you can use, look at the V
 ```@example internal
 # Create PowerPlot
 p = powerplot(case,
-bus_data=:index, bus_data_type=:quantitative,
-branch_data=:index, branch_data_type=:quantitative,
-gen_data=:index, gen_data_type=:quantitative,
-load_data=:index, load_data_type=:quantitative,
-height=250, width=250
+bus     = (:data=>:index, :data_type=>:quantitative),
+branch  = (:data=>:index, :data_type=>:quantitative),
+gen     = (:data=>:index, :data_type=>:quantitative),
+load    = (:data=>:index, :data_type=>:quantitative),
+storage = (:data=>:index, :data_type=>:quantitative),
+height = 250, width = 250
 )
 
 # get maximum index value to use for maximum legend scale
@@ -327,15 +329,12 @@ result = solve_ac_opf(case, optimizer_with_attributes(Ipopt.Optimizer, "print_le
 update_data!(case,result["solution"])
 
 p = powerplot(case,
-    gen_data=:pg,
-    gen_data_type=:quantitative,
-    branch_data=:pt,
-    branch_data_type=:quantitative,
-    branch_color=["black", "purple","red"],
-    gen_color=["black", "purple","red"],
-    flow_arrow_size_range=[0, 4000],
-    load_color="#273D94",
-    bus_color="#504F4F"
+    gen=(:data=>:pg, :data_type=>:quantitative, :color=>["black", "purple","red"]),
+    branch=(
+        :data=>:pt, :data_type=>:quantitative, :color=>["black", "purple","red"],
+        :flow_arrow_size_range=>[0, 4000], :show_flow=>true,
+    ),
+    load=(:color=>"#273D94"),  bus=(:color=>"#504F4F")
 )
 
 # set flow arrow color

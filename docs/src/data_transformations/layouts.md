@@ -21,7 +21,7 @@ Then, when plotting you can use the fixed arguments to use the component coordin
 powerplot(case, fixed=true)
 ```
 
-Values for the coordinates can also be created manually, for example for geographic coordinates. The simply add a dictionary key for `xcoord_1` and `ycoord_1` to the powermodels data dictionary for the nodal components (such as buses and generators).  Any nodal components that do not have a value will have a layout calculated, and values for edge components (such as branches) are identified from their endpoints.
+Values for the coordinates can also be created manually, for example for geographic coordinates. Simply add a dictionary key for `xcoord_1` and `ycoord_1` to the powermodels data dictionary for the nodal components (such as buses and generators).  Any nodal components that do not have a value will have a layout calculated, and values for edge components (such as branches) are identified from their endpoints.
 
 
 ## Selecting layouts
