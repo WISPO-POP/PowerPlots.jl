@@ -63,7 +63,8 @@ function apply_kwarg_attributes!(plot_attributes::Dict; kwargs...)
     for (k, v) in kwargs
         if !( k in plot_attributes[:edge_components] ||
               k in plot_attributes[:node_components] ||
-              k in plot_attributes[:connected_components]
+              k in plot_attributes[:connected_components] ||
+              k == :connector
             )
             process_plot_attributes!(plot_attributes, k, v)
         else
