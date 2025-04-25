@@ -20,3 +20,10 @@ for sym in names(@__MODULE__, all=true)
     end
     @eval export $sym
 end
+
+# the follow items are also exported for user-friendlyness when calling
+# `using PowerPlots`
+
+# so that users do not need to import Vegalite to use a save a figure
+import VegaLite: save
+export save

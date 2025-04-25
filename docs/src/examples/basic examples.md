@@ -158,3 +158,14 @@ The mathematical model of the distribution system can be visualized as well.
 math = transform_data_model(eng)
 powerplot(math)
 ```
+
+# File output
+Save a file to disk as a PNG, SVG, PDF, or HTML file.  The file name must end with the appropriate extension.
+
+```julia
+    save("powerplot.svg", p)
+    save("powerplot.png", p)
+    save("powerplot.pdf", p)
+    save("powerplot.html", p)
+```
+
