@@ -96,13 +96,9 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     @testset "PowerModelsGraph and Layouts" begin
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
         PMG = PowerModelsGraph(case)
-        # positions = layout_graph_kamada_kawai!(PMG)
-        # @test size(positions) == (10,)
-        # @test typeof(positions) == Vector{Vector{Float64}}
 
         layout_network(case, layout_algorithm=Shell)
         layout_network(case, layout_algorithm=SFDP)
-        # layout_network(case, layout_algorithm=Buchheim) # requires a tree-network
         layout_network(case, layout_algorithm=Spring)
         layout_network(case, layout_algorithm=Stress)
         layout_network(case, layout_algorithm=SquareGrid)

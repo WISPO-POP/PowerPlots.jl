@@ -7,10 +7,6 @@ function SFDP(; dim=2, Ptype=Float64, tol=1.0, C=0.2, K=1.0, iterations=100, ini
     NetworkLayout.SFDP(;dim=dim,  Ptype=Ptype, tol=tol, C=C, K=K, iterations=iterations, initialpos=initialpos, seed=seed)
 end
 
-function Buchheim(;Ptype=Float64, node_size=Float64[], kwargs...)
-    NetworkLayout.Buchheim(; Ptype=Ptype, node_size=node_size)
-end
-
 function Spring(; dim=2, Ptype=Float64, C=2.0, iterations=100, initialtemp=2.0, initialpos=GeometryBasics.Point{dim,Ptype}[], seed=1, kwargs...)
     NetworkLayout.Spring(;dim=dim, Ptype=Ptype, C=C, iterations=iterations, initialtemp=initialtemp, initialpos=initialpos, seed=seed)
 end
@@ -117,7 +113,7 @@ function layout_network!(data::Dict{String,<:Any};
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(SFDP_fixed(; fixed = fixed_pos, initialpos=initialpos, kwargs...)(a)))
         positions = [[pos[1,i],pos[2,i]] for i in 1:size(pos,2)]
 
-    elseif layout_algorithm ∈ [Shell, SFDP, Buchheim, Spring, Stress, SquareGrid, Spectral]  # Create layout from NetworkLayouts algorithms
+    elseif layout_algorithm ∈ [Shell, Spring, SquareGrid, SFDP]  # Layout does not use weights
         a = Graphs.adjacency_matrix(PMG.graph)
         a = a.*weights
         pos = convert(Array,RecursiveArrayTools.VectorOfArray(layout_algorithm(;kwargs...)(a)))
