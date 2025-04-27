@@ -1,13 +1,16 @@
 PowerPlots.jl Change Log
 ========================
 ### Staged
-- Change powerplot arguments for components
+
+### v0.5.0
+- Change powerplot arguments for components (breaking)
 - Add support for all PowerModels and PowerModelsDistribution components
 - Add support for plotting new (non-standard) components.
 - Fix bug in 'weights' used for layouts
 - Re-export `save` from VegaLite
 - Fixed documentation interactivity
-
+- Bump Colors to v0.13
+- Bump Geometry Basics to v0.5
 
 ### v0.4.6
 - set stroke dash for connector
