@@ -257,6 +257,21 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
     end
 
+    @testset "Filter hover" begin
+        p = powerplot(data,
+            load=(:hover=>["pd"]),
+            gen=(:hover=>["pg", "pmin", "pmax"]),
+            bus=(:hover=>[:vmin, :vmax]),
+            branch=(:hover=>["br_r", "br_x"]),
+        )
+
+        @test length(p.layer[1]["layer"][1]["encoding"]["tooltip"]) == 2
+        @test length(p.layer[2]["encoding"]["tooltip"]) == 8 # all values in the component data
+        @test length(p.layer[3]["encoding"]["tooltip"]) == 2
+        @test length(p.layer[4]["encoding"]["tooltip"]) == 3
+        @test length(p.layer[5]["encoding"]["tooltip"]) == 1
+    end
+
 end
 
 PowerModels.logger_config!(prev_level); # reset PowerModels logger to previous level
