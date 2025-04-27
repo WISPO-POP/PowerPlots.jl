@@ -125,6 +125,18 @@ update_data!(data, result["solution"])
 p = powerplot(data, branch=(:show_flow=>true))
 ```
 
+# Filter Hover Text
+The hover text can be filtered to show only the data that is of interest.  Each component is filtered separately.
+
+```@example power_data
+p = powerplot(data,
+            load=(:hover=>["pd"]),
+            gen=(:hover=>["pg", "pmin", "pmax"]),
+            bus=(:hover=>[:vmin, :vmax]),
+            branch=(:hover=>["br_r", "br_x"]),
+        )
+```
+
 # Multinetworks
 `powerplot` detects if a network is a multinetwork and will create a slider to select which network to view.
 
