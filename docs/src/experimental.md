@@ -17,12 +17,15 @@ using PowerPlots.Experimental
 using PowerModels
 using Setfield
 
+ # A case file with geographic coordinates for each bus, load, and generator
 case = parse_file("WI_grid.m")
+
+# powermodels does not extend the load dictionary, so we need to add coordinates manually
 for (loadid,load_d) in case["load_data"] # append load coordinates
-    for (k,v) in load_d
-        case["load"][loadid][k]=v
-    end
+    case["load"][loadid]["xcoord_1"] = load_d["xcoord_1"]
+    case["load"][loadid]["ycoord_1"] = load_d["ycoord_1"]
 end
+
 x_min = minimum([case["bus"][i]["xcoord_1"] for i in keys(case["bus"])])
 x_max = maximum([case["bus"][i]["xcoord_1"] for i in keys(case["bus"])])
 y_min = minimum([case["bus"][i]["ycoord_1"] for i in keys(case["bus"])])
@@ -35,6 +38,7 @@ p1 = powerplot(case; width=300, height=300, fixed=true, parallel_edge_offset=0.0
             load=(:size=>100)
 )
 
+# center plot on the geographic coordinates, rather than the default (0,0)
 p1.layer[1]["layer"][1]["encoding"]["x"]["scale"]  = Dict("domain" => [x_min, x_max])
 p1.layer[1]["layer"][1]["encoding"]["x2"]["scale"] = Dict("domain" => [x_min, x_max])
 p1.layer[1]["layer"][1]["encoding"]["y"]["scale"]  = Dict("domain" => [y_min, y_max])
