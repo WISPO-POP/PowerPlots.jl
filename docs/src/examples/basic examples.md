@@ -133,7 +133,7 @@ p = powerplot(data,
             load=(:hover=>["pd"]),
             gen=(:hover=>["pg", "pmin", "pmax"]),
             bus=(:hover=>[:vmin, :vmax]),
-            branch=(:hover=>["br_r", "br_x"]),
+            branch=(:hover=>[]),
         )
 ```
 
