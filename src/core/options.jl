@@ -56,6 +56,7 @@ default_edge_attributes = Dict{Symbol,Any}(
     :flow_arrow_size_range => [500, 3000],
     :show_flow => false,
     :show_flow_legend => false,
+    :hover => nothing
 )
 
 default_connector_attributes = Dict{Symbol,Any}(
@@ -64,6 +65,7 @@ default_connector_attributes = Dict{Symbol,Any}(
     :dash => [4, 4],
     :data => "ComponentType",
     :data_type => "nominal",
+    :hover => nothing
 )
 
 default_node_attributes = Dict{Symbol,Any}(
@@ -71,6 +73,7 @@ default_node_attributes = Dict{Symbol,Any}(
     :size => 5e2,
     :data => "ComponentType",
     :data_type => "nominal",
+    :hover => nothing
 )
 
 default_layout_attributes = Dict{Symbol,Any}(

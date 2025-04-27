@@ -354,6 +354,9 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
     if plot_attributes[:show_flow] in [nothing, false, :false, "false", :no, "no"]
         flow_opacity = 0.0
     end
+    if isnothing(plot_attributes[:hover])
+        plot_attributes[:hover] = names(edge_data)
+    end
 
     return VegaLite.@vlplot(
         data = edge_data,
@@ -361,13 +364,13 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
             {
                 mark = {
                     :rule,
-                    tooltip = ("content" => "data"),
                     opacity = 1.0,
                 },
                 x = {:xcoord_1, type = "quantitative"},
                 x2 = {:xcoord_2, type = "quantitative"},
                 y = {:ycoord_1, type = "quantitative"},
                 y2 = {:ycoord_2, type = "quantitative"},
+                tooltip = plot_attributes[:hover],
                 size = {value = plot_attributes[:size]},
                 color = {
                     field = plot_attributes[:data],
@@ -404,12 +407,12 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
                     :point,
                     shape = :wedge,
                     filled = true,
-                    tooltip = ("content" => "data"),
                     opacity = flow_opacity,
                     color = plot_attributes[:flow_color],
                 },
                 x = {:mid_x, type = "quantitative"},
                 y = {:mid_y, type = "quantitative"},
+                tooltip = plot_attributes[:hover],
                 size = {:power, scale = {range = plot_attributes[:flow_arrow_size_range]}, type = "quantitative", legend = flow_legend},
                 angle = {:angle, scale = {domain = [0, 360], range = [0, 360]}, type = "quantitative"}
             }
@@ -418,15 +421,19 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
 end
 
 function plot_node(node_data::DataFrames.DataFrame, comp_type::Symbol, plot_attributes::Dict{Symbol,Any})
+    if isnothing(plot_attributes[:hover])
+        plot_attributes[:hover] = names(node_data)
+    end
+
     return VegaLite.@vlplot(
         data = node_data,
         mark = {
             :circle,
-            "tooltip" = ("content" => "data"),
             opacity = 1.0,
         },
         x = {:xcoord_1, type = "quantitative"},
         y = {:ycoord_1, type = "quantitative"},
+        tooltip = plot_attributes[:hover],
         size = {value = plot_attributes[:size]},
         color = {
             field = plot_attributes[:data],
@@ -440,10 +447,12 @@ function plot_node(node_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
 end
 
 function plot_connector(connector_data::DataFrames.DataFrame, plot_attributes::Dict{Symbol,Any})
+    if isnothing(plot_attributes[:hover])
+        plot_attributes[:hover] = names(connector_data)
+    end
     return VegaLite.@vlplot(
         mark = {
             :rule,
-            "tooltip" = ("content" => "data"),
             opacity = 1.0,
         },
         data = connector_data,
@@ -451,6 +460,7 @@ function plot_connector(connector_data::DataFrames.DataFrame, plot_attributes::D
         x2 = {:xcoord_2, type = "quantitative"},
         y = {:ycoord_1, type = "quantitative"},
         y2 = {:ycoord_2, type = "quantitative"},
+        tooltip = plot_attributes[:hover],
         size = {value = plot_attributes[:size]},
         strokeDash = {value = plot_attributes[:dash]},
         color = {
