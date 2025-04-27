@@ -236,28 +236,22 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         end
     end
 
+    @testset "Output" begin
+        p = powerplot(data)
+        Base.Filesystem.mktempdir() do folder
+            save(joinpath(folder, "test1.svg"), p)
+            @test isfile(joinpath(folder, "test1.svg"))
 
-    # @testset "Verify new components are fully supported" begin
+            save(joinpath(folder, "test1.png"), p)
+            @test isfile(joinpath(folder, "test1.png"))
 
-    #     # set of nodes and edges is equivalent to all supported components
-    #     @test Set(union(supported_node_types,supported_edge_types))==Set(supported_component_types)
+            save(joinpath(folder, "test1.pdf"), p)
+            @test isfile(joinpath(folder, "test1.pdf"))
 
-    #     for comp_type in supported_component_types
-    #         Memento.info(PowerPlots._LOGGER, "checking support for: $comp_type")
-
-    #         # check that all components have a plot function
-    #         @test isdefined(PowerPlots, Symbol("plot_$comp_type"))
-
-    #         # check that all components have kwargs
-    #         @test haskey(default_plot_attributes, Symbol("$(comp_type)_size"))
-    #         @test haskey(default_plot_attributes, Symbol("$(comp_type)_color"))
-    #         # skip connector
-    #         if comp_type != "connector"
-    #             @test haskey(default_plot_attributes, Symbol("$(comp_type)_data"))
-    #             @test haskey(default_plot_attributes, Symbol("$(comp_type)_data_type"))
-    #         end
-    #     end
-    # end
+            save(joinpath(folder, "test1.html"), p)
+            @test isfile(joinpath(folder, "test1.html"))
+        end
+    end
 
 end
 
