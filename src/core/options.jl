@@ -73,6 +73,30 @@ default_node_attributes = Dict{Symbol,Any}(
     :data_type => "nominal",
 )
 
+default_layout_attributes = Dict{Symbol,Any}(
+    :fixed => false,
+    :layout_algorithm => "spring",
+    :connector_weight => 0.5,
+    :edge_weight => 1.0,
+    :node_weight => 1.0,
+    :tol => 0.01,
+    :iterations => 500,
+    :K => 1.0,
+    :C => 0.2,
+    :initialtemp=>2.0,
+    :nlist => [[1]],
+    :abstols => 0.0,
+    :reltols => 10e-6,
+    :abstolx => 10e-6,
+    :weights => Array{Float64}(undef, 0, 0),
+    :uncon_dist=>1,
+    :nodeweights => Float64[],
+    :cols=>:auto,
+    :dx=>1.0,
+    :dy=>-1.0,
+    :skip => Tuple{Int,Int}[],
+)
+
 
 const _color_attributes = [ # color (String or Symbol) type parameters
     :color,
