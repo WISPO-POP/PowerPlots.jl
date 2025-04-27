@@ -25,7 +25,7 @@ VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
 
 [compat]
 ColorSchemes = "~3"
-Colors = "~0.12"
+Colors = "~0.12, 0.13"
 DataFrames = "~0.21, ~0.22, ~1"
 FileIO = "1.17.0"
 GeometryBasics = "~0.3, ~0.4"
