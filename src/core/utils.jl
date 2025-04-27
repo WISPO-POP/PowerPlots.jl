@@ -75,7 +75,7 @@ function apply_kwarg_attributes!(plot_attributes::Dict; kwargs...)
 end
 
 function process_plot_attributes!(plot_attributes::AbstractDict, k::Symbol, v::Any)
-    if k in keys(default_plot_attributes)
+    if k in keys(default_plot_attributes) || k in keys(default_layout_attributes)
         plot_attributes[k] = v
     else
         Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(k))")

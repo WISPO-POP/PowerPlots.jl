@@ -59,6 +59,14 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test_warn(logger, r"Data column :blah does not exist for (.*)$", powerplot(case; bus=(:data=>:blah))) # test invalid data column
         @test_warn(logger, r"Data type :blah not a valid VegaLite data type$", powerplot(case; bus=(:data_type=>:blah))) # test invalid data type
 
+        # Layout algorithm tests
+        @test_nolog(logger, "warn", r".+", powerplot(case, layout_algorithm=Shell, nlist=[1:3,4:7]))
+        @test_nolog(logger, "warn", r".+", powerplot(case, layout_algorithm=SFDP, tol=0.01, C=0.2, K=1.0, iterations=100))
+        @test_nolog(logger, "warn", r".+", powerplot(case, layout_algorithm=Spring, C=2.0, iterations=100, initialtemp=2.0, ))
+        @test_nolog(logger, "warn", r".+", powerplot(case, layout_algorithm=Stress, iterations=100, abstols=0.0, reltols=10e-6, abstolx=10e-6, uncon_dist=(max_d,N)->maxd*N^(1/3), weights=Array{Float64}(undef, 0, 0)))
+        @test_nolog(logger, "warn", r".+", powerplot(case, layout_algorithm=SquareGrid, cols=:auto, dx=1.0, dy=-1.0, skip=[(1,2),(2,3)], ))
+        @test_nolog(logger, "warn", r".+", powerplot(case, layout_algorithm=Spectral, nodeweights=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]))
+
         PowerPlots.logger_config!(start_level) # restore logger to initial level
     end
 
@@ -96,13 +104,9 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     @testset "PowerModelsGraph and Layouts" begin
         case = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/test/data/matpower/case5.m")
         PMG = PowerModelsGraph(case)
-        # positions = layout_graph_kamada_kawai!(PMG)
-        # @test size(positions) == (10,)
-        # @test typeof(positions) == Vector{Vector{Float64}}
 
         layout_network(case, layout_algorithm=Shell)
         layout_network(case, layout_algorithm=SFDP)
-        # layout_network(case, layout_algorithm=Buchheim) # requires a tree-network
         layout_network(case, layout_algorithm=Spring)
         layout_network(case, layout_algorithm=Stress)
         layout_network(case, layout_algorithm=SquareGrid)

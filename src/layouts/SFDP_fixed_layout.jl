@@ -27,7 +27,7 @@ end
 
 
 # TODO: check SFDP_fixed default parameters
-function SFDP_fixed(; dim=2, Ptype=Float64, tol=1.0, C=0.2, K=1.0, iterations=100, initialpos=GeometryBasics.Point{dim,Ptype}[],seed=1, fixed=falses(length(initialpos)), kwargs...)
+function SFDP_fixed(; dim=2, Ptype=Float64, tol=0.01, C=0.2, K=1.0, iterations=500, initialpos=GeometryBasics.Point{dim,Ptype}[],seed=1, fixed=falses(length(initialpos)), kwargs...)
     if !isempty(initialpos)
         initialpos = GeometryBasics.Point.(initialpos)
         Ptype = eltype(eltype(initialpos))
@@ -85,9 +85,9 @@ function Base.iterate(iter::NetworkLayout.LayoutIterator{<:SFDP_fixed}, state)
         force = zero(Ftype)
         for j in 1:N
             i == j && continue
-            if adj_matrix[i, j] == 1
+            if adj_matrix[i, j] != 0
                 # Attractive forces for adjacent nodes
-                force += Ftype(f_attr(locs[i], locs[j], K) .*
+                force += Ftype(f_attr(locs[i], locs[j], K*adj_matrix[i, j]) .*
                                ((locs[j] .- locs[i]) / norm(locs[j] .- locs[i])))
             else
                 # Repulsive forces
