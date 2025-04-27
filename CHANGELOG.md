@@ -2,6 +2,10 @@ PowerPlots.jl Change Log
 ========================
 ### Staged
 
+### v0.5.1
+- Add filter for hover tooltip
+- Simplify geo-coordinate documentation example
+
 ### v0.5.0
 - Change powerplot arguments for components (breaking)
 - Add support for all PowerModels and PowerModelsDistribution components
