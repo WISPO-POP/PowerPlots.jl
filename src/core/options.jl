@@ -1,141 +1,118 @@
 # Default Color Schemes
-# catergory 20b and 20c used as reference
-const color_schemes=Dict{Symbol,Any}(
+color_schemes = Dict{Symbol,Any}(
     :blues => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#3182BD", Colors.colorant"#C6DBEF", length=5))),#["#$(Colors.hex(c))" for c in ColorSchemes.ColorScheme(range(Colors.colorant"#3182BD", Colors.colorant"#C6DBEF", length=5))],
     :greens => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#31A354", Colors.colorant"#C7E9C0", length=5))),
     :oranges => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#E6550D", Colors.colorant"#FDD0A2", length=5))),
     :reds => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#CB181D", Colors.colorant"#FCBBA1", length=5))),
     :purples => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#756BB1", Colors.colorant"#DADAEB", length=5))),
     :grays => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#555555", Colors.colorant"#FFFFFF", length=5))),
-    :yellows => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#8C6D31", Colors.colorant"#E7CB94", length=5))),
+    :browns => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#8C6D31", Colors.colorant"#E7CB94", length=5))),
+    :pinks => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#e7298a", Colors.colorant"#fbb3cc", length=5))),
+    :yellows => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#ffc108", Colors.colorant"#ffef79", length=5))),
+    :teal => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#2a8482", Colors.colorant"#46e1d1", length=5))),
+    :lime => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#8df33c", Colors.colorant"#c8ff87", length=5))),
+    :violet => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#8f3f8f", Colors.colorant"#d6a0d6", length=5))),
+    :cyan => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#00ffff", Colors.colorant"#99ffff", length=5))),
+    :magenta => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#ff00ff", Colors.colorant"#ff99ff", length=5))),
+    :indigo => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#4b0082", Colors.colorant"#9b59b6", length=5))),
+    :cherry => colorscheme2array(ColorSchemes.ColorScheme(range(Colors.colorant"#ff0000", Colors.colorant"#ff9999", length=5))),
+)
+
+component_color_order = Dict{Int,Symbol}(
+    1 => :blues,
+    2 => :greens,
+    3 => :oranges,
+    4 => :reds,
+    5 => :purples,
+    6 => :browns,
+    7 => :pinks,
+    8 => :yellows,
+    9 => :lime,
+    10 => :violet,
+    11 => :cyan,
+    12 => :magenta,
+    13 => :indigo,
+    14 => :cherry,
+    15 => :teal,
+    16 => :grays,
 )
 
 
-# Default plot attributes
-default_plot_attributes = Dict{Symbol, Any}(
-  :gen_color => color_schemes[:oranges],
-  :bus_color => color_schemes[:greens],
-  :load_color => color_schemes[:reds],
-  :branch_color => color_schemes[:blues],
-  :switch_color => color_schemes[:grays],
-  :transformer_color => color_schemes[:yellows],
-  :connector_color => [:gray],
-  :dcline_color => color_schemes[:purples],
-  :storage_color => color_schemes[:oranges],
-  :flow_color => :black,
-  :gen_size => 2e2,
-  :bus_size => 5e2,
-  :load_size => 2e2,
-  :branch_size => 5,
-  :switch_size => 5,
-  :transformer_size => 5,
-  :connector_size => 3,
-  :dcline_size => 5,
-  :storage_size => 2e2,
-  :width => 500,
-  :height => 500,
-  :gen_data => "ComponentType",
-  :bus_data => "ComponentType",
-  :load_data => "ComponentType",
-  :branch_data => "ComponentType",
-  :switch_data => "ComponentType",
-  :transformer_data => "ComponentType",
-  :connector_data => "ComponentType",
-  :dcline_data => "ComponentType",
-  :storage_data => "ComponentType",
-  :gen_data_type => "nominal",
-  :bus_data_type => "nominal",
-  :load_data_type => "nominal",
-  :branch_data_type => "nominal",
-  :switch_data_type => "nominal",
-  :transformer_data_type => "nominal",
-  :dcline_data_type => "nominal",
-  :storage_data_type => "nominal",
-  :show_flow => false,
-  :show_flow_legend => false,
-  :flow_arrow_size_range=>[500,3000],
-  :parallel_edge_offset => 0.05,
-  :connector_dash=>[4,4],
-);
-
-# Returns a deepcopy of the default_plot_attributes, used to initialize plot_attributes in utils.jl
-function copy_default_attributes()
-  return deepcopy(default_plot_attributes);
-end
-
-# Dictionary of aliases of properties
-# Aliases are replaced by their key in plot_attributes
-# for example, nodecolor/markercolor/marker_color, edgecolor/edge_color/ec can be used to
-# set nodecolor and edgecolor respectively
-const attribute_aliases = Dict(
-  :gen_color => [:gencolor, :generatorcolor, :generator_color, :node_color],
-  :bus_color => [:buscolor, :substationcolor, :substation_color, :node_color],
-  :load_color => [:loadcolor, :demandcolor, :demand_color, :node_color],
-  :branch_color => [:branchcolor, :transmissionlinecolor, :transmissionline_color,:transmission_line_color, :edge_color],
-  :switch_color => [:switchcolor, :edge_color],
-  :transformer_color => [:transformercolor, :edge_color],
-  :connector_color => [:connectorcolor, :edge_color],
-  :storage_color => [:storagecolor, :batterycolor, :battery_color, :node_color],
-  :dcline_color => [:dclinecolor, :dc_line_color, :edge_color],
-  :bus_size => [:bussize, :node_size],
-  :gen_size => [:gensize, :node_size],
-  :load_size => [:loadsize, :node_size],
-  :storage_size => [:storagesize, :node_size],
-  :branch_size => [:branchsize, :line_size, :edge_size],
-  :switch_size => [:switchsize, :edge_size],
-  :transformer_size => [:transformersize, :edge_size],
-  :dcline_size => [:dclinesize, :line_size, :edge_size],
-  :connector_size => [:connectorsize, :edge_size],
-  :flow_arrow_size_range =>[:flow_size, :flowsize, :arrow_size, :arrowsize],
-  :flow_color => [:flowcolor, :arrow_color, :arrowcolor],
-  :show_flow => [:flow, :showflow, :arrows, :show_arrows, :showarrows, :flows, :show_flows, :showflows],
-  :show_flow_legend => [:flowlegend, :flow_legend, :arrowlegend, :arrow_legend, :show_arrow_legend],
+default_plot_attributes = Dict{Symbol,Any}(
+    :width => 500,
+    :height => 500,
+    :parallel_edge_offset => 0.05,
+    :node_components => supported_node_types,
+    :edge_components => supported_edge_types,
+    :connected_components => supported_connected_types,
 )
+
+default_edge_attributes = Dict{Symbol,Any}(
+    :color => nothing,
+    :size => 5,
+    :data => "ComponentType",
+    :data_type => "nominal",
+    :flow_color => :black,
+    :flow_arrow_size_range => [500, 3000],
+    :show_flow => false,
+    :show_flow_legend => false,
+)
+
+default_connector_attributes = Dict{Symbol,Any}(
+    :color => [:gray],
+    :size => 3,
+    :dash => [4, 4],
+    :data => "ComponentType",
+    :data_type => "nominal",
+)
+
+default_node_attributes = Dict{Symbol,Any}(
+    :color => nothing,
+    :size => 5e2,
+    :data => "ComponentType",
+    :data_type => "nominal",
+)
+
+default_layout_attributes = Dict{Symbol,Any}(
+    :fixed => false,
+    :layout_algorithm => "spring",
+    :connector_weight => 0.5,
+    :edge_weight => 1.0,
+    :node_weight => 1.0,
+    :tol => 0.01,
+    :iterations => 500,
+    :K => 1.0,
+    :C => 0.2,
+    :initialtemp=>2.0,
+    :nlist => [[1]],
+    :abstols => 0.0,
+    :reltols => 10e-6,
+    :abstolx => 10e-6,
+    :weights => Array{Float64}(undef, 0, 0),
+    :uncon_dist=>1,
+    :nodeweights => Float64[],
+    :cols=>:auto,
+    :dx=>1.0,
+    :dy=>-1.0,
+    :skip => Tuple{Int,Int}[],
+)
+
 
 const _color_attributes = [ # color (String or Symbol) type parameters
-  :gen_color,
-  :bus_color,
-  :load_color,
-  :branch_color,
-  :connector_color,
-  :switch_color,
-  :transformer_color,
-  :storage_color,
-  :dcline_color,
-  :flow_color
+    :color,
 ]
 const _numeric_attributes = [ # numeric parameters
-  :gen_size,
-  :bus_size,
-  :load_size,
-  :branch_size,
-  :connector_size,
-  :switch_size,
-  :transformer_size,
-  :dcline_size,
-  :storage_size,
-  :width,
-  :height,
-  :parallel_edge_offset,
+    :size,
+    :width,
+    :height,
+    :parallel_edge_offset,
 ]
 const _label_attributes = [ # label (String or Symbol) type parameters
-  :gen_data,
-  :bus_data,
-  :load_data,
-  :branch_data,
-  :dcline_data,
-  :switch_data,
-  :transformer_data,
-  :storage_data,
-  :gen_data_type,
-  :bus_data_type,
-  :branch_data_type,
-  :switch_data_type,
-  :transformer_data_type,
-  :dcline_data_type,
-  :storage_data_type
+    :data,
+    :data_type
 ]
 const _boolean_attributes = [ # boolean type parameters
-  :show_flow,
-  :show_flow_legend,
+    :show_flow,
+    :show_flow_legend,
 ]
+

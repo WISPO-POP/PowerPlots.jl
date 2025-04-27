@@ -1,9 +1,12 @@
 PowerPlots.jl Change Log
 ========================
 ### Staged
-- Add support for plotting transformers an switches
-
-### v0.4.7
+- Change powerplot arguments for components
+- Add support for all PowerModels and PowerModelsDistribution components
+- Add support for plotting new (non-standard) components.
+- Fix bug in 'weights' used for layouts
+- Re-export `save` from VegaLite
+- Fixed documentation interactivity
 
 
 ### v0.4.6
@@ -16,7 +19,7 @@ PowerPlots.jl Change Log
 - Add `load` as supported component
 
 ### v0.4.4
-- Add support for plotting parallel branches/dclines 
+- Add support for plotting parallel branches/dclines
 - Add powerflow arrows to powerplots
 
 ### v0.4.3

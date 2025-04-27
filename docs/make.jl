@@ -1,4 +1,5 @@
 using Documenter, PowerPlots, VegaLite, UUIDs, PowerModels, PowerModelsDistribution
+PowerModels.silence()
 
 function Base.show(io::IO, m::MIME"text/html", v::VegaLite.VLSpec)
     divid = string("vl", replace(string(uuid4()), "-"=>""))
@@ -11,7 +12,11 @@ end
 makedocs(
     warnonly = true,
     modules = [PowerPlots],
-    format = Documenter.HTML(mathengine = Documenter.MathJax()),
+    format = Documenter.HTML(mathengine = Documenter.MathJax(),
+        size_threshold_warn = 2^20,
+        size_threshold = nothing,
+        example_size_threshold = nothing,
+    ),  
     sitename = "PowerPlots",
     authors = "Noah Rhodes",
     pages = [

@@ -1,88 +1,139 @@
-#===
-Below are functions copied from `utils.jl` in GraphRecipes
-See: https://github.com/JuliaPlots/GraphRecipes.jl/blob/master/src/utils.jl
-===#
 
-# gets the alias replacement name to replace the attribute sym in plot_attributes
-function _replacement_kwarg(sym, name, plot_attributes, attribute_aliases)
-  replacement = name
-  for alias in attribute_aliases[sym]
-      if haskey(plot_attributes, alias)
-          replacement = plot_attributes[alias]
-      end
-  end
-  replacement
+
+function initialize_default_attributes(node_components, edge_components, connected_components)
+    plot_attributes = deepcopy(default_plot_attributes)
+    for comp_type in edge_components
+        plot_attributes[Symbol(comp_type)] = deepcopy(default_edge_attributes)
+    end
+    for comp_type in [node_components..., connected_components...]
+        plot_attributes[Symbol(comp_type)] = deepcopy(default_node_attributes)
+    end
+    plot_attributes[:connector] = deepcopy(default_connector_attributes)
+    return plot_attributes
 end
 
-# adds the original keyword of all aliases into plot_attributes
-# and sets it to the alias value
-macro process_aliases(plot_attributes, attribute_aliases)
-  ex = Expr(:block)
-  attributes = getfield(__module__, attribute_aliases) |> keys
-  ex.args = [Expr(:(=), :($(esc(plot_attributes))[$(Meta.quot(sym))]),
-                  :($(esc(_replacement_kwarg))($(QuoteNode(sym)), $(esc(sym)),
-                    $(esc(plot_attributes)), $(esc(attribute_aliases))))) for sym in attributes]
-  ex
-end
-push!(_EXCLUDE_SYMBOLS, Symbol("@process_aliases"))
 
-# called after aliases are processed via @process_aliases
-# removes any alias keys from plot_attributes
-function _remove_aliases!(sym, plot_attributes, attribute_aliases)
-  for alias in attribute_aliases[sym]
-      if haskey(plot_attributes, alias)
-          delete!(plot_attributes, alias)
-      end
-  end
-end
-
-#===
-New PowerPlots code below
-===#
-
-# Adds the given keyword args as entries into plot_attributes
-function _convert_to_attributes!(plot_attributes, kwargs)
-  for (var, val) in kwargs
-    plot_attributes[var] = val
-  end
+function add_color_attributes!(
+    plot_attributes::Dict,
+    PMD::PowerModelsDataFrame,
+)
+    color_index = 1
+    for comp_type in [
+            plot_attributes[:node_components]...,
+            plot_attributes[:edge_components]...,
+            plot_attributes[:connected_components]...
+        ]
+        if !(isempty(PMD.components[comp_type]))
+            if isnothing(plot_attributes[comp_type][:color])
+                plot_attributes[comp_type][:color] = color_schemes[component_color_order[color_index]]
+                color_index += 1
+            end
+        else
+            plot_attributes[comp_type][:color] = "black"
+        end
+    end
+    return plot_attributes
 end
 
-function _attributes_as_variables(plot_attributes, kwargs)
-  ex = Expr(:block)
-  ex.args = [(haskey(kwargs, var) ? Expr(:(=), var, Meta.quot(kwargs[var]))
-     : Expr(:(=), var, Meta.quot(val))) for (var, val) in plot_attributes]
-  return ex
+
+
+function apply_components_filters!(plot_attributes::AbstractDict,
+    node_components::AbstractVector{<:Any},
+    edge_components::AbstractVector{<:Any},
+    connected_components::AbstractVector{<:Any},
+    )
+    if eltype(node_components) != Symbol
+        node_components = Symbol.(node_components)
+    end
+    if eltype(edge_components) != Symbol
+        edge_components = Symbol.(edge_components)
+    end
+    if eltype(connected_components) != Symbol
+        connected_components = Symbol.(connected_components)
+    end
+
+    plot_attributes[:node_components] = Symbol[i for i in node_components]
+    plot_attributes[:connected_components] = Symbol[i for i in connected_components]
+    plot_attributes[:edge_components] = Symbol[i for i in edge_components]
+
+    return plot_attributes
 end
 
-macro prepare_plot_attributes(kwargs)
-  ex = quote
-    _kwargs = $(esc(kwargs));
-    plot_attributes = copy_default_attributes(); # get a copy of the default attributes
-    _attributes_as_variables(plot_attributes, _kwargs) |> eval; # create variables from the default attributes
-    _convert_to_attributes!(plot_attributes, _kwargs); # add kwargs into plot_attributes
-    @process_aliases plot_attributes attribute_aliases; # process the aliases and add original attributes
-    # remove alias names from plot_attributes
-    for arg in keys(attribute_aliases)
-      _remove_aliases!(arg, plot_attributes, attribute_aliases)
-    end;
-  end;
-  push!(ex.args, Expr(:(=), esc(:plot_attributes), :plot_attributes)); # create external plot_attributes dict
-  ex
+function apply_kwarg_attributes!(plot_attributes::Dict; kwargs...)
+    for (k, v) in kwargs
+        if !( k in plot_attributes[:edge_components] ||
+              k in plot_attributes[:node_components] ||
+              k in plot_attributes[:connected_components] ||
+              k == :connector
+            )
+            process_plot_attributes!(plot_attributes, k, v)
+        else
+            process_comp_attributes!(plot_attributes, k, v)
+        end
+    end
+    return plot_attributes
 end
-push!(_EXCLUDE_SYMBOLS, Symbol("@prepare_plot_attributes"))
 
-# #=== Example Usage ===#
-# function powerplot(case; spring_constant=1e-3, kwargs...)
-#   # Copy the line below at the start of the plot method
-#   @prepare_plot_attributes(kwargs); # creates the plot_attributes dictionary
+function process_plot_attributes!(plot_attributes::AbstractDict, k::Symbol, v::Any)
+    if k in keys(default_plot_attributes) || k in keys(default_layout_attributes)
+        plot_attributes[k] = v
+    else
+        Memento.warn(_LOGGER, "Ignoring unexpected attribute $(repr(k))")
+    end
+    return plot_attributes
+end
 
-#   println(plot_attributes) # TODO remove this in real code (it's just for debug)
+function process_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, comp_attributes::Tuple)
+    for (k,v) in comp_attributes
+        _apply_comp_attributes!(plot_attributes, comp_type, k, v)
+    end
+    return plot_attributes
+end
 
-#   # Rest of plotting code...
-# end
+function process_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, comp_attribute::Pair)
+    (k,v) = comp_attribute
+    _apply_comp_attributes!(plot_attributes, comp_type, k, v)
+    return plot_attributes
+end
+
+function _apply_comp_attributes!(plot_attributes::AbstractDict, comp_type::Symbol, k::Symbol, v::Any)
+    if comp_type in plot_attributes[:edge_components]
+        if k in keys(default_edge_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected edge attribute $(repr(k))")
+        end
+    elseif comp_type in plot_attributes[:node_components]
+        if k in keys(default_node_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected node attribute $(repr(k))")
+        end
+    elseif comp_type in plot_attributes[:connected_components]
+        if k in keys(default_node_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected connected component attribute $(repr(k))")
+        end
+    elseif comp_type ==:connector
+        if k in keys(default_connector_attributes)
+            plot_attributes[comp_type][k] = v
+        else
+            Memento.warn(_LOGGER, "Ignoring unexpected connector attribute $(repr(k))")
+        end
+    else
+        Memento.warn(_LOGGER, "Ignoring unexpected component type $(repr(comp_type))")
+    end
+    return plot_attributes
+end
 
 
 "Convert a color scheme `cs` into an array of string hex colors, usable by VegaLite"
 function colorscheme2array(cs::ColorSchemes.ColorScheme)
     return a = ["#$(Colors.hex(c))" for c in cs]
+end
+
+
+function ucfirst(s::AbstractString)
+    return uppercase(s[1]) * s[2:end]
 end

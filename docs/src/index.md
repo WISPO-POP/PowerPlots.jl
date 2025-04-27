@@ -30,10 +30,8 @@ The primary use for PowerPlots is to visualize data in the PowerModels dictionar
 
 ```@example overview
 powerplot(case;
-    gen_data=:pmax,
-    branch_data=:rate_a,
-    branch_color=[:white,:blue],
-    branch_data_type=:quantitative
+    :gen=>(:data=>:pmax),
+    :branch=>(:data=>:rate_a, :color=>[:white, :blue], :data_type=>:quantitative),
 )
 ```
 
@@ -48,9 +46,9 @@ case["gen"]["5"]["gen_type"] = "Wind"
 
 using ColorSchemes
 powerplot(case;
-    gen_data=:gen_type,
-    gen_color = colorscheme2array(ColorSchemes.colorschemes[:seaborn_deep]),
-    bus_color=:black
+    connected_components=[:gen], edge_components=[:branch],
+    :gen=>(:data=>:gen_type, :color=>colorscheme2array(ColorSchemes.colorschemes[:seaborn_deep])),
+    :bus=>(:color=>:black),
 )
 ```
 
