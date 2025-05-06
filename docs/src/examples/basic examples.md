@@ -71,7 +71,7 @@ p = powerplot(data, width=300, height=300,
 ```
 
 # Branch line styles 
-The line style of branches can be customized by using `branch_linestyle_rules`. This setting lets you define which columns in the branch data determine the line style and how specific values in that column map to selected styles. The length of `branch_linestyle_labels` must be equal to the number of defined rules plus one.
+The line style of branches can be customized by using `branch_linestyle_rules`. This setting lets you define which columns in the branch data determine the line style and how specific values in that column map to selected styles. The length of `branch_linestyle_labels` must be equal to the number of defined rules plus the one which defines default. The dash pattern `[stroke, space]` sets the `strokeDash` parameter in Vega, which determines the line style. See [Vega Line Mark documentation](https://vega.github.io/vega/docs/marks/line/) for further information.
 
 ```@example power_data
 # add new columns to branch data
