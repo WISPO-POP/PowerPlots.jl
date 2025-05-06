@@ -358,6 +358,26 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
         plot_attributes[:hover] = names(edge_data)
     end
 
+    linestyle_legend = true
+    if plot_attributes[:show_linestyle_legend] in [nothing, false, :false, "false", :no, "no"] 
+        linestyle_legend  = false
+    end
+
+    rules = plot_attributes[:branch_linestyle_rules]
+    labels = plot_attributes[:branch_linestyle_labels]
+
+    assign_branch_styles!(edge_data, rules, plot_attributes[:default_branch_linestyle])
+    unique_styles = unique(edge_data[!, :branch_style])
+    style_ids = Dict(zip(unique_styles, 1:length(unique_styles)))
+    edge_data[!, :branch_style_key] = [style_ids[s] for s in edge_data[!, :branch_style]]
+    if isnothing(labels)
+        labels = ["$i" for i in 1:length(unique_styles)]
+    end
+    label_map = Dict(i => labels[i] for i in 1:length(unique_styles))
+    edge_data[!, "Branch Types"] = [label_map[k] for k in edge_data[!, :branch_style_key]]
+
+
+
     return VegaLite.@vlplot(
         data = edge_data,
         layer = [
@@ -379,6 +399,15 @@ function plot_edge(edge_data::DataFrames.DataFrame, comp_type::Symbol, plot_attr
                     scale = {
                         range = plot_attributes[:color]
                     },
+                },
+                strokeDash={
+                    field="Branch Types",
+                    type="nominal",
+                    scale={
+                        domain=labels,
+                        range=unique_styles
+                    },
+                    legend=linestyle_legend,
                 },
             },
             {
@@ -472,4 +501,16 @@ function plot_connector(connector_data::DataFrames.DataFrame, plot_attributes::D
             },
         },
     )
+end
+
+function assign_branch_styles!(data::DataFrames.DataFrame,rules::AbstractVector,default_style::Any)
+    styles = fill(default_style, DataFrames.nrow(data))
+    for (col, mapping) in rules
+        for (i, val) in enumerate(data[!, col])
+            if haskey(mapping, val)
+                styles[i] = mapping[val]
+            end
+        end
+    end
+    data[!, :branch_style] = styles
 end

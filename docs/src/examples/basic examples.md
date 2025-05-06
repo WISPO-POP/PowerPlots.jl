@@ -70,6 +70,35 @@ p = powerplot(data, width=300, height=300,
 )
 ```
 
+# Branch line styles 
+The line style of branches can be customized by using `branch_linestyle_rules`. This setting lets you define which columns in the branch data determine the line style and how specific values in that column map to selected styles. The length of `branch_linestyle_labels` must be equal to the number of defined rules plus the one which defines default. The dash pattern `[stroke, space]` sets the `strokeDash` parameter in Vega, which determines the line style. See [Vega Line Mark documentation](https://vega.github.io/vega/docs/marks/line/) for further information.
+
+```@example power_data
+# add new columns to branch data
+PST_list=[0,0,1,0,0,0,0]
+for (key, subdict) in data["branch"]
+    subdict["pst"] = PST_list[parse(Int,key)]
+    subdict["loading"] = rand(1:100)
+end
+
+p = PowerPlots.powerplot(data,
+    branch=(
+        :data=>"loading", 
+        :data_type=>"quantitative",
+        :color=>reverse(colorscheme2array(ColorSchemes.colorschemes[:RdYlGn_4])),
+        :branch_linestyle_rules => [
+            (:transformer, Dict(true=>[2,2])),
+            (:pst, Dict(1=>[6,3])),
+        ],
+        :branch_linestyle_labels => ["Line", "Transformer", "PST"],
+        :show_linestyle_legend => true,
+    )
+)
+p.layer[1]["layer"][1]["encoding"]["color"]["scale"]["domain"]=[0,100]
+p.layer[1]["layer"][1]["encoding"]["color"]["legend"]=Dict("title"=>"Loading (%)")
+display(p)
+```
+
 # Specify components for plotting
 Default supported components for plotting are specified as:
 ```@example power_data

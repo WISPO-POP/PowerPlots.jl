@@ -24,6 +24,7 @@ There are several component 'toggle' parameters that control whether certain dis
 | ------- | ----------- | ------- |
 | `show_flow` | whether flow arrows are displayed | `false` |
 | `show_flow_legend` | whether the legend for the flow arrows is shown | `false` |
+| `show_linestyle_legend` | whether the legend for the branch linestyles is shown | `false` |
 
 ### Color
 The color arguments can accept several inputs.  A single color can be specified using a color name as a symbol or a string.  [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) names are supported.  In addition, hex color values in a string are supported.
@@ -124,3 +125,6 @@ powerplot(case; gen_data=:index, gen_data_type=:nominal) # the index is a discre
 | Keyword     | Description | Default |
 | ----------- | ----------- | ------- |
 | `:connector_dash`     | set dash size for connectors | `[4,4]` |
+| `branch_linestyle_rules`     | define rules for branch linestyles | `[]` |
+| `default_branch_linestyle`     | set the default branch dash size | `[1,0]` |
+| `branch_linestyle_labels`     | set labels for linestyles in the legend | `nothing` |

@@ -56,7 +56,11 @@ default_edge_attributes = Dict{Symbol,Any}(
     :flow_arrow_size_range => [500, 3000],
     :show_flow => false,
     :show_flow_legend => false,
-    :hover => nothing
+    :hover => nothing,
+    :default_branch_linestyle => [1,0],
+    :branch_linestyle_rules => [],
+    :branch_linestyle_labels => nothing,
+    :show_linestyle_legend => false,
 )
 
 default_connector_attributes = Dict{Symbol,Any}(
