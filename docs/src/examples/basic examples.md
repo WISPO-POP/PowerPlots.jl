@@ -73,15 +73,15 @@ p = powerplot(data, width=300, height=300,
 # Specify components for plotting
 Default supported components for plotting are specified as:
 ```@example power_data
-supported_connected_types
+default_connected_types
 ```
 
 ```@example power_data
-supported_node_types
+default_node_types
 ```
 
 ```@example power_data
-supported_edge_types
+default_edge_types
 ```
 
 

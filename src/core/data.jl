@@ -1,6 +1,6 @@
 
 "return a Dict indexed by bus pairs, with a value of an array of tuples of edge types and edge ids of parallel edges"
- function get_parallel_edges(data, edge_types=supported_edge_types)
+ function get_parallel_edges(data, edge_types=default_edge_types)
     edge_pairs = Dict()
     for edge_type in edge_types # supported edge_types
         for (id,edge) in get(data, string(edge_type), Dict())
@@ -27,7 +27,7 @@
 end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
-function offset_parallel_edges!(data,offset; edge_types=supported_edge_types)
+function offset_parallel_edges!(data,offset; edge_types=default_edge_types)
     get_parallel_edges(data, edge_types)
     for (bus_pair, edges) in get_parallel_edges(data, edge_types)
         n_edges = length(edges)

@@ -47,9 +47,9 @@ PowerModelsGraph(data::Dict{String,<:Any},
 There is also a convenient function with default node and edge types as keyword arguments that include all the default supported components.
 ```julia
 PowerModelsGraph(data::Dict{String,<:Any},
-                node_components=supported_node_types,
-                edge_components=supported_edge_types,
-                connected_components=supported_connected_types
+                node_components=default_node_types,
+                edge_components=default_edge_types,
+                connected_components=default_connected_types
 )
 ```
 

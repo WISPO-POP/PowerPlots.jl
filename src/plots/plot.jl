@@ -14,9 +14,9 @@ Create a plower plot. Check github repo for documentation on kwarg options.
 function powerplot(
     case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
-    edge_components=supported_edge_types,
-    node_components=supported_node_types,
-    connected_components=supported_connected_types,
+    edge_components=default_edge_types,
+    node_components=default_node_types,
+    connected_components=default_connected_types,
     fixed=false,
     kwargs...)
 
@@ -91,9 +91,9 @@ used to plot geographic map data underneath a power grid.
 """
 function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
-    edge_components=supported_edge_types,
-    node_components=supported_node_types,
-    connected_components=supported_connected_types,
+    edge_components=default_edge_types,
+    node_components=default_node_types,
+    connected_components=default_connected_types,
     fixed=false,
     kwargs...)
 
@@ -161,9 +161,9 @@ end
 
 function _powerplot_mn(case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
-    edge_components=supported_edge_types,
-    node_components=supported_node_types,
-    connected_components=supported_connected_types,
+    edge_components=default_edge_types,
+    node_components=default_node_types,
+    connected_components=default_connected_types,
     fixed=false,
     kwargs...)
 
@@ -228,9 +228,9 @@ end
 
 function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     layout_algorithm=kamada_kawai,
-    edge_components=supported_edge_types,
-    node_components=supported_node_types,
-    connected_components=supported_connected_types,
+    edge_components=default_edge_types,
+    node_components=default_node_types,
+    connected_components=default_connected_types,
     fixed=false,
     kwargs...)
 

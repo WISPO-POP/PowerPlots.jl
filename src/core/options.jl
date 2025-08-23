@@ -42,9 +42,9 @@ default_plot_attributes = Dict{Symbol,Any}(
     :width => 500,
     :height => 500,
     :parallel_edge_offset => 0.05,
-    :node_components => supported_node_types,
-    :edge_components => supported_edge_types,
-    :connected_components => supported_connected_types,
+    :node_components => default_node_types,
+    :edge_components => default_edge_types,
+    :connected_components => default_connected_types,
 )
 
 default_edge_attributes = Dict{Symbol,Any}(

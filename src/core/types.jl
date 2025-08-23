@@ -1,8 +1,8 @@
 
 
-const supported_connected_types = [:gen,:load,:storage,:generator,:voltage_source,:solar,:shunt]
-const supported_node_types = [:bus]
-const supported_edge_types = [:branch,:dcline,:switch,:transformer,:line]
+const default_connected_types = [:gen,:load,:storage,:generator,:voltage_source,:solar,:shunt]
+const default_node_types = [:bus]
+const default_edge_types = [:branch,:dcline,:switch,:transformer,:line]
 
 """
     PowerModelsGraph
@@ -101,9 +101,9 @@ end
 
 ""
 function PowerModelsGraph(data::Dict{String,<:Any};
-    node_components=supported_node_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
-    edge_components=supported_edge_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
-    connected_components=supported_connected_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
+    node_components=default_node_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
+    edge_components=default_edge_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
+    connected_components=default_connected_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
     )
     if eltype(node_components) == String
         node_components = Symbol.(node_components)
@@ -200,7 +200,7 @@ mutable struct PowerModelsDataFrame
     end
 end
 
-function PowerModelsDataFrame(case::Dict{String,<:Any}; components::Vector{<:Any}=vcat(supported_node_types,supported_edge_types,supported_connected_types))
+function PowerModelsDataFrame(case::Dict{String,<:Any}; components::Vector{<:Any}=vcat(default_node_types,default_edge_types,default_connected_types))
     return PowerModelsDataFrame(case, Symbol[Symbol(i) for i in components])
 end
 
