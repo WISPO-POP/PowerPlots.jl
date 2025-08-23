@@ -21,7 +21,13 @@ mutable struct PowerModelsGraph
     edge_comp_map::Dict{Tuple{Int,Int},Tuple{Symbol, Symbol}}
     edge_connector_map::Dict{Tuple{Int,Int},Tuple{Symbol, Symbol}}
 
-    function PowerModelsGraph(data::Dict{String,<:Any}, node_components::Array{Symbol,1}, edge_components::Array{Symbol,1}, connected_components::Array{Symbol,1})
+    function PowerModelsGraph(data::Dict{String,<:Any},
+            node_components::Vector{Symbol},
+            edge_components::Vector{Symbol},
+            connected_components::Vector{Symbol}
+        )
+        @assert !isempty(node_components) # must have at least one node type
+        @assert !isempty(edge_components) # must have at least one edge type
 
         graph_node_count = sum(length(keys(get(data,string(comp_type),Dict()))) for comp_type in [node_components...,connected_components...])
         G = Graphs.SimpleGraph(graph_node_count) # create graph
@@ -101,9 +107,10 @@ end
 
 ""
 function PowerModelsGraph(data::Dict{String,<:Any};
-    node_components=default_node_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
-    edge_components=default_edge_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
-    connected_components=default_connected_types::Union{AbstractVector{Symbol}, AbstractVector{String}},
+    node_components=default_node_types,
+    edge_components=default_edge_types,
+    connected_components=default_connected_types,
+
     )
     if eltype(node_components) == String
         node_components = Symbol.(node_components)
@@ -114,6 +121,16 @@ function PowerModelsGraph(data::Dict{String,<:Any};
     if eltype(connected_components) == String
         connected_components = Symbol.(connected_components)
     end
+    if isempty(node_components)
+        node_components = Symbol[]
+    end
+    if isempty(edge_components)
+        edge_components = Symbol[]
+    end
+    if isempty(connected_components)
+        connected_components = Symbol[]
+    end
+
     return PowerModelsGraph(data, node_components, edge_components, connected_components)
 end
 
@@ -132,6 +149,16 @@ function PowerModelsGraph(data::Dict{String,<:Any},
     if eltype(connected_components) != Symbol
         connected_components = Symbol.(connected_components)
     end
+     if isempty(node_components)
+        node_components = Symbol[]
+    end
+    if isempty(edge_components)
+        edge_components = Symbol[]
+    end
+    if isempty(connected_components)
+        connected_components = Symbol[]
+    end
+
     return PowerModelsGraph(data, node_components, edge_components, connected_components)
 end
 

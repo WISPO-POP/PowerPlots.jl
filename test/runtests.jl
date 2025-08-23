@@ -137,6 +137,13 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         case = layout_network(case)
         powerplot(case, fixed=true)
 
+        pmg = PowerModelsGraph(case)
+        pmg = PowerModelsGraph(case, connected_components=Symbol[])
+        pmg = PowerModelsGraph(case, connected_components=[]) # should function with empty components
+        pmg = PowerModelsGraph(case, [:bus], [:branch], [])  # should function with empty components
+        @test_throws(AssertionError, PowerModelsGraph(case, [], [:branch], [])) # must have at least one node type
+        @test_throws(AssertionError, PowerModelsGraph(case, [:bus], [], [])) # must have at least one edge type
+
     end
 
     @testset "Multinetwork plots" begin
