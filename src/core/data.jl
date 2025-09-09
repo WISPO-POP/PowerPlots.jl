@@ -1,16 +1,33 @@
 
 "return a Dict indexed by bus pairs, with a value of an array of tuples of edge types and edge ids of parallel edges"
- function get_parallel_edges(data, edge_types=default_edge_types)
+ function get_parallel_edges(data, edge_types=default_edge_types, edge_keys=default_edge_keys)
     edge_pairs = Dict()
     for edge_type in edge_types # supported edge_types
         for (id,edge) in get(data, string(edge_type), Dict())
-            if edge_type == :transformer && haskey(edge,"bus",)
-                bus_ids = unique(edge["bus"])
-                @assert length(bus_ids) == 2 # one source, one destination
-                bus_pair = (min(bus_ids[1],bus_ids[2]), max(bus_ids[1],bus_ids[2])) # get unique direction
-            else
-                bus_pair = (min(edge["f_bus"],edge["t_bus"]), max(edge["f_bus"],edge["t_bus"])) # get unique direction
+
+             # get all keys in edge that match edge_keys
+            keys_in_edge = _get_edge_keys(edge_keys, keys(edge))
+            # if no keys, error
+            @assert !isempty(keys_in_edge) "No edge keys found in edgeonent $edge_type $id. Searched for keys: $edge_keys"
+            # if more than 2 keys, error
+            @assert length(keys_in_edge) <= 1 "More than two edge keys found in edgeonent $edge_type $id. Found keys: $keys_in_edge"
+
+            keys_in_edge = keys_in_edge[1] # only one key or tuple of keys allowed
+            # if 1 key, check length on value -> requires it to be length two (unique) ids
+            if length(keys_in_edge) == 1
+                @assert length(edge[string(keys_in_edge[1])]) == 2 "One edge key $(keys_in_edge[1]) in edgeonent $edge_type $id found. Must refer to two unique nodes. Found nodes: $(edge[string(keys_in_edge[1])])"
+                s = edge[string(keys_in_edge[1])][1]
+                d = edge[string(keys_in_edge[1])][2]
             end
+            # if 2 keys, one is source, one is destination
+            if length(keys_in_edge) == 2
+                @assert length(edge[string(keys_in_edge[1])]) == 1 && length(edge[string(keys_in_edge[2])]) == 1 "Two edge keys $(keys_in_edge)"*
+                " in edgeonent $edge_type $id found. Each key must refer to a single node. Found nodes: $(edge[string(keys_in_edge[1])]) and $(edge[string(keys_in_edge[2])])"
+                s = edge[string(keys_in_edge[1])][1]
+                d = edge[string(keys_in_edge[2])][1]
+            end
+            bus_pair = (min(s,d), max(s,d)) # get unique direction
+
             if !haskey(edge_pairs, bus_pair)
                 edge_pairs[bus_pair] = []
             end
@@ -27,9 +44,9 @@
 end
 
 "Add x/y coords for all any parallel branches, and offset the endpoints so each branch is visible"
-function offset_parallel_edges!(data,offset; edge_types=default_edge_types)
-    get_parallel_edges(data, edge_types)
-    for (bus_pair, edges) in get_parallel_edges(data, edge_types)
+function offset_parallel_edges!(data,offset; edge_types=default_edge_types, edge_keys=default_edge_keys)
+    get_parallel_edges(data, edge_types, edge_keys)
+    for (bus_pair, edges) in get_parallel_edges(data, edge_types, edge_keys)
         n_edges = length(edges)
         xcoord_1 = data["bus"]["$(bus_pair[1])"]["xcoord_1"]
         ycoord_1 = data["bus"]["$(bus_pair[1])"]["ycoord_1"]

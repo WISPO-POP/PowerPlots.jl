@@ -17,11 +17,13 @@ function powerplot(
     edge_components=default_edge_types,
     node_components=default_node_types,
     connected_components=default_connected_types,
+    edge_keys=default_edge_keys,
+    connected_keys=default_connected_keys,
     fixed=false,
     kwargs...)
 
     if InfrastructureModels.ismultinetwork(case)
-        return _powerplot_mn(case; layout_algorithm, fixed, edge_components, node_components, connected_components, kwargs...)
+        return _powerplot_mn(case; layout_algorithm, fixed, edge_components, node_components, connected_components, edge_keys, connected_keys, kwargs...)
     end
 
     # copy data for modification by plots
@@ -36,11 +38,11 @@ function powerplot(
     plot_attributes = apply_kwarg_attributes!(plot_attributes; kwargs...)
 
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed,
-        node_components, edge_components, connected_components, kwargs...
+        node_components, edge_components, connected_components, edge_keys, connected_keys, kwargs...
     )
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components)
+    offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components, edge_keys=edge_keys)
 
     # remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data; components=vcat(node_components, edge_components, connected_components))
@@ -94,11 +96,13 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     edge_components=default_edge_types,
     node_components=default_node_types,
     connected_components=default_connected_types,
+    edge_keys=default_edge_keys,
+    connected_keys=default_connected_keys,
     fixed=false,
     kwargs...)
 
     if InfrastructureModels.ismultinetwork(case)
-        return _powerplot_mn!(plt_layer, case; layout_algorithm, fixed, edge_components, node_components, connected_components, kwargs...)
+        return _powerplot_mn!(plt_layer, case; layout_algorithm, fixed, edge_components, node_components, connected_components, edge_keys, connected_keys, kwargs...)
     end
 
     # copy data for modification by plots
@@ -113,10 +117,10 @@ function powerplot!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     plot_attributes = apply_kwarg_attributes!(plot_attributes; kwargs...)
 
     data = layout_network(case; layout_algorithm=layout_algorithm, fixed=fixed, node_components=node_components,
-        edge_components=edge_components, connected_components=connected_components, kwargs...)
+        edge_components=edge_components, connected_components=connected_components, edge_keys=edge_keys, connected_keys=connected_keys, kwargs...)
 
     # fix parallel branch coordinates
-    offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components)
+    offset_parallel_edges!(data, plot_attributes[:parallel_edge_offset], edge_types=edge_components, edge_keys=edge_keys)
 
     # remove_information!(data, invalid_keys)
     PMD = PowerModelsDataFrame(data; components=vcat(node_components, edge_components, connected_components))
@@ -164,6 +168,8 @@ function _powerplot_mn(case::Dict{String,<:Any};
     edge_components=default_edge_types,
     node_components=default_node_types,
     connected_components=default_connected_types,
+    edge_keys=default_edge_keys,
+    connected_keys=default_connected_keys,
     fixed=false,
     kwargs...)
 
@@ -182,9 +188,9 @@ function _powerplot_mn(case::Dict{String,<:Any};
     # fix parallel branch coordinates
     for (nwid, net) in data["nw"]
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, node_components=node_components,
-            edge_components=edge_components, connected_components=connected_components, kwargs...)
+            edge_components=edge_components, connected_components=connected_components, edge_keys=edge_keys, connected_keys=connected_keys, kwargs...)
 
-        offset_parallel_edges!(data["nw"][nwid], plot_attributes[:parallel_edge_offset], edge_types=edge_components)
+        offset_parallel_edges!(data["nw"][nwid], plot_attributes[:parallel_edge_offset], edge_types=edge_components, edge_keys=edge_keys)
     end
 
     PMD = PowerModelsDataFrame(data; components=vcat(node_components, edge_components, connected_components))
@@ -231,6 +237,8 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     edge_components=default_edge_types,
     node_components=default_node_types,
     connected_components=default_connected_types,
+    edge_keys=default_edge_keys,
+    connected_keys=default_connected_keys,
     fixed=false,
     kwargs...)
 
@@ -249,9 +257,9 @@ function _powerplot_mn!(plt_layer::VegaLite.VLSpec, case::Dict{String,<:Any};
     # fix parallel branch coordinates
     for (nwid, net) in data["nw"]
         data["nw"][nwid] = layout_network(net; layout_algorithm=layout_algorithm, fixed=fixed, node_components=node_components,
-            edge_components=edge_components, connected_components=connected_components, kwargs...)
+            edge_components=edge_components, connected_components=connected_components, edge_keys=edge_keys, connected_keys=connected_keys, kwargs...)
 
-        offset_parallel_edges!(data["nw"][nwid], plot_attributes[:parallel_edge_offset], edge_types=edge_components)
+        offset_parallel_edges!(data["nw"][nwid], plot_attributes[:parallel_edge_offset], edge_types=edge_components, edge_keys=edge_keys)
     end
 
     # remove_information!(data, invalid_keys)
