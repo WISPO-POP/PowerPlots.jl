@@ -44,7 +44,7 @@ function layout_network!(data::Dict{String,<:Any};
     edge_components::AbstractArray{Symbol,1} = default_edge_types,
     connected_components::AbstractArray{Symbol,1} = default_connected_types,
     edge_keys::AbstractArray{Any,1} = default_edge_keys,
-    connected_keys::AbstractArray{Symbol,1} = default_connected_keys,
+    connector_keys::AbstractArray{Symbol,1} = default_connector_keys,
     fixed::Bool = false,
     layout_algorithm = kamada_kawai,
     connector_weight::Union{Nothing, AbstractFloat}=nothing,
@@ -53,7 +53,7 @@ function layout_network!(data::Dict{String,<:Any};
     kwargs...
     )
 
-    PMG = PowerModelsGraph(data,node_components,edge_components,connected_components,edge_keys,connected_keys)
+    PMG = PowerModelsGraph(data,node_components,edge_components,connected_components,edge_keys,connector_keys)
 
     # get weights
     edge_weights =  get_edge_weights(data, PMG, edge_weight, connector_weight)

@@ -4,7 +4,7 @@ const default_connected_types = [:gen,:load,:storage,:generator,:voltage_source,
 const default_node_types = [:bus]
 const default_edge_types = [:branch,:dcline,:switch,:transformer,:line]
 default_edge_keys = [(:f_bus, :t_bus), :bus] # allow either (src,dst) or a single key that refers to [src, dst]
-default_connected_keys = [:bus, [Symbol(string(i)*"_bus") for i in default_connected_types]...]
+default_connector_keys = [:bus, [Symbol(string(i)*"_bus") for i in default_connected_types]...]
 
 function _get_edge_keys(keys_to_check, comp_keys)
     sample_edge_keys = Any[]
@@ -56,7 +56,7 @@ mutable struct PowerModelsGraph
             edge_components::Vector{Symbol},
             connected_components::Vector{Symbol},
             edge_keys::Vector{<:Any}, # Vector of Symbols or Tuples of Symbols
-            connected_keys::Vector{Symbol}
+            connector_keys::Vector{Symbol}
         )
         @assert !isempty(node_components) # must have at least one node type
         @assert !isempty(edge_components) # must have at least one edge type
@@ -130,8 +130,8 @@ mutable struct PowerModelsGraph
                     edge_connector_array[i_3] = (comp_type,Symbol(comp_id))
 
                     # get key to the connected node
-                    key_in_comp = intersect(connected_keys, Symbol.(keys(comp)))
-                    @assert length(key_in_comp) !=0 "No connected keys found in component $comp_type $comp_id. Searched for keys: $connected_keys"
+                    key_in_comp = intersect(connector_keys, Symbol.(keys(comp)))
+                    @assert length(key_in_comp) !=0 "No connected keys found in component $comp_type $comp_id. Searched for keys: $connector_keys"
                     @assert length(key_in_comp) <= 1 "More than one connected key found in component $comp_type $comp_id. Found keys: $keys_in_comp"
                     key_in_comp = key_in_comp[1]
                     s = comp_node_map[(:bus,Symbol(comp[string(key_in_comp)]))]
@@ -155,7 +155,7 @@ function PowerModelsGraph(data::Dict{String,<:Any};
     edge_components=default_edge_types,
     connected_components=default_connected_types,
     edge_keys=default_edge_keys,
-    connected_keys=default_connected_keys
+    connector_keys=default_connector_keys
     )
     if eltype(node_components) == String
         node_components = Symbol.(node_components)
@@ -169,8 +169,8 @@ function PowerModelsGraph(data::Dict{String,<:Any};
     # if eltype(edge_keys) == Symbol
     #     edge_keys = Symbol.(edge_keys)
     # end
-    if eltype(connected_keys) == String
-        connected_keys = Symbol.(connected_keys)
+    if eltype(connector_keys) == String
+        connector_keys = Symbol.(connector_keys)
     end
 
     if isempty(node_components)
@@ -185,8 +185,8 @@ function PowerModelsGraph(data::Dict{String,<:Any};
     if isempty(edge_keys)
         edge_keys = Symbol[]
     end
-    if isempty(connected_keys)
-        connected_keys = Symbol[]
+    if isempty(connector_keys)
+        connector_keys = Symbol[]
     end
 
     return PowerModelsGraph(
@@ -195,7 +195,7 @@ function PowerModelsGraph(data::Dict{String,<:Any};
         edge_components,
         connected_components,
         edge_keys,
-        connected_keys
+        connector_keys
     )
 end
 
@@ -205,7 +205,7 @@ function PowerModelsGraph(data::Dict{String,<:Any},
     edge_components::AbstractVector{<:Any},
     connected_components::AbstractVector{<:Any},
     edge_keys::AbstractVector{<:Any},
-    connected_keys::AbstractVector{<:Any}
+    connector_keys::AbstractVector{<:Any}
     )
     if eltype(node_components) != Symbol
         node_components = Symbol.(node_components)
@@ -219,8 +219,8 @@ function PowerModelsGraph(data::Dict{String,<:Any},
     # if eltype(edge_keys) != Symbol
         # edge keys must be a vector of <:Any.  Validation of type occurs in PMG
     # end
-    if eltype(connected_keys) != Symbol
-        connected_keys = Symbol.(connected_keys)
+    if eltype(connector_keys) != Symbol
+        connector_keys = Symbol.(connector_keys)
     end
      if isempty(node_components)
         node_components = Symbol[]
@@ -234,11 +234,11 @@ function PowerModelsGraph(data::Dict{String,<:Any},
     if isempty(edge_keys)
         edge_keys = Symbol[]
     end
-    if isempty(connected_keys)
-        connected_keys = Symbol[]
+    if isempty(connector_keys)
+        connector_keys = Symbol[]
     end
 
-    return PowerModelsGraph(data, node_components, edge_components, connected_components, edge_keys, connected_keys)
+    return PowerModelsGraph(data, node_components, edge_components, connected_components, edge_keys, connector_keys)
 end
 
 
