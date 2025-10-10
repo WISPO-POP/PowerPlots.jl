@@ -28,23 +28,22 @@ Pkg> add https://github.com/WISPO-POP/PowerPlots.jl.git
 ## Documentation
 The Documentation is available [here](https://wispo-pop.github.io/PowerPlots.jl/stable/).
 
+## Citing PowerPlots.jl
+If you find PowerPlots.jl useful in you work, we request that you cite the following [publication](https://arxiv.org/pdf/2510.05063)
+
+```
+@article{rhodes2025powerplots,
+  title={PowerPlots: An Open Source Power Grid Visualization and Data Analysis Framework for Academic Research},
+  author={Rhodes, Noah},
+  journal={arXiv preprint arXiv:2510.05063},
+  year={2025}
+}
+```
 
 ## Acknowledgements
 This code has been primarily developed by [Noah Rhodes](https://github.com/noahrhodes) [nrhodes@wisc.edu](mailto:nrhodes@wisc.edu) at the University of Wisconsin-Madison with the help of the following contributors,
  - [Bryan Luu](https://github.com/bryanluu): [bluu@wisc.edu](mailto:bluu@wisc.edu), University of Wisconsin-Madison, plot attribute processing
  - [Joe Gorka](https://github.com/j-gorka): [jgorka@wisc.edu](mailto:jgorka@wisc.edu), University of Wisconsin-Madison, modifying network layout algorithms
-
-## License
-
-
-## PowerPlots v0.1
-The package formerly used the Plots backend, but a major rewrite for v0.2 replaced the backend with VegaLite. To use the previous version with the Plots backend, use:
-
-```julia
-Pkg> add PowerPlots@0.1
-```
-The former documentation is available [here](https://github.com/WISPO-POP/PowerPlots.jl/blob/master/example_plots/)
-
 
 
 
