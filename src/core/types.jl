@@ -114,7 +114,7 @@ mutable struct PowerModelsGraph
                             end
                         end
                         if isnothing(s) || isnothing(d)
-                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) $(keys_in_comp[2]) and nodes $(comp[string(keys_in_comp[1])])")
+                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) and nodes $(comp[string(keys_in_comp[1])])")
                         end
                     end
                     # if 2 keys, one is source, one is destination
