@@ -114,7 +114,7 @@ mutable struct PowerModelsGraph
                             end
                         end
                         if isnothing(s) || isnothing(d)
-                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) and nodes $(comp[string(keys_in_comp[1])])")
+                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) in nodes $(node_components)")
                         end
                     end
                     # if 2 keys, one is source, one is destination
@@ -132,7 +132,7 @@ mutable struct PowerModelsGraph
                             end
                         end
                         if isnothing(s) || isnothing(d)
-                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) $(keys_in_comp[2]) and nodes $(comp[string(keys_in_comp[1])])")
+                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) $(keys_in_comp[2]) in nodes $(node_components)")
                         end
                     end
                     edge_node_array[i_2] = (s,d)
@@ -165,7 +165,7 @@ mutable struct PowerModelsGraph
                         end
                     end
                     if isnothing(s)
-                        error("Could not find node for connected component $comp_type $comp_id with connector key $key_in_comp and node $(comp[string(key_in_comp)])")
+                        error("Could not find node for connected component $comp_type $comp_id with connector key $key_in_comp  in nodes  $(node_components)")
                     end
                     d = comp_node_map[(comp_type,Symbol(comp_id))]
                     edge_node_array[i_3] = (s,d)
