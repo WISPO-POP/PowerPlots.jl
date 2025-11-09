@@ -3,7 +3,7 @@
 const default_connected_types = [:gen,:load,:storage,:generator,:voltage_source,:solar,:shunt]
 const default_node_types = [:bus]
 const default_edge_types = [:branch,:dcline,:switch,:transformer,:line]
-default_edge_keys = [(:f_bus, :t_bus), :bus] # allow either (src,dst) or a single key that refers to [src, dst]
+const default_edge_keys = [(:f_bus, :t_bus), :bus] # allow either (src,dst) or a single key that refers to [src, dst]
 default_connector_keys = [:bus, [Symbol(string(i)*"_bus") for i in default_connected_types]...]
 
 function _get_edge_keys(keys_to_check, comp_keys)
