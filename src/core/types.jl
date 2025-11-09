@@ -28,7 +28,7 @@ function _validate_edge_keys(keys_to_check)
             @assert length(key) == 2 "Edge key tuple $key must be length 2"
             @assert all(k -> k isa Symbol, key) "Edge key tuple $key must contain only Symbols"
         else
-            @assert key isa Symbol error("Edge key $key must be a Symbol or a Tuple of Symbols")
+            @assert key isa Symbol "Edge key $key must be a Symbol or a Tuple of Symbols"
         end
     end
     return nothing
