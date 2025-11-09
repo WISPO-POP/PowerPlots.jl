@@ -43,7 +43,7 @@ function layout_network!(data::Dict{String,<:Any};
     node_components::AbstractArray{Symbol,1} = default_node_types,
     edge_components::AbstractArray{Symbol,1} = default_edge_types,
     connected_components::AbstractArray{Symbol,1} = default_connected_types,
-    edge_keys::AbstractArray{Any,1} = default_edge_keys,
+    edge_keys::AbstractArray{<:Any,1} = default_edge_keys,
     connector_keys::AbstractArray{Symbol,1} = default_connector_keys,
     fixed::Bool = false,
     layout_algorithm = kamada_kawai,

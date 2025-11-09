@@ -102,15 +102,38 @@ mutable struct PowerModelsGraph
                     # if 1 key, check length on value -> requires it to be length two (unique) ids
                     if length(keys_in_comp) == 1
                         @assert length(comp[string(keys_in_comp[1])]) == 2 "One edge key $(keys_in_comp[1]) in component $comp_type $comp_id found. Must refer to two unique nodes. Found nodes: $(comp[string(keys_in_comp[1])])"
-                        s = comp_node_map[(:bus, Symbol(comp[string(keys_in_comp[1])][1]))]
-                        d = comp_node_map[(:bus, Symbol(comp[string(keys_in_comp[1])][2]))]
+
+                        s = nothing
+                        d = nothing
+                        for node_comp_type in node_components
+                            if haskey(comp_node_map, (node_comp_type, Symbol(comp[string(keys_in_comp[1])][1]))) &&
+                               haskey(comp_node_map, (node_comp_type, Symbol(comp[string(keys_in_comp[1])][2])))
+                                s = comp_node_map[(node_comp_type, Symbol(comp[string(keys_in_comp[1])][1]))]
+                                d = comp_node_map[(node_comp_type, Symbol(comp[string(keys_in_comp[1])][2]))]
+                                break
+                            end
+                        end
+                        if isnothing(s) || isnothing(d)
+                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) $(keys_in_comp[2]) and nodes $(comp[string(keys_in_comp[1])])")
+                        end
                     end
                     # if 2 keys, one is source, one is destination
                     if length(keys_in_comp) == 2
                         @assert length(comp[string(keys_in_comp[1])]) == 1 && length(comp[string(keys_in_comp[2])]) == 1 "Two edge keys $(keys_in_comp)"*
                         " in component $comp_type $comp_id found. Each key must refer to a single node. Found nodes: $(comp[string(keys_in_comp[1])]) and $(comp[string(keys_in_comp[2])])"
-                        s = comp_node_map[(:bus, Symbol(comp[string(keys_in_comp[1])][1]))]
-                        d = comp_node_map[(:bus, Symbol(comp[string(keys_in_comp[2])][1]))]
+                        s = nothing
+                        d = nothing
+                        for node_comp_type in node_components
+                            if haskey(comp_node_map, (node_comp_type, Symbol(comp[string(keys_in_comp[1])][1]))) &&
+                               haskey(comp_node_map, (node_comp_type, Symbol(comp[string(keys_in_comp[2])][1])))
+                                s = comp_node_map[(node_comp_type, Symbol(comp[string(keys_in_comp[1])][1]))]
+                                d = comp_node_map[(node_comp_type, Symbol(comp[string(keys_in_comp[2])][1]))]
+                                break
+                            end
+                        end
+                        if isnothing(s) || isnothing(d)
+                            error("Could not find nodes for edge component $comp_type $comp_id with edge keys $(keys_in_comp[1]) $(keys_in_comp[2]) and nodes $(comp[string(keys_in_comp[1])])")
+                        end
                     end
                     edge_node_array[i_2] = (s,d)
                     Graphs.add_edge!(G, s, d)
@@ -134,7 +157,16 @@ mutable struct PowerModelsGraph
                     @assert length(key_in_comp) !=0 "No connected keys found in component $comp_type $comp_id. Searched for keys: $connector_keys"
                     @assert length(key_in_comp) <= 1 "More than one connected key found in component $comp_type $comp_id. Found keys: $keys_in_comp"
                     key_in_comp = key_in_comp[1]
-                    s = comp_node_map[(:bus,Symbol(comp[string(key_in_comp)]))]
+                    s = nothing
+                    for node_comp_type in node_components
+                        if haskey(comp_node_map, (node_comp_type, Symbol(comp[string(key_in_comp)])))
+                            s = comp_node_map[(node_comp_type, Symbol(comp[string(key_in_comp)]))]
+                            break
+                        end
+                    end
+                    if isnothing(s)
+                        error("Could not find node for connected component $comp_type $comp_id with connector key $key_in_comp and node $(comp[string(key_in_comp)])")
+                    end
                     d = comp_node_map[(comp_type,Symbol(comp_id))]
                     edge_node_array[i_3] = (s,d)
                     Graphs.add_edge!(G, s, d)
