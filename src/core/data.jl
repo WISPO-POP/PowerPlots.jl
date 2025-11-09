@@ -8,21 +8,21 @@
              # get all keys in edge that match edge_keys
             keys_in_edge = _get_edge_keys(edge_keys, keys(edge))
             # if no keys, error
-            @assert !isempty(keys_in_edge) "No edge keys found in edgeonent $edge_type $id. Searched for keys: $edge_keys"
+            @assert !isempty(keys_in_edge) "No edge keys found in component $edge_type $id. Searched for keys: $edge_keys"
             # if more than 2 keys, error
-            @assert length(keys_in_edge) <= 1 "More than two edge keys found in edgeonent $edge_type $id. Found keys: $keys_in_edge"
+            @assert length(keys_in_edge) <= 1 "More than two edge keys found in component $edge_type $id. Found keys: $keys_in_edge"
 
             keys_in_edge = keys_in_edge[1] # only one key or tuple of keys allowed
             # if 1 key, check length on value -> requires it to be length two (unique) ids
             if length(keys_in_edge) == 1
-                @assert length(edge[string(keys_in_edge[1])]) == 2 "One edge key $(keys_in_edge[1]) in edgeonent $edge_type $id found. Must refer to two unique nodes. Found nodes: $(edge[string(keys_in_edge[1])])"
+                @assert length(edge[string(keys_in_edge[1])]) == 2 "One edge key $(keys_in_edge[1]) in component $edge_type $id found. Must refer to two unique nodes. Found nodes: $(edge[string(keys_in_edge[1])])"
                 s = edge[string(keys_in_edge[1])][1]
                 d = edge[string(keys_in_edge[1])][2]
             end
             # if 2 keys, one is source, one is destination
             if length(keys_in_edge) == 2
                 @assert length(edge[string(keys_in_edge[1])]) == 1 && length(edge[string(keys_in_edge[2])]) == 1 "Two edge keys $(keys_in_edge)"*
-                " in edgeonent $edge_type $id found. Each key must refer to a single node. Found nodes: $(edge[string(keys_in_edge[1])]) and $(edge[string(keys_in_edge[2])])"
+                " in component $edge_type $id found. Each key must refer to a single node. Found nodes: $(edge[string(keys_in_edge[1])]) and $(edge[string(keys_in_edge[2])])"
                 s = edge[string(keys_in_edge[1])][1]
                 d = edge[string(keys_in_edge[2])][1]
             end
