@@ -2,7 +2,12 @@ using PowerPlots
 using Test
 
 using PowerModels
-# import Ipopt
+import PowerModelsDistribution
+import GasModels
+
+PowerModels.silence()
+PowerModelsDistribution.silence!()
+GasModels.silence()
 
 using Memento
 using Memento.TestUtils
@@ -140,9 +145,9 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         pmg = PowerModelsGraph(case)
         pmg = PowerModelsGraph(case, connected_components=Symbol[])
         pmg = PowerModelsGraph(case, connected_components=[]) # should function with empty components
-        pmg = PowerModelsGraph(case, [:bus], [:branch], [])  # should function with empty components
-        @test_throws(AssertionError, PowerModelsGraph(case, [], [:branch], [])) # must have at least one node type
-        @test_throws(AssertionError, PowerModelsGraph(case, [:bus], [], [])) # must have at least one edge type
+        pmg = PowerModelsGraph(case, [:bus], [:branch], [], default_edge_keys, [])  # should function with empty components
+        @test_throws(AssertionError, PowerModelsGraph(case, [], [:branch], [], default_edge_keys, [])) # must have at least one node type
+        @test_throws(AssertionError, PowerModelsGraph(case, [:bus], [], [], [], [])) # must have at least one edge type
 
     end
 
@@ -193,17 +198,15 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
     end
 
     @testset "Distribution Grids" begin
-        using PowerModelsDistribution
-        PowerModelsDistribution.silence!()
         eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
-        math = transform_data_model(eng)
+        math = PowerModelsDistribution.transform_data_model(eng)
         p = powerplot(math)
         @test true # what do I test here?
         p = powerplot!(p,math)
         @test true
 
         eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/test2_master.dss")
-        math = transform_data_model(eng)
+        math = PowerModelsDistribution.transform_data_model(eng)
         p = powerplot(math)
         @test length(p.layer)==9 # branch, switch, transformer, connector bus, gen, load in figure
 
@@ -211,7 +214,7 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @testset "Multinetwork Distribution Grids" begin
             eng = PowerModelsDistribution.parse_file("$(joinpath(dirname(pathof(PowerModelsDistribution)), ".."))/test/data/opendss/case3_unbalanced.dss")
             eng_mn = PowerModelsDistribution.make_multinetwork(eng)
-            math_mn = transform_data_model(eng_mn)
+            math_mn = PowerModelsDistribution.transform_data_model(eng_mn)
             p = powerplot(math_mn)
             @test true
             pp = powerplot!(p,math_mn)
@@ -277,6 +280,20 @@ data = PowerModels.parse_file("$(joinpath(dirname(pathof(PowerModels)), ".."))/t
         @test length(p.layer[3]["encoding"]["tooltip"]) == 2
         @test length(p.layer[4]["encoding"]["tooltip"]) == 3
         @test length(p.layer[5]["encoding"]["tooltip"]) == 1
+    end
+
+    @testset "GasModels compatibility" begin
+        data = GasModels.parse_file(joinpath(dirname(pathof(GasModels)), "..", "test/data/matgas/case-6.m"))
+
+        p = powerplot(data,
+            node_components=[:junction],
+            edge_components=[:compressor, :pipe],
+            connected_components=[:receipt, :delivery],
+            edge_keys = [(:to_junction, :fr_junction)],
+            connector_keys = [:junction_id],
+        )
+        @test true # what to test here?
+
     end
 
 end
