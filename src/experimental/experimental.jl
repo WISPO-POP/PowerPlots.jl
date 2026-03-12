@@ -61,7 +61,7 @@ module Experimental
         # create lat/lon channels from x/y channels
         for i in 1:length(plot.layer)
             if haskey(plot.layer[i],"layer")
-                _set_geo_coords!(plot.layer[1])
+                _set_geo_coords!(plot.layer[i])
             else
                 if haskey(plot.layer[i], "encoding")
                     plot.layer[i]["encoding"]["longitude"] = plot.layer[i]["encoding"]["x"]
